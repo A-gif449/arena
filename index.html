@@ -123,6 +123,7 @@
   @media(max-width:860px){ .topbar-inner{padding:12px 14px;} }
   .topbar-brand{display:flex; align-items:center; gap:8px; font-family:'Newsreader',serif; font-weight:600; font-size:1.1rem;}
   .topbar-brand .mark{color:var(--mark);}
+  .topbar-right{display:flex; align-items:center; gap:10px;}
 
   .notif-wrap{position:relative;}
   .bell-btn{position:relative; background:var(--paper-raised); border:1px solid var(--rule); width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.05rem;}
@@ -143,6 +144,40 @@
   .notif-item .notif-text{flex:1; font-size:0.84rem; line-height:1.4;}
   .notif-item .notif-time{font-size:0.7rem; color:var(--dim); flex-shrink:0; white-space:nowrap;}
   .notif-empty{padding:28px 14px; text-align:center; color:var(--dim); font-size:0.84rem;}
+
+  /* ================= PROFILE MENU (top right) ================= */
+  .profile-menu-wrap{position:relative;}
+  .profile-trigger{
+    display:flex; align-items:center; gap:9px; background:var(--paper-raised); border:1px solid var(--rule);
+    border-radius:var(--radius-pill); padding:5px 12px 5px 5px; transition:border-color .12s ease, background .12s ease;
+  }
+  .profile-trigger:hover{border-color:var(--info);}
+  .profile-trigger .pt-id{display:flex; flex-direction:column; align-items:flex-start; line-height:1.25;}
+  .profile-trigger .pt-name{font-size:0.82rem; font-weight:600; color:var(--ivory); max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .profile-trigger .pt-role{font-size:0.68rem; color:var(--dim);}
+  .profile-trigger .pt-role.admin-role{color:var(--mark);}
+  .profile-trigger .pt-chevron{color:var(--dim); font-size:0.6rem; margin-left:2px; transition:transform .15s ease;}
+  .profile-trigger.open .pt-chevron{transform:rotate(180deg);}
+  @media(max-width:520px){ .profile-trigger .pt-id{display:none;} .profile-trigger{padding:0; border-radius:50%; background:none; border:none;} }
+
+  .profile-dropdown{
+    position:absolute; top:52px; right:0; width:248px; background:var(--paper-raised); border:1px solid var(--rule);
+    border-radius:12px; box-shadow:0 16px 40px rgba(0,0,0,0.45); display:none; flex-direction:column; overflow:hidden; z-index:60;
+  }
+  .profile-dropdown.open{display:flex;}
+  .pd-head{display:flex; align-items:center; gap:10px; padding:14px 14px 12px; border-bottom:1px solid var(--rule);}
+  .pd-head .pd-name{font-size:0.88rem; font-weight:600; color:var(--ivory); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .pd-head .pd-email{font-size:0.72rem; color:var(--dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .pd-actions{display:flex; flex-direction:column; padding:6px;}
+  .pd-action{
+    display:flex; align-items:center; gap:10px; background:none; border:none; text-align:left; color:var(--ivory);
+    font-size:0.85rem; padding:9px 10px; border-radius:8px; width:100%;
+  }
+  .pd-action:hover{background:var(--paper);}
+  .pd-action .pd-icon{width:16px; text-align:center; flex-shrink:0; opacity:0.85;}
+  .pd-action.danger{color:var(--alert);}
+  .pd-action.danger:hover{background:var(--alert-dim);}
+  .pd-divider{border:none; border-top:1px solid var(--rule); margin:5px 8px;}
 
   /* ================= APP SHELL ================= */
   #appRoot{display:none;}
@@ -181,17 +216,15 @@
     padding:9px 10px; border-radius:var(--radius-input); font-size:0.84rem;
   }
 
-  .authbox{background:var(--paper); border:1px solid var(--rule); border-radius:var(--radius-card); padding:14px 16px; display:flex; flex-direction:column; gap:10px;}
-  .authbox .whoami{display:flex; align-items:center; gap:10px;}
   .avatar{width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--paper-raised); border:1px solid var(--rule); font-weight:600; font-size:0.8rem; color:var(--ivory); flex-shrink:0; overflow:hidden; position:relative;}
   .avatar img{width:100%; height:100%; object-fit:cover; display:block;}
   .avatar.admin{background:var(--mark-dim); border-color:var(--mark); color:var(--mark);}
   .avatar.big{width:64px; height:64px; font-size:1.3rem;}
   .avatar-btn{background:none; border:none; padding:0; cursor:pointer; flex-shrink:0; position:relative;}
-  .avatar-btn .avatar{width:44px; height:44px; font-size:1rem;}
+  .avatar-btn .avatar{width:38px; height:38px; font-size:0.92rem;}
   .avatar-btn .avatar-edit{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    background:rgba(6,8,16,0.55); color:var(--ivory); font-size:0.62rem; opacity:0; transition:opacity .12s ease;
+    background:rgba(6,8,16,0.55); color:var(--ivory); font-size:0.58rem; opacity:0; transition:opacity .12s ease;
     border-radius:50%;
   }
   .avatar-btn:hover .avatar-edit{opacity:1;}
@@ -336,7 +369,7 @@
   .confetti-piece{position:fixed; width:6px; height:6px; z-index:90; pointer-events:none; animation:confetti-fly .8s ease-out forwards;}
   @keyframes confetti-fly{ to{ transform:translate(var(--dx),var(--dy)) rotate(var(--rot)); opacity:0; } }
 
-  @media(max-width:520px){ .qtext{font-size:1.08rem;} .qcard{padding:15px;} .notif-panel{width:280px; right:-8px;} }
+  @media(max-width:520px){ .qtext{font-size:1.08rem;} .qcard{padding:15px;} .notif-panel{width:280px; right:-8px;} .profile-dropdown{width:220px; right:-8px;} }
 </style>
 </head>
 <body>
@@ -392,19 +425,22 @@
 <div class="topbar">
   <div class="topbar-inner">
     <div class="topbar-brand"><span class="mark">📝</span> Arena</div>
-    <div class="notif-wrap">
-      <button class="bell-btn" id="bellBtn" title="Notifications">
-        🔔<span class="notif-badge" id="notifBadge">0</span>
-      </button>
-      <div class="notif-panel" id="notifPanel">
-        <div class="notif-head">
-          <span>Notifications</span>
-          <button class="link-btn" id="markAllReadBtn">Mark all read</button>
-        </div>
-        <div class="notif-list" id="notifList">
-          <div class="notif-empty">You're all caught up.</div>
+    <div class="topbar-right">
+      <div class="notif-wrap">
+        <button class="bell-btn" id="bellBtn" title="Notifications">
+          🔔<span class="notif-badge" id="notifBadge">0</span>
+        </button>
+        <div class="notif-panel" id="notifPanel">
+          <div class="notif-head">
+            <span>Notifications</span>
+            <button class="link-btn" id="markAllReadBtn">Mark all read</button>
+          </div>
+          <div class="notif-list" id="notifList">
+            <div class="notif-empty">You're all caught up.</div>
+          </div>
         </div>
       </div>
+      <div class="profile-menu-wrap" id="profileMenuWrap"></div>
     </div>
   </div>
 </div>
@@ -431,8 +467,6 @@
         <option value="discussed">Most discussed</option>
       </select>
     </div>
-
-    <div class="authbox" id="authBox"></div>
   </aside>
 
   <main>
@@ -604,6 +638,7 @@ let editingId = null;
 let currentProfileUid = null;
 let usersCache = {};
 let loadingUsers = new Set();
+let profileMenuOpen = false;
 
 // qid -> unsubscribe function for that question's comments listener.
 // Fixes the perf bug: without this map we'd register a brand new
@@ -776,22 +811,58 @@ function resizeImageToDataURL(file, size){
   });
 }
 
-/* ---------------- auth box (sidebar) ---------------- */
+/* ---------------- profile menu (top right, in topbar) ---------------- */
 function updateAuthUI(){
-  const box = document.getElementById("authBox");
+  const wrap = document.getElementById("profileMenuWrap");
   const initials = (myName||"?").split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
   const avatarInner = myPhoto ? `<img src="${myPhoto}" alt="">` : initials;
-  box.innerHTML = `
-    <div class="whoami">
-      <button class="avatar-btn" id="avatarBtn" data-openprofile="${uid}" title="View your profile">
-        <div class="avatar ${isAdmin?'admin':''}">${avatarInner}<span class="avatar-edit">Profile</span></div>
-      </button>
-      <div><div class="name">${escapeHtml(myName||"")}</div><div class="role ${isAdmin?'admin-role':''}">${isAdmin?'Admin':'Solver'}</div></div>
-    </div>
-    ${isAdmin ? `<button class="btn-ghost btn-block" id="adminPanelBtn">Admin panel</button>` : ""}
-    <button class="btn-ghost btn-block" id="logoutBtn">Log out</button>`;
-  document.getElementById("logoutBtn").onclick = () => signOut(auth);
-  if (isAdmin) document.getElementById("adminPanelBtn").onclick = () => adminOverlay.classList.add("open");
+  wrap.innerHTML = `
+    <button class="profile-trigger ${profileMenuOpen?'open':''}" id="profileTrigger" title="Account menu">
+      <div class="avatar ${isAdmin?'admin':''}" style="width:32px;height:32px;font-size:0.78rem;">${avatarInner}</div>
+      <span class="pt-id">
+        <span class="pt-name">${escapeHtml(myName||"")}</span>
+        <span class="pt-role ${isAdmin?'admin-role':''}">${isAdmin?'Admin':'Solver'}</span>
+      </span>
+      <span class="pt-chevron">▼</span>
+    </button>
+    <div class="profile-dropdown ${profileMenuOpen?'open':''}" id="profileDropdown">
+      <div class="pd-head">
+        <div class="avatar ${isAdmin?'admin':''}">${avatarInner}</div>
+        <div style="min-width:0;">
+          <div class="pd-name">${escapeHtml(myName||"")}</div>
+          <div class="pd-email">${escapeHtml(myEmail||"")}</div>
+        </div>
+      </div>
+      <div class="pd-actions">
+        <button class="pd-action" id="pdViewProfile"><span class="pd-icon">👤</span> View profile</button>
+        ${isAdmin ? `<button class="pd-action" id="pdAdminPanel"><span class="pd-icon">🛠️</span> Admin panel</button>` : ""}
+        <hr class="pd-divider">
+        <button class="pd-action danger" id="pdLogout"><span class="pd-icon">↪</span> Log out</button>
+      </div>
+    </div>`;
+
+  document.getElementById("profileTrigger").onclick = (e) => {
+    e.stopPropagation();
+    profileMenuOpen = !profileMenuOpen;
+    document.getElementById("notifPanel").classList.remove("open");
+    document.getElementById("profileTrigger").classList.toggle("open", profileMenuOpen);
+    document.getElementById("profileDropdown").classList.toggle("open", profileMenuOpen);
+  };
+  document.getElementById("pdViewProfile").onclick = () => {
+    closeProfileMenu();
+    openProfile(uid);
+  };
+  document.getElementById("pdLogout").onclick = () => { closeProfileMenu(); signOut(auth); };
+  if (isAdmin){
+    document.getElementById("pdAdminPanel").onclick = () => { closeProfileMenu(); adminOverlay.classList.add("open"); };
+  }
+}
+function closeProfileMenu(){
+  profileMenuOpen = false;
+  const trig = document.getElementById("profileTrigger");
+  const dd = document.getElementById("profileDropdown");
+  if (trig) trig.classList.remove("open");
+  if (dd) dd.classList.remove("open");
 }
 
 /* ---------------- live feed ---------------- */
@@ -1470,12 +1541,18 @@ function renderNotifications(){
 
 document.getElementById("bellBtn").onclick = (e) => {
   e.stopPropagation();
+  closeProfileMenu();
   document.getElementById("notifPanel").classList.toggle("open");
 };
 document.addEventListener("click", (e) => {
   const panel = document.getElementById("notifPanel");
   if (panel.classList.contains("open") && !panel.contains(e.target) && e.target.id !== "bellBtn"){
     panel.classList.remove("open");
+  }
+  const dd = document.getElementById("profileDropdown");
+  const trig = document.getElementById("profileTrigger");
+  if (dd && dd.classList.contains("open") && !dd.contains(e.target) && (!trig || !trig.contains(e.target))){
+    closeProfileMenu();
   }
 });
 document.getElementById("markAllReadBtn").onclick = async (e) => {
