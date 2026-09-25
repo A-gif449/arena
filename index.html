@@ -1,0 +1,1488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Arena — GATE Aptitude Practice</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,500&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0e1320;
+    --paper:#161d2f;
+    --paper-raised:#1e2740;
+    --rule:#2b3554;
+    --ivory:#eceef5;
+    --dim:#8891ae;
+
+    --mark:#ffb020;      --mark-dim:#3a2c10;
+    --verified:#33c48f;  --verified-dim:#12301f;
+    --alert:#f2665f;     --alert-dim:#3a1a1a;
+    --info:#5fb4e8;      --info-dim:#122b3a;
+
+    --radius-card:8px;
+    --radius-pill:999px;
+    --radius-input:6px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--ivory);
+    font-family:'IBM Plex Sans',sans-serif;
+    min-height:100vh;
+    line-height:1.55;
+  }
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .display{font-family:'Newsreader',serif;}
+  a{color:inherit;}
+  button, select, textarea, input{font-family:inherit;}
+  :focus-visible{outline:2px solid var(--info);outline-offset:2px;}
+  @media (prefers-reduced-motion: reduce){
+    *{animation-duration:0.01ms !important; transition-duration:0.01ms !important;}
+  }
+  button{cursor:pointer;}
+  hr.rule{border:none; border-top:1px solid var(--rule); margin:0;}
+
+  /* ================= AUTH GATE ================= */
+  #authGate{
+    position:fixed; inset:0; z-index:100; background:var(--ink);
+    display:grid; grid-template-columns:1.1fr 1fr;
+    overflow-y:auto;
+  }
+  @media(max-width:840px){ #authGate{grid-template-columns:1fr;} }
+
+  .gate-hero{
+    padding:56px 52px; display:flex; flex-direction:column; justify-content:space-between;
+    background:
+      linear-gradient(180deg, rgba(255,176,32,0.06), transparent 40%),
+      var(--paper);
+    border-right:1px solid var(--rule);
+    min-height:100vh;
+  }
+  @media(max-width:840px){ .gate-hero{border-right:none; border-bottom:1px solid var(--rule); min-height:auto; padding:40px 28px;} }
+  .gate-brand{display:flex; align-items:center; gap:10px; font-family:'Newsreader',serif; font-weight:600; font-size:1.3rem;}
+  .gate-brand .mark{color:var(--mark);}
+  .gate-hero h1{
+    font-family:'Newsreader',serif; font-weight:600; font-size:clamp(2.1rem,4.2vw,3.1rem);
+    line-height:1.12; margin:48px 0 18px; max-width:14ch; letter-spacing:-0.01em;
+  }
+  .gate-hero p.lede{color:var(--dim); font-size:1rem; max-width:42ch; margin:0 0 40px;}
+  .gate-ticker{display:flex; gap:36px; flex-wrap:wrap;}
+  .gate-ticker .t{display:flex; flex-direction:column; gap:4px;}
+  .gate-ticker .tnum{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:1.4rem; color:var(--mark);}
+  .gate-ticker .tlabel{color:var(--dim); font-size:0.78rem;}
+  .gate-foot{color:var(--dim); font-size:0.78rem; margin-top:40px;}
+
+  .gate-panel{display:flex; align-items:center; justify-content:center; padding:40px 28px;}
+  .ticket{
+    width:100%; max-width:400px; background:var(--paper); border:1px solid var(--rule);
+    border-radius:12px; position:relative; overflow:hidden;
+  }
+  .ticket-strip{
+    background:var(--paper-raised); border-bottom:1px dashed var(--rule);
+    padding:18px 26px; display:flex; align-items:center; justify-content:space-between;
+  }
+  .ticket-strip .label{font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--dim);}
+  .ticket-strip .serial{font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--mark);}
+  .ticket-tabs{display:flex; border-bottom:1px solid var(--rule);}
+  .ticket-tabs button{
+    flex:1; background:none; border:none; color:var(--dim); font-weight:600; font-size:0.9rem;
+    padding:16px 0; border-bottom:2px solid transparent;
+  }
+  .ticket-tabs button.active{color:var(--ivory); border-bottom-color:var(--mark);}
+  .ticket-body{padding:26px;}
+  .ticket-body .field{margin-bottom:16px;}
+  .ticket-body label{display:block; font-size:0.8rem; color:var(--dim); margin-bottom:6px;}
+  .ticket-body input{
+    width:100%; background:var(--ink); border:1px solid var(--rule); border-radius:var(--radius-input);
+    color:var(--ivory); padding:11px 12px; font-size:0.92rem;
+  }
+  .ticket-body input:focus{border-color:var(--info);}
+  .gate-submit{
+    width:100%; background:var(--mark); color:#1c1206; border:none; font-weight:700; font-size:0.94rem;
+    padding:12px; border-radius:var(--radius-input); margin-top:6px; transition:filter .12s ease;
+  }
+  .gate-submit:hover{filter:brightness(1.06);}
+  .gate-submit:disabled{opacity:0.55;}
+  .gate-error{color:var(--alert); font-size:0.82rem; margin-top:10px; min-height:1em;}
+  .gate-switch{color:var(--dim); font-size:0.82rem; margin-top:16px; text-align:center;}
+  .gate-switch button{background:none; border:none; color:var(--info); font-size:0.82rem; padding:0;}
+  .stamp{
+    position:absolute; top:64px; right:-34px; transform:rotate(20deg); pointer-events:none;
+    border:2px solid var(--verified); color:var(--verified); font-family:'IBM Plex Mono',monospace;
+    font-weight:600; font-size:0.68rem; padding:5px 40px; border-radius:4px; opacity:0;
+  }
+  .stamp.show{animation:stamp-in .45s cubic-bezier(.2,1.3,.4,1) forwards;}
+  @keyframes stamp-in{ from{opacity:0; transform:rotate(20deg) scale(1.7);} to{opacity:0.9; transform:rotate(20deg) scale(1);} }
+
+  /* ================= TOP BAR ================= */
+  .topbar{border-bottom:1px solid var(--rule); background:var(--paper); position:sticky; top:0; z-index:40;}
+  .topbar-inner{max-width:1180px; margin:0 auto; padding:14px 24px; display:flex; align-items:center; justify-content:space-between;}
+  @media(max-width:860px){ .topbar-inner{padding:12px 14px;} }
+  .topbar-brand{display:flex; align-items:center; gap:8px; font-family:'Newsreader',serif; font-weight:600; font-size:1.1rem;}
+  .topbar-brand .mark{color:var(--mark);}
+
+  .notif-wrap{position:relative;}
+  .bell-btn{position:relative; background:var(--paper-raised); border:1px solid var(--rule); width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.05rem;}
+  .bell-btn:hover{border-color:var(--info);}
+  .notif-badge{position:absolute; top:-4px; right:-4px; background:var(--alert); color:#2a0d0d; font-family:'IBM Plex Mono',monospace; font-size:0.62rem; font-weight:700; min-width:16px; height:16px; border-radius:9px; display:none; align-items:center; justify-content:center; padding:0 4px; border:1px solid var(--paper);}
+  .notif-badge.show{display:flex;}
+  .notif-panel{position:absolute; top:48px; right:0; width:320px; max-height:400px; background:var(--paper-raised); border:1px solid var(--rule); border-radius:10px; box-shadow:0 12px 32px rgba(0,0,0,0.4); display:none; flex-direction:column; overflow:hidden; z-index:60;}
+  .notif-panel.open{display:flex;}
+  .notif-head{display:flex; align-items:center; justify-content:space-between; padding:12px 14px; border-bottom:1px solid var(--rule); font-size:0.84rem; font-weight:600;}
+  .link-btn{background:none; border:none; color:var(--info); font-size:0.76rem; padding:0;}
+  .link-btn:hover{text-decoration:underline;}
+  .notif-list{overflow-y:auto; max-height:340px; display:flex; flex-direction:column;}
+  .notif-item{display:flex; align-items:flex-start; gap:8px; width:100%; text-align:left; background:none; border:none; border-bottom:1px solid var(--rule); padding:11px 14px; color:var(--ivory);}
+  .notif-item:last-child{border-bottom:none;}
+  .notif-item:hover{background:var(--paper);}
+  .notif-item .notif-dot{width:7px; height:7px; border-radius:50%; background:transparent; margin-top:6px; flex-shrink:0;}
+  .notif-item.unread .notif-dot{background:var(--info);}
+  .notif-item .notif-text{flex:1; font-size:0.84rem; line-height:1.4;}
+  .notif-item .notif-time{font-size:0.7rem; color:var(--dim); flex-shrink:0; white-space:nowrap;}
+  .notif-empty{padding:28px 14px; text-align:center; color:var(--dim); font-size:0.84rem;}
+
+  /* ================= APP SHELL ================= */
+  #appRoot{display:none;}
+  .shell{
+    max-width:1180px; margin:0 auto; padding:26px 24px 140px;
+    display:grid; grid-template-columns:250px 1fr; gap:26px; align-items:start;
+  }
+  @media(max-width:860px){ .shell{grid-template-columns:1fr; padding:16px 14px 120px;} }
+
+  .sidebar{position:sticky; top:82px; display:flex; flex-direction:column; gap:18px;}
+  @media(max-width:860px){ .sidebar{position:static;} }
+
+  .logo h1{display:flex; align-items:center; gap:9px; font-family:'Newsreader',serif; font-weight:600; font-size:1.5rem; margin:0;}
+  .logo .mark{color:var(--mark);}
+  .logo p{margin:8px 0 0; color:var(--dim); font-size:0.85rem; max-width:30ch;}
+
+  .statpanel{background:var(--paper); border:1px solid var(--rule); border-radius:var(--radius-card); padding:14px 16px; display:flex; flex-direction:column; gap:8px;}
+  .statpanel .srow{display:flex; justify-content:space-between; align-items:baseline;}
+  .statpanel .snum{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:1.15rem; color:var(--mark);}
+  .statpanel .slabel{color:var(--dim); font-size:0.76rem;}
+
+  .topicnav{display:flex; flex-direction:row; flex-wrap:wrap; gap:8px;}
+  @media(min-width:861px){ .topicnav{flex-direction:column;} }
+  .topicbtn{
+    text-align:left; padding:9px 13px; border-radius:6px; border:1px solid var(--rule);
+    border-left:3px solid var(--rule);
+    background:var(--paper); color:var(--dim); font-size:0.88rem; font-weight:500;
+    transition:border-color .12s ease, color .12s ease;
+  }
+  .topicbtn:hover{color:var(--ivory);}
+  .topicbtn.active{border-left-color:var(--mark); color:var(--ivory); background:var(--paper-raised);}
+
+  .sortwrap label{display:block; font-size:0.76rem; color:var(--dim); margin-bottom:6px;}
+  select#sortSel, .adminToggleRow select{
+    width:100%; background:var(--paper); border:1px solid var(--rule); color:var(--ivory);
+    padding:9px 10px; border-radius:var(--radius-input); font-size:0.84rem;
+  }
+
+  .authbox{background:var(--paper); border:1px solid var(--rule); border-radius:var(--radius-card); padding:14px 16px; display:flex; flex-direction:column; gap:10px;}
+  .authbox .whoami{display:flex; align-items:center; gap:10px;}
+  .avatar{width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--paper-raised); border:1px solid var(--rule); font-weight:600; font-size:0.8rem; color:var(--ivory); flex-shrink:0; overflow:hidden; position:relative;}
+  .avatar img{width:100%; height:100%; object-fit:cover; display:block;}
+  .avatar.admin{background:var(--mark-dim); border-color:var(--mark); color:var(--mark);}
+  .avatar.big{width:64px; height:64px; font-size:1.3rem;}
+  .avatar-btn{background:none; border:none; padding:0; cursor:pointer; flex-shrink:0; position:relative;}
+  .avatar-btn .avatar{width:44px; height:44px; font-size:1rem;}
+  .avatar-btn .avatar-edit{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    background:rgba(6,8,16,0.55); color:var(--ivory); font-size:0.62rem; opacity:0; transition:opacity .12s ease;
+    border-radius:50%;
+  }
+  .avatar-btn:hover .avatar-edit{opacity:1;}
+  .whoami .name{font-size:0.87rem; font-weight:600;}
+  .whoami .role{font-size:0.72rem; color:var(--dim);}
+  .role.admin-role{color:var(--mark);}
+  .btn-primary{background:var(--mark); color:#1c1206; border:none; padding:10px 16px; border-radius:var(--radius-input); font-weight:700; font-size:0.88rem; transition:filter .12s ease;}
+  .btn-primary:hover{filter:brightness(1.06);}
+  .btn-primary:disabled{opacity:0.55; cursor:default;}
+  .btn-ghost{background:transparent; border:1px solid var(--rule); color:var(--ivory); padding:9px 14px; border-radius:var(--radius-input); font-size:0.84rem;}
+  .btn-ghost:hover{border-color:var(--info); color:var(--info);}
+  .btn-block{width:100%;}
+  .btn-icon{background:none; border:1px solid var(--rule); color:var(--dim); font-size:0.86rem; padding:5px 8px; border-radius:6px;}
+  .btn-icon:hover{color:var(--ivory); border-color:var(--info);}
+  .btn-icon.danger:hover{color:var(--alert); border-color:var(--alert);}
+
+  main{display:flex; flex-direction:column; gap:16px;}
+  .feedhead{display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .feedhead h2{font-family:'Newsreader',serif; font-size:1.28rem; margin:0; font-weight:600;}
+  .feedhead .tagline{color:var(--dim); font-size:0.84rem;}
+  .empty{color:var(--dim); text-align:center; padding:64px 20px; font-size:0.94rem; background:var(--paper); border:1px dashed var(--rule); border-radius:var(--radius-card);}
+
+  .qcard{background:var(--paper); border:1px solid var(--rule); border-left:3px solid var(--rule); border-radius:var(--radius-card); padding:18px 20px; display:flex; gap:16px; transition:outline .3s ease;}
+  .qcard.diff-easy{border-left-color:var(--verified);}
+  .qcard.diff-medium{border-left-color:var(--mark);}
+  .qcard.diff-hard{border-left-color:var(--alert);}
+  .qcard.answered{background:var(--paper-raised);}
+  .qcard.flagged{outline:1px solid var(--alert);}
+  .qcard.highlight{outline:2px solid var(--info); outline-offset:2px;}
+
+  .voterail{display:flex; flex-direction:column; align-items:center; gap:2px; flex-shrink:0; width:40px;}
+  .vrbtn{background:none; border:none; color:var(--dim); font-size:1.1rem; padding:4px; border-radius:6px; line-height:1;}
+  .vrbtn:hover{background:var(--paper-raised); color:var(--ivory);}
+  .vrbtn.up.active{color:var(--verified);}
+  .vrbtn.down.active{color:var(--alert);}
+  .vrcount{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:1.05rem; transition:transform .2s ease;}
+  .vrcount.bump{animation:bump .3s ease;}
+  @keyframes bump{ 0%{transform:scale(1);} 40%{transform:scale(1.3);} 100%{transform:scale(1);} }
+
+  .qbody{flex:1; min-width:0;}
+  .qtop{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px;}
+  .pill{padding:3px 9px; border-radius:4px; font-size:0.72rem; font-weight:600; border:1px solid var(--rule); color:var(--dim);}
+  .pill.easy{color:var(--verified);} .pill.medium{color:var(--mark);} .pill.hard{color:var(--alert);}
+  .pill.hot{color:var(--mark); border-color:var(--mark);}
+  .pill.tag{color:var(--info); border-color:var(--info-dim);}
+  .pill.flag{color:var(--alert); border-color:var(--alert);}
+  .qtime{margin-left:auto; color:var(--dim); font-size:0.76rem;}
+
+  .qtext{font-family:'Newsreader',serif; font-size:1.22rem; font-weight:600; line-height:1.42; margin:0 0 14px;}
+
+  .opt{display:flex; align-items:center; gap:12px; padding:11px 13px; border:1px solid var(--rule); border-radius:6px; margin-bottom:8px; cursor:pointer; position:relative; overflow:hidden;}
+  .opt:hover{border-color:var(--info);}
+  .opt .letter{width:24px; height:24px; border-radius:4px; border:1px solid var(--rule); display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:0.74rem; flex-shrink:0; z-index:1;}
+  .opt .otext{z-index:1; font-size:0.94rem;}
+  .opt .bar{position:absolute; left:0; top:0; bottom:0; background:var(--paper-raised); width:0%; transition:width .5s ease;}
+  .opt .pct{margin-left:auto; font-family:'IBM Plex Mono',monospace; font-size:0.76rem; color:var(--dim); z-index:1;}
+  .opt.correct{border-color:var(--verified);} .opt.correct .letter{border-color:var(--verified); color:var(--verified);}
+  .opt.chosen-wrong{border-color:var(--alert);} .opt.chosen-wrong .letter{border-color:var(--alert); color:var(--alert);}
+  .opt.locked{cursor:default;}
+
+  .qfooter{display:flex; align-items:center; gap:8px; margin-top:8px; flex-wrap:wrap;}
+  .toggle-comments{background:none; border:none; color:var(--dim); font-size:0.82rem; padding:4px 0;}
+  .toggle-comments:hover{color:var(--info);}
+  .footer-spacer{flex:1;}
+
+  .comments{margin-top:12px; border-top:1px solid var(--rule); padding-top:12px; display:flex; flex-direction:column; gap:10px;}
+  .comment{display:flex; gap:10px;}
+  .comment .ctext{flex:1; font-size:0.9rem;}
+  .comment .cmeta{display:flex; align-items:center; gap:8px; margin-top:4px; flex-wrap:wrap;}
+  .cbadge{font-size:0.68rem; padding:2px 8px; border-radius:4px; font-weight:600; border:1px solid var(--rule); color:var(--dim);}
+  .cbadge.doubt{color:var(--mark);} .cbadge.explanation{color:var(--verified);} .cbadge.correction{color:var(--alert);}
+  .cauthor{color:var(--dim); font-size:0.74rem; font-family:'IBM Plex Mono',monospace;}
+  .cauthor:hover{color:var(--info);}
+  .cauthor.admin-tag{color:var(--mark);}
+  .ctime{color:var(--dim); font-size:0.74rem;}
+
+  .vote.small{display:flex; align-items:center; gap:4px; border:1px solid var(--rule); border-radius:var(--radius-pill); padding:2px 6px; flex-shrink:0;}
+  .vote.small .vbtn{background:none; border:none; color:var(--dim); font-size:0.82rem; padding:1px 4px; line-height:1;}
+  .vote.small .vbtn.up.active{color:var(--verified);} .vote.small .vbtn.down.active{color:var(--alert);}
+  .vote.small .vcount{font-family:'IBM Plex Mono',monospace; font-size:0.75rem; min-width:14px; text-align:center;}
+
+  .composer{display:flex; gap:8px; align-items:flex-start; flex-wrap:wrap;}
+  .composer select{background:var(--ink); border:1px solid var(--rule); color:var(--ivory); border-radius:var(--radius-input); padding:9px 8px; font-size:0.8rem; flex-shrink:0;}
+  .composer textarea{flex:1; min-width:160px; min-height:42px; resize:vertical; background:var(--ink); border:1px solid var(--rule); border-radius:var(--radius-input); color:var(--ivory); padding:10px; font-size:0.9rem;}
+
+  .mini-avatar-btn{width:20px; height:20px; border-radius:50%; overflow:hidden; background:var(--paper-raised); border:1px solid var(--rule); padding:0; display:flex; align-items:center; justify-content:center; font-size:0.56rem; font-weight:600; color:var(--ivory); flex-shrink:0;}
+  .mini-avatar-btn.admin{border-color:var(--mark); color:var(--mark);}
+  .mini-avatar-btn img{width:100%; height:100%; object-fit:cover; display:block;}
+  .mini-avatar-btn:hover{border-color:var(--info);}
+  .linklike{background:none; border:none; padding:0; font:inherit; cursor:pointer;}
+  .cauthor-line, .qauthor-line{display:inline-flex; align-items:center; gap:6px;}
+  .qauthor-name{font-family:'IBM Plex Mono',monospace; font-size:0.76rem; color:var(--dim);}
+  .qauthor-name:hover{color:var(--info);}
+
+  .fab{position:fixed; right:26px; bottom:26px; width:56px; height:56px; border-radius:50%; background:var(--mark); color:#1c1206; border:none; font-size:1.6rem; font-weight:700; box-shadow:0 6px 20px rgba(255,176,32,0.28); display:flex; align-items:center; justify-content:center;}
+  .fab:hover{filter:brightness(1.06);}
+
+  .overlay{position:fixed; inset:0; background:rgba(6,8,16,0.78); display:none; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto; z-index:50;}
+  .overlay.open{display:flex;}
+  .modal{background:var(--paper); border:1px solid var(--rule); border-radius:var(--radius-card); max-width:560px; width:100%; padding:26px;}
+  .modal h2{font-family:'Newsreader',serif; margin:0 0 18px; font-size:1.32rem; font-weight:600;}
+  .modal p.hint{color:var(--dim); font-size:0.84rem; margin:-10px 0 18px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:0.78rem; color:var(--dim); margin-bottom:6px;}
+  .field input[type=text], .field input[type=email], .field textarea, .field select{
+    width:100%; background:var(--ink); border:1px solid var(--rule); border-radius:var(--radius-input); color:var(--ivory); padding:10px; font-size:0.9rem;
+  }
+  .field textarea{min-height:70px; resize:vertical;}
+  .row2{display:flex; gap:10px;} .row2 .field{flex:1;}
+  .type-toggle{display:flex; gap:8px; margin-bottom:14px;}
+  .type-toggle button{flex:1; padding:9px; border-radius:var(--radius-input); border:1px solid var(--rule); background:transparent; color:var(--dim); font-size:0.85rem;}
+  .type-toggle button.active{border-color:var(--mark); color:var(--mark); background:var(--mark-dim);}
+  .mcq-opt-row{display:flex; align-items:center; gap:8px; margin-bottom:8px;}
+  .mcq-opt-row input[type=text]{flex:1;}
+  .chipwrap{display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;}
+  .chip{display:flex; align-items:center; gap:6px; background:var(--info-dim); color:var(--info); padding:4px 10px; border-radius:var(--radius-pill); font-size:0.78rem;}
+  .chip button{background:none; border:none; color:var(--info); font-size:0.85rem; padding:0;}
+  .modal-actions{display:flex; justify-content:flex-end; gap:10px; margin-top:16px; align-items:center;}
+  .form-error{color:var(--alert); font-size:0.82rem; margin-right:auto;}
+
+  .profile-head{display:flex; gap:16px; align-items:center; margin-bottom:16px;}
+  .profile-avatar-wrap{display:flex; flex-direction:column; align-items:center; gap:8px; flex-shrink:0;}
+  .profile-photo-btn{padding:6px 10px; font-size:0.74rem;}
+  .profile-id{flex:1; min-width:0;}
+  .profile-id h2{font-family:'Newsreader',serif; font-size:1.3rem; margin:0;}
+  .profile-id .field{margin-bottom:8px;}
+  .profile-stats{display:flex; gap:10px;}
+  .pstat{flex:1; background:var(--paper-raised); border:1px solid var(--rule); border-radius:8px; padding:10px; text-align:center;}
+  .pstat .pnum{display:block; font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:1.15rem; color:var(--mark);}
+  .pstat .plabel{font-size:0.7rem; color:var(--dim);}
+  .profile-section-title{font-size:0.8rem; color:var(--dim); margin-bottom:8px; font-weight:600;}
+  .profile-list{display:flex; flex-direction:column; gap:6px; max-height:220px; overflow-y:auto;}
+  .profile-list-item{text-align:left; background:var(--ink); border:1px solid var(--rule); border-radius:6px; padding:9px 11px; font-size:0.84rem; color:var(--ivory);}
+  .profile-list-item:hover{border-color:var(--info);}
+  .profile-empty{color:var(--dim); font-size:0.84rem; padding:8px 0;}
+
+  #toastWrap{position:fixed; bottom:22px; left:22px; display:flex; flex-direction:column; gap:8px; z-index:80;}
+  .toast{background:var(--paper-raised); border:1px solid var(--rule); border-left:3px solid var(--info); color:var(--ivory); padding:11px 16px; border-radius:8px; font-size:0.85rem; max-width:300px; animation:toast-in .2s ease;}
+  .toast.error{border-left-color:var(--alert);} .toast.success{border-left-color:var(--verified);}
+  @keyframes toast-in{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+
+  .confetti-piece{position:fixed; width:6px; height:6px; z-index:90; pointer-events:none; animation:confetti-fly .8s ease-out forwards;}
+  @keyframes confetti-fly{ to{ transform:translate(var(--dx),var(--dy)) rotate(var(--rot)); opacity:0; } }
+
+  @media(max-width:520px){ .qtext{font-size:1.08rem;} .qcard{padding:15px;} .notif-panel{width:280px; right:-8px;} }
+</style>
+</head>
+<body>
+
+<!-- ================= AUTH GATE ================= -->
+<div id="authGate">
+  <div class="gate-hero">
+    <div>
+      <div class="gate-brand"><span class="mark">📝</span> Arena</div>
+      <h1>Sharpen your GATE aptitude with people actually taking the exam.</h1>
+      <p class="lede">Post a question, call your shot on the answer, and settle the doubt in the comments. Every solver here signed up with their real account.</p>
+    </div>
+    <div>
+      <div class="gate-ticker">
+        <div class="t"><span class="tnum mono" id="gateStatQ">–</span><span class="tlabel">questions live</span></div>
+        <div class="t"><span class="tnum mono" id="gateStatC">–</span><span class="tlabel">answers &amp; comments</span></div>
+      </div>
+      <div class="gate-foot">Quantitative Aptitude · Verbal Ability · Logical Reasoning · Numerical Ability · Data Interpretation</div>
+    </div>
+  </div>
+  <div class="gate-panel">
+    <div class="ticket">
+      <div class="stamp" id="gateStamp">Verified</div>
+      <div class="ticket-strip">
+        <span class="label">Arena access</span>
+        <span class="serial" id="gateSerial">seat no. —</span>
+      </div>
+      <div class="ticket-tabs">
+        <button type="button" class="active" data-gatetab="login">Log in</button>
+        <button type="button" data-gatetab="signup">Sign up</button>
+      </div>
+      <div class="ticket-body">
+        <div id="loginFields">
+          <div class="field"><label>Email</label><input type="email" id="loginEmail"></div>
+          <div class="field"><label>Password</label><input type="password" id="loginPassword"></div>
+        </div>
+        <div id="signupFields" style="display:none;">
+          <div class="field"><label>Full name</label><input type="text" id="signupName"></div>
+          <div class="field"><label>Email</label><input type="email" id="signupEmail"></div>
+          <div class="field"><label>Password</label><input type="password" id="signupPassword" placeholder="At least 6 characters"></div>
+        </div>
+        <button class="gate-submit" id="gateSubmitBtn">Log in</button>
+        <div class="gate-error" id="gateError"></div>
+        <div class="gate-switch" id="gateSwitch">New here? <button type="button" data-gateswitch="signup">Create an account</button></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP SHELL ================= -->
+<div id="appRoot">
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-brand"><span class="mark">📝</span> Arena</div>
+    <div class="notif-wrap">
+      <button class="bell-btn" id="bellBtn" title="Notifications">
+        🔔<span class="notif-badge" id="notifBadge">0</span>
+      </button>
+      <div class="notif-panel" id="notifPanel">
+        <div class="notif-head">
+          <span>Notifications</span>
+          <button class="link-btn" id="markAllReadBtn">Mark all read</button>
+        </div>
+        <div class="notif-list" id="notifList">
+          <div class="notif-empty">You're all caught up.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <aside class="sidebar">
+    <div class="logo">
+      <h1><span class="mark">📝</span> Arena</h1>
+      <p>GATE aptitude questions, tested by the crowd.</p>
+    </div>
+
+    <div class="statpanel" id="statPanel">
+      <div class="srow"><span class="snum" id="statQ">–</span><span class="slabel">questions live</span></div>
+      <div class="srow"><span class="snum" id="statC">–</span><span class="slabel">comments &amp; answers</span></div>
+    </div>
+
+    <nav class="topicnav" id="topicTabs"></nav>
+
+    <div class="sortwrap">
+      <label>Sort by</label>
+      <select id="sortSel">
+        <option value="new">Newest first</option>
+        <option value="top">Top voted</option>
+        <option value="discussed">Most discussed</option>
+      </select>
+    </div>
+
+    <div class="authbox" id="authBox"></div>
+  </aside>
+
+  <main>
+    <div class="feedhead">
+      <h2>The feed</h2>
+      <span class="tagline mono" id="statLine">connecting…</span>
+    </div>
+    <div id="feed"><div class="empty">Connecting…</div></div>
+  </main>
+</div>
+
+<button class="fab" id="openModalBtn" title="Ask a question">+</button>
+<div id="toastWrap"></div>
+<input type="file" id="avatarFileInput" accept="image/*" style="display:none;">
+
+<!-- Post / edit question modal -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="postModalTitle">Post a question</h2>
+    <div class="type-toggle">
+      <button type="button" class="active" data-type="mcq">Multiple choice</button>
+      <button type="button" data-type="discussion">Open discussion</button>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Topic</label>
+        <select id="fTopic">
+          <option>Quantitative Aptitude</option>
+          <option>Verbal Ability</option>
+          <option>Logical Reasoning</option>
+          <option>Numerical Ability</option>
+          <option>Data Interpretation</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Difficulty</label>
+        <select id="fDifficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Question</label>
+      <textarea id="fText" placeholder="Type the question exactly as it should appear…"></textarea>
+    </div>
+    <div id="mcqFields">
+      <div class="field">
+        <label>Options — mark the correct one</label>
+        <div id="optionRows"></div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Tags (optional)</label>
+      <input type="text" id="fTagInput" placeholder="Type a tag and press Enter…">
+      <div class="chipwrap" id="tagChips"></div>
+    </div>
+    <div class="modal-actions">
+      <span class="form-error" id="formError"></span>
+      <button class="btn-ghost" id="cancelBtn">Cancel</button>
+      <button class="btn-primary" id="submitBtn">Post question</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin panel modal -->
+<div class="overlay" id="adminOverlay">
+  <div class="modal" style="max-width:440px;">
+    <h2>Admin panel</h2>
+    <p class="hint">Give another signed-up user admin rights. They need to have signed up already.</p>
+    <div class="field">
+      <label>Their email</label>
+      <input type="email" id="promoteEmail" placeholder="name@example.com">
+    </div>
+    <div class="modal-actions">
+      <span class="form-error" id="promoteError"></span>
+      <button class="btn-ghost" id="adminCloseBtn">Close</button>
+      <button class="btn-primary" id="promoteBtn">Make admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- Profile modal -->
+<div class="overlay" id="profileOverlay">
+  <div class="modal" style="max-width:480px;">
+    <div id="profileContent"></div>
+    <div class="modal-actions">
+      <span></span>
+      <button class="btn-ghost" id="profileCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
+</div><!-- /#appRoot -->
+
+<script type="module">
+/* =========================================================================
+   SETUP
+   1. Firebase project → Firestore (production mode) + Authentication with
+      the Email/Password provider enabled.
+   2. Paste your real config into firebaseConfig below.
+   3. List the email address(es) that should start out as admin in
+      OWNER_ADMIN_EMAILS — the first time that email signs up, it's made an
+      admin automatically. Admins can promote other signed-up users from the
+      admin panel afterward.
+   4. Firestore rules must enforce this server-side — hiding buttons in the
+      UI is not real security. At minimum:
+        - users/{uid}: any signed-in user may READ any profile (needed to
+          show names/photos on comments, questions, and the profile pages),
+          but a user may only WRITE their own doc, and only when the "role"
+          field stays the same UNLESS the caller's own users/{uid}.role ==
+          "admin" (so only admins can promote/demote).
+        - questions/{id} and questions/{id}/comments/{id}: create requires
+          request.auth != null. Update/delete is allowed when the caller is
+          the doc's own authorId OR the caller's users/{uid}.role ==
+          "admin" — this is what lets someone delete their own comment.
+          Voting only ever touches upvoters/downvoters, so also allow any
+          signed-in user to update just those two fields.
+        - notifications/{id}: create is allowed when request.auth != null
+          and request.resource.data.actorId == request.auth.uid. Read,
+          update (marking as read) and delete are only allowed when
+          request.auth.uid == resource.data.recipientId — a notification is
+          private to the person it's for, and only ever created by whoever
+          triggered it.
+      The notifications feed queries by recipientId with an orderBy on
+      createdAt, so Firestore will ask you to build a composite index the
+      first time it runs — just open the link it prints in the browser
+      console and click "create index". If notifications never show up,
+      open the browser console (F12) and look there first — this is the
+      single most common cause.
+   ========================================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyDjJkoKx30k2ESQBjoXMjYlZTAGV_4RVd4",
+  authDomain: "gatearena-3b8a8.firebaseapp.com",
+  projectId: "gatearena-3b8a8",
+  storageBucket: "gatearena-3b8a8.firebasestorage.app",
+  messagingSenderId: "676034857782",
+  appId: "1:676034857782:web:ddd8bf3b0f87c5efae8197",
+  measurementId: "G-EP2WWG4K83"
+};
+const OWNER_ADMIN_EMAILS = ["admin@example.com"]; // <-- your email(s), lowercase
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile,
+  signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, addDoc, doc, setDoc, getDoc, deleteDoc, updateDoc, onSnapshot,
+  query, where, orderBy, serverTimestamp, runTransaction, arrayUnion, arrayRemove, getDocs
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let uid = null, myEmail = null, myName = null, myPhoto = null;
+let isAdmin = false;
+let feedStarted = false;
+let notifStarted = false;
+let userDocUnsub = null;
+let questions = [];
+let notifications = [];
+let activeTopic = "All";
+let sortMode = "new";
+let expandedComments = new Set();
+let drafts = {};
+let editingId = null;
+let currentProfileUid = null;
+let usersCache = {};
+let loadingUsers = new Set();
+
+// qid -> unsubscribe function for that question's comments listener.
+// Fixes the perf bug: without this map we'd register a brand new
+// onSnapshot listener on every question's comments subcollection every
+// single time ANY question changed (vote, edit, new post, etc), stacking
+// up duplicate listeners forever and making every click feel slower and
+// slower the longer the app stays open.
+let commentUnsubs = {};
+
+const TOPICS = ["All","Quantitative Aptitude","Verbal Ability","Logical Reasoning","Numerical Ability","Data Interpretation"];
+const LETTERS = ["A","B","C","D"];
+const CTYPES = {
+  comment:{label:"Comment", cls:"comment"},
+  doubt:{label:"Doubt", cls:"doubt"},
+  explanation:{label:"Explanation", cls:"explanation"},
+  correction:{label:"Correction", cls:"correction"}
+};
+
+document.getElementById("gateSerial").textContent = "seat no. arena-" + Math.floor(100000 + Math.random()*899999);
+
+/* ---------------- auth state ---------------- */
+onAuthStateChanged(auth, (user) => {
+  if (!user){
+    uid = null; isAdmin = false;
+    if (userDocUnsub){ userDocUnsub(); userDocUnsub = null; }
+    document.getElementById("authGate").style.display = "grid";
+    document.getElementById("appRoot").style.display = "none";
+    return;
+  }
+  uid = user.uid; myEmail = user.email;
+  subscribeUserDoc();
+});
+
+function subscribeUserDoc(){
+  if (userDocUnsub) userDocUnsub();
+  userDocUnsub = onSnapshot(doc(db,"users",uid), (snap) => {
+    if (!snap.exists()) return; // still being created during signup
+    const data = snap.data();
+    myName = data.name || myEmail;
+    myPhoto = data.photoURL || null;
+    isAdmin = data.role === "admin";
+    document.getElementById("authGate").style.display = "none";
+    document.getElementById("appRoot").style.display = "block";
+    if (!feedStarted){ feedStarted = true; startFeed(); }
+    if (!notifStarted){ notifStarted = true; startNotifications(); }
+    updateAuthUI();
+    render();
+    if (currentProfileUid === uid && document.getElementById("profileOverlay").classList.contains("open")) renderProfileModal();
+  }, (err) => {
+    console.error("User profile error:", err);
+    showToast("Couldn't load your profile: " + err.message, "error");
+  });
+}
+
+/* ---------------- gate tabs ---------------- */
+let gateMode = "login";
+function setGateMode(mode){
+  gateMode = mode;
+  document.querySelectorAll("[data-gatetab]").forEach(b=> b.classList.toggle("active", b.dataset.gatetab===mode));
+  document.getElementById("loginFields").style.display = mode==="login" ? "block" : "none";
+  document.getElementById("signupFields").style.display = mode==="signup" ? "block" : "none";
+  document.getElementById("gateSubmitBtn").textContent = mode==="login" ? "Log in" : "Create account";
+  document.getElementById("gateSwitch").innerHTML = mode==="login"
+    ? `New here? <button type="button" data-gateswitch="signup">Create an account</button>`
+    : `Already have an account? <button type="button" data-gateswitch="login">Log in</button>`;
+  document.getElementById("gateError").textContent = "";
+  wireGateSwitch();
+}
+function wireGateSwitch(){
+  const b = document.querySelector("[data-gateswitch]");
+  if (b) b.onclick = () => setGateMode(b.dataset.gateswitch);
+}
+document.querySelectorAll("[data-gatetab]").forEach(b=> b.onclick = () => setGateMode(b.dataset.gatetab));
+wireGateSwitch();
+
+document.getElementById("gateSubmitBtn").onclick = async () => {
+  const errEl = document.getElementById("gateError");
+  errEl.textContent = "";
+  const btn = document.getElementById("gateSubmitBtn");
+  btn.disabled = true;
+  try {
+    if (gateMode === "login"){
+      const email = document.getElementById("loginEmail").value.trim();
+      const pass = document.getElementById("loginPassword").value;
+      if (!email || !pass){ errEl.textContent = "Enter your email and password."; return; }
+      await signInWithEmailAndPassword(auth, email, pass);
+    } else {
+      const name = document.getElementById("signupName").value.trim();
+      const email = document.getElementById("signupEmail").value.trim();
+      const pass = document.getElementById("signupPassword").value;
+      if (!name || !email || !pass){ errEl.textContent = "Fill in every field."; return; }
+      if (pass.length < 6){ errEl.textContent = "Password needs at least 6 characters."; return; }
+      const cred = await createUserWithEmailAndPassword(auth, email, pass);
+      await updateProfile(cred.user, { displayName: name });
+      await setDoc(doc(db,"users",cred.user.uid), {
+        name, email,
+        role: OWNER_ADMIN_EMAILS.includes(email.toLowerCase()) ? "admin" : "user",
+        createdAt: serverTimestamp()
+      });
+      const stamp = document.getElementById("gateStamp");
+      stamp.classList.add("show");
+    }
+  } catch (err) {
+    console.error("Auth failed:", err);
+    errEl.textContent = friendlyAuthError(err.code) || err.message;
+  } finally {
+    btn.disabled = false;
+  }
+};
+function friendlyAuthError(code){
+  const map = {
+    "auth/invalid-credential":"Wrong email or password.",
+    "auth/email-already-in-use":"That email already has an account — log in instead.",
+    "auth/weak-password":"Password needs at least 6 characters.",
+    "auth/invalid-email":"That email doesn't look right."
+  };
+  return map[code];
+}
+
+/* ---------------- topic tabs ---------------- */
+const tabsEl = document.getElementById("topicTabs");
+TOPICS.forEach(t => {
+  const b = document.createElement("button");
+  b.className = "topicbtn" + (t === "All" ? " active" : "");
+  b.textContent = t;
+  b.onclick = () => {
+    activeTopic = t;
+    [...tabsEl.children].forEach(c => c.classList.toggle("active", c === b));
+    render();
+  };
+  tabsEl.appendChild(b);
+});
+document.getElementById("sortSel").onchange = (e) => { sortMode = e.target.value; render(); };
+
+/* ---------------- avatar upload ---------------- */
+const avatarFileInput = document.getElementById("avatarFileInput");
+avatarFileInput.onchange = async (e) => {
+  const file = e.target.files[0];
+  e.target.value = "";
+  if (!file || !uid) return;
+  if (!file.type.startsWith("image/")){ showToast("Please choose an image file.", "error"); return; }
+  try {
+    const dataURL = await resizeImageToDataURL(file, 128);
+    await updateDoc(doc(db,"users",uid), { photoURL: dataURL });
+    showToast("Profile photo updated", "success");
+  } catch (err) {
+    console.error("Photo upload failed:", err);
+    showToast("Couldn't update photo: " + err.message, "error");
+  }
+};
+function resizeImageToDataURL(file, size){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Couldn't read that file."));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("Couldn't read that image."));
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = size; canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        const scale = Math.max(size/img.width, size/img.height);
+        const w = img.width*scale, h = img.height*scale;
+        ctx.drawImage(img, (size-w)/2, (size-h)/2, w, h);
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ---------------- auth box (sidebar) ---------------- */
+function updateAuthUI(){
+  const box = document.getElementById("authBox");
+  const initials = (myName||"?").split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
+  const avatarInner = myPhoto ? `<img src="${myPhoto}" alt="">` : initials;
+  box.innerHTML = `
+    <div class="whoami">
+      <button class="avatar-btn" id="avatarBtn" data-openprofile="${uid}" title="View your profile">
+        <div class="avatar ${isAdmin?'admin':''}">${avatarInner}<span class="avatar-edit">Profile</span></div>
+      </button>
+      <div><div class="name">${escapeHtml(myName||"")}</div><div class="role ${isAdmin?'admin-role':''}">${isAdmin?'Admin':'Solver'}</div></div>
+    </div>
+    ${isAdmin ? `<button class="btn-ghost btn-block" id="adminPanelBtn">Admin panel</button>` : ""}
+    <button class="btn-ghost btn-block" id="logoutBtn">Log out</button>`;
+  document.getElementById("logoutBtn").onclick = () => signOut(auth);
+  if (isAdmin) document.getElementById("adminPanelBtn").onclick = () => adminOverlay.classList.add("open");
+}
+
+/* ---------------- live feed ---------------- */
+function startFeed(){
+  const qRef = query(collection(db, "questions"), orderBy("createdAt", "desc"));
+  onSnapshot(qRef, (snap) => {
+    const seenIds = new Set();
+    questions = snap.docs.map(d => {
+      seenIds.add(d.id);
+      // Keep any comments we've already loaded for this question instead
+      // of wiping them back to [] on every re-render — that used to cause
+      // comments to flicker/disappear briefly on every vote anywhere in
+      // the whole feed.
+      const existing = questions.find(q => q.id === d.id);
+      return { id: d.id, ...d.data(), comments: existing ? existing.comments : [] };
+    });
+
+    // Only ever subscribe to a question's comments ONCE. Re-subscribing on
+    // every snapshot (the old behavior) stacked up duplicate listeners
+    // that each re-rendered the whole feed independently — this was the
+    // main cause of voting/commenting feeling slower over time.
+    questions.forEach(q => {
+      if (commentUnsubs[q.id]) return;
+      commentUnsubs[q.id] = onSnapshot(collection(db, "questions", q.id, "comments"), (csnap) => {
+        const target = questions.find(x => x.id === q.id);
+        if (!target) return;
+        target.comments = csnap.docs.map(d => ({ id: d.id, ...d.data() }))
+          .sort((a,b) => (a.createdAt?.toMillis?.()||0) - (b.createdAt?.toMillis?.()||0));
+        render();
+      });
+    });
+
+    // Clean up listeners for questions that got deleted, so we don't leak
+    // them forever either.
+    Object.keys(commentUnsubs).forEach(qid => {
+      if (!seenIds.has(qid)){ commentUnsubs[qid](); delete commentUnsubs[qid]; }
+    });
+
+    render();
+  }, (err) => {
+    console.error("Feed error:", err);
+    document.getElementById("feed").innerHTML =
+      `<div class="empty">Feed error: ${err.message}. If this says "permission-denied", update your Firestore rules.</div>`;
+  });
+}
+
+function upDown(list){ return { up: (list?.upvoters||[]).length, down: (list?.downvoters||[]).length }; }
+function timeAgo(ts){
+  if (!ts || !ts.toDate) return "just now";
+  const date = ts.toDate();
+  const diff = (Date.now() - date.getTime()) / 1000;
+  if (diff < 45) return "just now";
+  if (diff < 3600) return Math.floor(diff/60) + "m ago";
+  if (diff < 86400) return Math.floor(diff/3600) + "h ago";
+  if (diff < 604800) return Math.floor(diff/86400) + "d ago";
+  return date.toLocaleDateString(undefined, {month:"short", day:"numeric"});
+}
+function fullDate(ts){ return ts && ts.toDate ? ts.toDate().toLocaleString() : ""; }
+
+function render(){
+  const feed = document.getElementById("feed");
+  let list = activeTopic === "All" ? questions : questions.filter(q => q.topic === activeTopic);
+
+  if (sortMode === "top") list = [...list].sort((a,b) => (upDown(b).up - upDown(b).down) - (upDown(a).up - upDown(a).down));
+  else if (sortMode === "discussed") list = [...list].sort((a,b) => (b.comments?.length||0) - (a.comments?.length||0));
+
+  const totalComments = questions.reduce((s,q)=> s + (q.comments?.length||0), 0);
+  document.getElementById("statLine").textContent = `${questions.length} live`;
+  document.getElementById("statQ").textContent = questions.length;
+  document.getElementById("statC").textContent = totalComments;
+  document.getElementById("gateStatQ").textContent = questions.length || "–";
+  document.getElementById("gateStatC").textContent = totalComments || "–";
+
+  if (!list.length){
+    feed.innerHTML = `<div class="empty">Nothing here yet — be the first to post one.</div>`;
+    return;
+  }
+  feed.innerHTML = list.map(q => renderCard(q)).join("");
+  list.forEach(q => wireCard(q));
+}
+
+function renderCard(q){
+  const { up, down } = upDown(q);
+  const net = up - down;
+  const myVote = q.upvoters?.includes(uid) ? "up" : q.downvoters?.includes(uid) ? "down" : null;
+  const myResponse = q.responses?.[uid];
+  const answered = q.type === "mcq" ? (myResponse !== undefined) : false;
+  const isOpen = q.type === "discussion" || expandedComments.has(q.id);
+  const flagCount = (q.flaggedBy||[]).length;
+  const iFlagged = (q.flaggedBy||[]).includes(uid);
+
+  let body = "";
+  if (q.type === "mcq"){
+    const totalResp = q.responses ? Object.keys(q.responses).length : 0;
+    body = (q.options||[]).map((opt, idx) => {
+      const count = q.responses ? Object.values(q.responses).filter(v => v===idx).length : 0;
+      const pct = totalResp ? Math.round((count/totalResp)*100) : 0;
+      let cls = "opt" + (answered ? " locked" : "");
+      if (answered && idx === q.correctIndex) cls += " correct";
+      if (answered && idx === myResponse && myResponse !== q.correctIndex) cls += " chosen-wrong";
+      return `<div class="${cls}" data-qid="${q.id}" data-idx="${idx}">
+        ${answered ? `<div class="bar" style="width:${pct}%"></div>` : ""}
+        <div class="letter">${LETTERS[idx]}</div>
+        <div class="otext">${escapeHtml(opt)}</div>
+        ${answered ? `<div class="pct">${pct}%</div>` : ""}
+      </div>`;
+    }).join("");
+  }
+
+  const tagPills = (q.tags||[]).map(t => `<span class="pill tag">#${escapeHtml(t)}</span>`).join("");
+  const hotPill = net >= 5 ? `<span class="pill hot">Popular</span>` : "";
+  const flagPill = flagCount > 0 ? `<span class="pill flag">Flagged ×${flagCount}</span>` : "";
+  const commentCount = q.comments?.length || 0;
+  const commentsBlock = isOpen ? renderCommentsBlock(q) : "";
+  const toggleBtn = q.type === "mcq"
+    ? `<button class="toggle-comments mono" data-toggle="${q.id}">${commentCount} comment${commentCount!==1?"s":""} ${expandedComments.has(q.id)?"▲":"▼"}</button>`
+    : `<span class="toggle-comments mono">${commentCount} repl${commentCount!==1?"ies":"y"}</span>`;
+
+  const flagBtn = `<button class="btn-icon" data-flag-q="${q.id}" title="${iFlagged?'Remove flag':'Flag as a problem'}">${iFlagged?'Flagged':'Flag'}</button>`;
+  const canManage = isAdmin || q.authorId === uid;
+  const adminBtns = canManage ? `
+    <button class="btn-icon" data-edit-q="${q.id}" title="Edit question">Edit</button>
+    <button class="btn-icon danger" data-del-q="${q.id}" title="Delete question">Delete</button>` : "";
+
+  return `
+  <div class="qcard diff-${q.difficulty} ${answered ? "answered" : ""} ${flagCount>0 && isAdmin ? "flagged" : ""}" data-qcardid="${q.id}">
+    <div class="voterail">
+      <button class="vrbtn up ${myVote==='up'?'active':''}" data-vote-q="${q.id}" data-dir="up">▲</button>
+      <span class="vrcount" data-count-q="${q.id}">${net}</span>
+      <button class="vrbtn down ${myVote==='down'?'active':''}" data-vote-q="${q.id}" data-dir="down">▼</button>
+    </div>
+    <div class="qbody">
+      <div class="qtop">
+        <span class="pill">${escapeHtml(q.topic)}</span>
+        <span class="pill ${q.difficulty}">${q.difficulty}</span>
+        ${tagPills}${hotPill}${flagPill}
+        <span class="qauthor-line">${miniAvatar(q.authorId, q.authorName)}<button class="linklike qauthor-name" data-openprofile="${q.authorId}">${escapeHtml(q.authorName||'solver')}</button></span>
+        <span class="qtime" title="${fullDate(q.createdAt)}">${timeAgo(q.createdAt)}</span>
+      </div>
+      <p class="qtext">${escapeHtml(q.text)}</p>
+      ${body}
+      <div class="qfooter">
+        ${toggleBtn}
+        <span class="footer-spacer"></span>
+        ${flagBtn}
+        ${adminBtns}
+      </div>
+      ${commentsBlock}
+    </div>
+  </div>`;
+}
+
+function renderCommentsBlock(q){
+  const list = (q.comments||[]).map(c => renderComment(q.id, c)).join("");
+  return `
+  <div class="comments">
+    ${list}
+    <div class="composer">
+      <select data-ctype="${q.id}">
+        ${Object.entries(CTYPES).map(([k,v])=>`<option value="${k}">${v.label}</option>`).join("")}
+      </select>
+      <textarea data-comment-input="${q.id}" placeholder="Add a comment…">${escapeHtml(drafts[q.id]||"")}</textarea>
+      <button class="btn-primary" data-comment-submit="${q.id}">Post</button>
+    </div>
+  </div>`;
+}
+
+function renderComment(qid, c){
+  const { up, down } = upDown(c);
+  const myVote = c.upvoters?.includes(uid) ? "up" : c.downvoters?.includes(uid) ? "down" : null;
+  const type = CTYPES[c.type] ? c.type : "comment";
+  const canDelete = isAdmin || c.authorId === uid;
+  const deleteBtn = canDelete ? `<button class="btn-icon danger" data-del-c="${qid}|${c.id}" title="Delete comment">Delete</button>` : "";
+  return `
+  <div class="comment">
+    <div class="vote small" title="Like / dislike this">
+      <button class="vbtn up ${myVote==='up'?'active':''}" data-vote-c="${qid}|${c.id}" data-dir="up">▲</button>
+      <span class="vcount">${up-down}</span>
+      <button class="vbtn down ${myVote==='down'?'active':''}" data-vote-c="${qid}|${c.id}" data-dir="down">▼</button>
+    </div>
+    <div style="flex:1">
+      <div class="ctext">${escapeHtml(c.text)}</div>
+      <div class="cmeta">
+        <span class="cbadge ${CTYPES[type].cls}">${CTYPES[type].label}</span>
+        <span class="cauthor-line">
+          ${miniAvatar(c.authorId, c.authorName)}
+          <button class="linklike cauthor ${c.isAdmin?'admin-tag':''}" data-openprofile="${c.authorId}">${c.isAdmin?'admin · ':''}${escapeHtml(c.authorName||'solver')}</button>
+        </span>
+        <span class="ctime" title="${fullDate(c.createdAt)}">${timeAgo(c.createdAt)}</span>
+        ${deleteBtn}
+      </div>
+    </div>
+  </div>`;
+}
+
+function wireCard(q){
+  document.querySelectorAll(`[data-vote-q="${q.id}"]`).forEach(btn=>{
+    btn.onclick = async () => {
+      const applied = await castVote(doc(db,"questions",q.id), btn.dataset.dir, `[data-count-q="${q.id}"]`);
+      if (applied && q.authorId){
+        const snippet = q.text.length > 40 ? q.text.slice(0,40) + "…" : q.text;
+        notify(q.authorId, "vote", `${myName} ${btn.dataset.dir==="up"?"upvoted":"downvoted"} your question "${snippet}"`, {questionId:q.id});
+      }
+    };
+  });
+  document.querySelectorAll(`.opt[data-qid="${q.id}"]`).forEach(el=>{
+    el.onclick = () => {
+      if (q.responses?.[uid] !== undefined) return;
+      const idx = parseInt(el.dataset.idx);
+      updateDoc(doc(db,"questions",q.id), { [`responses.${uid}`]: idx })
+        .then(()=>{ if (idx === q.correctIndex) spawnConfetti(el); })
+        .catch(err => { console.error("Answer failed:", err); showToast("Couldn't submit answer: " + err.message, "error"); });
+    };
+  });
+
+  const toggle = document.querySelector(`[data-toggle="${q.id}"]`);
+  if (toggle) toggle.onclick = () => {
+    if (expandedComments.has(q.id)) expandedComments.delete(q.id); else expandedComments.add(q.id);
+    render();
+  };
+
+  const input = document.querySelector(`[data-comment-input="${q.id}"]`);
+  if (input) input.oninput = (e) => { drafts[q.id] = e.target.value; };
+
+  const submitBtn = document.querySelector(`[data-comment-submit="${q.id}"]`);
+  if (submitBtn) submitBtn.onclick = async () => {
+    const ta = document.querySelector(`[data-comment-input="${q.id}"]`);
+    const typeSel = document.querySelector(`[data-ctype="${q.id}"]`);
+    const text = ta.value.trim();
+    if (!text) return;
+    submitBtn.disabled = true;
+    try {
+      await addDoc(collection(db,"questions",q.id,"comments"), {
+        text, type: typeSel.value, authorId: uid, authorName: myName, isAdmin,
+        createdAt: serverTimestamp(), upvoters: [], downvoters: []
+      });
+      delete drafts[q.id];
+      showToast("Comment posted", "success");
+      if (q.authorId && q.authorId !== uid){
+        const snippet = q.text.length > 40 ? q.text.slice(0,40) + "…" : q.text;
+        notify(q.authorId, "comment", `${myName} commented on your question "${snippet}"`, {questionId:q.id});
+      }
+    } catch (err) {
+      console.error("Posting comment failed:", err);
+      showToast("Couldn't post comment: " + err.message, "error");
+    } finally {
+      submitBtn.disabled = false;
+    }
+  };
+
+  const flagBtn = document.querySelector(`[data-flag-q="${q.id}"]`);
+  if (flagBtn) flagBtn.onclick = async () => {
+    const iFlagged = (q.flaggedBy||[]).includes(uid);
+    try {
+      await updateDoc(doc(db,"questions",q.id), { flaggedBy: iFlagged ? arrayRemove(uid) : arrayUnion(uid) });
+    } catch (err) { console.error(err); showToast("Couldn't update flag: " + err.message, "error"); }
+  };
+
+  const editQ = document.querySelector(`[data-edit-q="${q.id}"]`);
+  if (editQ) editQ.onclick = () => openEditModal(q);
+
+  const delQ = document.querySelector(`[data-del-q="${q.id}"]`);
+  if (delQ) delQ.onclick = async () => {
+    if (!confirm("Delete this question?")) return;
+    try { await deleteDoc(doc(db,"questions",q.id)); showToast("Question deleted", "success"); }
+    catch(err){ console.error(err); showToast("Couldn't delete: " + err.message, "error"); }
+  };
+
+  (q.comments||[]).forEach(c=>{
+    document.querySelectorAll(`[data-vote-c="${q.id}|${c.id}"]`).forEach(btn=>{
+      btn.onclick = async () => {
+        const applied = await castVote(doc(db,"questions",q.id,"comments",c.id), btn.dataset.dir);
+        if (applied && c.authorId){
+          notify(c.authorId, "vote", `${myName} ${btn.dataset.dir==="up"?"upvoted":"downvoted"} your comment`, {questionId:q.id, commentId:c.id});
+        }
+      };
+    });
+    const delC = document.querySelector(`[data-del-c="${q.id}|${c.id}"]`);
+    if (delC) delC.onclick = async () => {
+      if (!confirm("Delete this comment?")) return;
+      try { await deleteDoc(doc(db,"questions",q.id,"comments",c.id)); }
+      catch(err){ console.error(err); showToast("Couldn't delete: " + err.message, "error"); }
+    };
+  });
+}
+
+async function castVote(ref, dir, bumpSelector){
+  try {
+    const applied = await runTransaction(db, async (tx) => {
+      const snap = await tx.get(ref);
+      const data = snap.data();
+      let up = data.upvoters || [], down = data.downvoters || [];
+      const hasUp = up.includes(uid), hasDown = down.includes(uid);
+      const wasSameDir = (dir === "up" && hasUp) || (dir === "down" && hasDown);
+      up = up.filter(x=>x!==uid); down = down.filter(x=>x!==uid);
+      if (dir === "up" && !hasUp) up.push(uid);
+      if (dir === "down" && !hasDown) down.push(uid);
+      tx.update(ref, { upvoters: up, downvoters: down });
+      return !wasSameDir; // true only when this click newly applied a vote (not a removal)
+    });
+    if (bumpSelector){
+      const el = document.querySelector(bumpSelector);
+      if (el){ el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+    }
+    return applied;
+  } catch (err) {
+    console.error("Vote failed:", err);
+    showToast("Couldn't vote: " + err.message, "error");
+    return false;
+  }
+}
+
+function escapeHtml(s){
+  const d = document.createElement("div");
+  d.textContent = s || "";
+  return d.innerHTML;
+}
+
+function showToast(msg, kind="info"){
+  const wrap = document.getElementById("toastWrap");
+  const el = document.createElement("div");
+  el.className = "toast" + (kind !== "info" ? " " + kind : "");
+  el.textContent = msg;
+  wrap.appendChild(el);
+  setTimeout(()=> el.remove(), 3200);
+}
+
+function spawnConfetti(originEl){
+  const rect = originEl.getBoundingClientRect();
+  const colors = ["#ffb020","#33c48f","#5fb4e8","#f2665f"];
+  for (let i=0;i<16;i++){
+    const p = document.createElement("div");
+    p.className = "confetti-piece";
+    const angle = Math.random() * Math.PI * 2;
+    const dist = 40 + Math.random()*60;
+    p.style.setProperty("--dx", Math.cos(angle)*dist + "px");
+    p.style.setProperty("--dy", Math.sin(angle)*dist + "px");
+    p.style.setProperty("--rot", (Math.random()*360) + "deg");
+    p.style.left = (rect.left + rect.width/2) + "px";
+    p.style.top = (rect.top + rect.height/2) + "px";
+    p.style.background = colors[i % colors.length];
+    p.style.borderRadius = Math.random() > 0.5 ? "50%" : "2px";
+    document.body.appendChild(p);
+    setTimeout(()=> p.remove(), 850);
+  }
+  showToast("Correct!", "success");
+}
+
+/* ---------------- post / edit question modal ---------------- */
+const overlay = document.getElementById("overlay");
+const formError = document.getElementById("formError");
+const submitBtn = document.getElementById("submitBtn");
+let postType = "mcq";
+let newTags = [];
+
+document.getElementById("openModalBtn").onclick = () => { editingId = null; resetForm(); document.getElementById("postModalTitle").textContent = "Post a question"; submitBtn.textContent = "Post question"; overlay.classList.add("open"); };
+document.getElementById("cancelBtn").onclick = () => { overlay.classList.remove("open"); resetForm(); };
+
+document.querySelectorAll(".type-toggle button").forEach(b=>{
+  b.onclick = () => {
+    postType = b.dataset.type;
+    document.querySelectorAll(".type-toggle button").forEach(x=>x.classList.toggle("active", x===b));
+    document.getElementById("mcqFields").style.display = postType === "mcq" ? "block" : "none";
+  };
+});
+
+function buildOptionRows(prefill, correctIdx){
+  const wrap = document.getElementById("optionRows");
+  wrap.innerHTML = LETTERS.map((L,i)=>`
+    <div class="mcq-opt-row">
+      <input type="radio" name="correctOpt" value="${i}" ${(correctIdx!==undefined ? correctIdx===i : i===0)?"checked":""}>
+      <input type="text" placeholder="Option ${L}" data-opt="${i}" value="${prefill && prefill[i] ? escapeHtml(prefill[i]) : ''}">
+    </div>`).join("");
+}
+buildOptionRows();
+
+function renderChips(){
+  document.getElementById("tagChips").innerHTML = newTags.map((t,i)=>
+    `<span class="chip">#${escapeHtml(t)}<button data-rmtag="${i}">×</button></span>`).join("");
+  document.querySelectorAll("[data-rmtag]").forEach(b=>{
+    b.onclick = () => { newTags.splice(parseInt(b.dataset.rmtag),1); renderChips(); };
+  });
+}
+document.getElementById("fTagInput").addEventListener("keydown", (e)=>{
+  if (e.key === "Enter" || e.key === ","){
+    e.preventDefault();
+    const v = e.target.value.trim().replace(/^#/,"");
+    if (v && !newTags.includes(v)) newTags.push(v);
+    e.target.value = "";
+    renderChips();
+  }
+});
+
+function openEditModal(q){
+  editingId = q.id;
+  document.getElementById("postModalTitle").textContent = "Edit question";
+  submitBtn.textContent = "Save changes";
+  postType = q.type;
+  document.querySelectorAll(".type-toggle button").forEach(x=>x.classList.toggle("active", x.dataset.type===postType));
+  document.getElementById("mcqFields").style.display = postType === "mcq" ? "block" : "none";
+  document.getElementById("fTopic").value = q.topic;
+  document.getElementById("fDifficulty").value = q.difficulty;
+  document.getElementById("fText").value = q.text;
+  newTags = [...(q.tags||[])];
+  renderChips();
+  if (postType === "mcq") buildOptionRows(q.options, q.correctIndex);
+  formError.textContent = "";
+  overlay.classList.add("open");
+}
+
+submitBtn.onclick = async () => {
+  formError.textContent = "";
+  if (!uid) { formError.textContent = "Still connecting — wait a moment and try again."; return; }
+
+  const text = document.getElementById("fText").value.trim();
+  if (!text) { formError.textContent = "Add the question text first."; return; }
+  const topic = document.getElementById("fTopic").value;
+  const difficulty = document.getElementById("fDifficulty").value;
+
+  const payload = { text, topic, difficulty, type: postType, tags: newTags };
+  if (postType === "mcq"){
+    const options = [...document.querySelectorAll("[data-opt]")].map(i=>i.value.trim());
+    if (options.some(o=>!o)) { formError.textContent = "Fill in all four options."; return; }
+    payload.options = options;
+    payload.correctIndex = parseInt(document.querySelector('input[name="correctOpt"]:checked').value);
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = editingId ? "Saving…" : "Posting…";
+  try {
+    if (editingId){
+      await updateDoc(doc(db,"questions",editingId), payload);
+      showToast("Question updated", "success");
+    } else {
+      payload.authorId = uid; payload.authorName = myName; payload.createdAt = serverTimestamp();
+      payload.upvoters = []; payload.downvoters = []; payload.flaggedBy = [];
+      if (postType === "mcq") payload.responses = {};
+      await addDoc(collection(db,"questions"), payload);
+      showToast("Question posted", "success");
+    }
+    overlay.classList.remove("open");
+    resetForm();
+  } catch (err) {
+    console.error("Save failed:", err);
+    formError.textContent = "Couldn't save: " + err.message;
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = editingId ? "Save changes" : "Post question";
+  }
+};
+
+function resetForm(){
+  editingId = null;
+  document.getElementById("fText").value = "";
+  document.getElementById("fTopic").selectedIndex = 0;
+  document.getElementById("fDifficulty").value = "medium";
+  postType = "mcq";
+  document.querySelectorAll(".type-toggle button").forEach(x=>x.classList.toggle("active", x.dataset.type==="mcq"));
+  document.getElementById("mcqFields").style.display = "block";
+  buildOptionRows();
+  newTags = [];
+  renderChips();
+  formError.textContent = "";
+}
+
+/* ---------------- admin panel ---------------- */
+const adminOverlay = document.getElementById("adminOverlay");
+document.getElementById("adminCloseBtn").onclick = () => { adminOverlay.classList.remove("open"); document.getElementById("promoteError").textContent = ""; };
+document.getElementById("promoteBtn").onclick = async () => {
+  const errEl = document.getElementById("promoteError");
+  errEl.textContent = "";
+  const email = document.getElementById("promoteEmail").value.trim().toLowerCase();
+  if (!email) { errEl.textContent = "Enter an email address."; return; }
+  const btn = document.getElementById("promoteBtn");
+  btn.disabled = true;
+  try {
+    const snap = await getDocs(query(collection(db,"users"), where("email","==",email)));
+    if (snap.empty) { errEl.textContent = "No account with that email yet — they need to sign up first."; return; }
+    await updateDoc(doc(db,"users",snap.docs[0].id), { role: "admin" });
+    showToast("They're an admin now", "success");
+    document.getElementById("promoteEmail").value = "";
+    adminOverlay.classList.remove("open");
+  } catch (err) {
+    console.error(err);
+    errEl.textContent = "Couldn't update: " + err.message;
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+/* ---------------- profile pages ---------------- */
+function ensureUserLoaded(targetUid){
+  if (!targetUid || usersCache[targetUid] || loadingUsers.has(targetUid)) return;
+  loadingUsers.add(targetUid);
+  getDoc(doc(db,"users",targetUid)).then(snap=>{
+    usersCache[targetUid] = snap.exists() ? snap.data() : {name:"Unknown user"};
+    loadingUsers.delete(targetUid);
+    render();
+    if (currentProfileUid === targetUid && document.getElementById("profileOverlay").classList.contains("open")) renderProfileModal();
+  }).catch(err=>{
+    loadingUsers.delete(targetUid);
+    console.error("Couldn't load user:", err);
+  });
+}
+
+function miniAvatar(authorId, fallbackName){
+  ensureUserLoaded(authorId);
+  const cached = usersCache[authorId];
+  const name = (cached && cached.name) || fallbackName || "?";
+  const photo = cached && cached.photoURL;
+  const initials = name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
+  const adminCls = cached && cached.role === "admin" ? " admin" : "";
+  return `<button class="mini-avatar-btn${adminCls}" data-openprofile="${authorId}" title="View profile">${photo?`<img src="${photo}" alt="">`:initials}</button>`;
+}
+
+function computeUserStats(targetUid){
+  const myQs = questions.filter(q => q.authorId === targetUid);
+  const comments = [];
+  questions.forEach(q => (q.comments||[]).forEach(c => { if (c.authorId === targetUid) comments.push(c); }));
+  let netVotes = 0;
+  myQs.forEach(q => { const {up,down} = upDown(q); netVotes += up-down; });
+  comments.forEach(c => { const {up,down} = upDown(c); netVotes += up-down; });
+  return { myQs, comments, netVotes };
+}
+
+function openProfile(targetUid){
+  if (!targetUid) return;
+  currentProfileUid = targetUid;
+  ensureUserLoaded(targetUid);
+  renderProfileModal();
+  document.getElementById("profileOverlay").classList.add("open");
+}
+
+function renderProfileModal(){
+  const targetUid = currentProfileUid;
+  if (!targetUid) return;
+  const isOwn = targetUid === uid;
+  const data = isOwn ? { name: myName, photoURL: myPhoto, role: isAdmin ? "admin" : "user" } : usersCache[targetUid];
+  const stats = computeUserStats(targetUid);
+  const name = data ? (data.name || "Unknown solver") : "Loading…";
+  const role = data ? data.role : null;
+  const photo = data ? data.photoURL : null;
+  const initials = name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
+  const joined = data && data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toLocaleDateString(undefined,{month:"long", year:"numeric"}) : "";
+
+  document.getElementById("profileContent").innerHTML = `
+    <div class="profile-head">
+      <div class="profile-avatar-wrap">
+        <div class="avatar big ${role==='admin'?'admin':''}">${photo?`<img src="${photo}" alt="">`:initials}</div>
+        ${isOwn ? `<button class="btn-ghost profile-photo-btn" id="profileChangePhotoBtn">Change photo</button>` : ""}
+      </div>
+      <div class="profile-id">
+        ${isOwn
+          ? `<div class="field"><input type="text" id="profileNameInput" value="${escapeHtml(name)}"></div>
+             <button class="btn-primary" id="profileSaveNameBtn" style="padding:7px 14px; font-size:0.8rem;">Save name</button>`
+          : `<h2>${escapeHtml(name)}</h2>`
+        }
+        <div class="role ${role==='admin'?'admin-role':''}" style="margin-top:8px;">${role==='admin'?'Admin':(role?'Solver':'')}${joined?` · joined ${joined}`:""}</div>
+      </div>
+    </div>
+    <div class="profile-stats">
+      <div class="pstat"><span class="pnum">${stats.myQs.length}</span><span class="plabel">questions</span></div>
+      <div class="pstat"><span class="pnum">${stats.comments.length}</span><span class="plabel">comments</span></div>
+      <div class="pstat"><span class="pnum">${stats.netVotes>=0?'+':''}${stats.netVotes}</span><span class="plabel">net votes</span></div>
+    </div>
+    <hr class="rule" style="margin:16px 0;">
+    <div class="profile-section-title">Questions posted</div>
+    <div class="profile-list">
+      ${stats.myQs.length
+        ? stats.myQs.map(q=>`<button class="profile-list-item" data-goq="${q.id}">${escapeHtml(q.text.slice(0,72))}${q.text.length>72?'…':''}</button>`).join("")
+        : `<div class="profile-empty">Nothing posted yet.</div>`}
+    </div>
+  `;
+  document.querySelectorAll("[data-goq]").forEach(b => b.onclick = () => {
+    document.getElementById("profileOverlay").classList.remove("open");
+    goToQuestion(b.dataset.goq);
+  });
+  if (isOwn){
+    document.getElementById("profileChangePhotoBtn").onclick = () => avatarFileInput.click();
+    document.getElementById("profileSaveNameBtn").onclick = async () => {
+      const val = document.getElementById("profileNameInput").value.trim();
+      if (!val){ showToast("Name can't be empty.", "error"); return; }
+      try { await updateDoc(doc(db,"users",uid), { name: val }); showToast("Name updated", "success"); }
+      catch(err){ console.error(err); showToast("Couldn't update name: " + err.message, "error"); }
+    };
+  }
+}
+
+document.getElementById("profileCloseBtn").onclick = () => document.getElementById("profileOverlay").classList.remove("open");
+
+document.addEventListener("click", (e) => {
+  const openBtn = e.target.closest("[data-openprofile]");
+  if (openBtn){ openProfile(openBtn.dataset.openprofile); }
+});
+
+function goToQuestion(qid, commentId){
+  const q = questions.find(x => x.id === qid);
+  if (!q){ showToast("That question isn't available anymore.", "error"); return; }
+  activeTopic = "All";
+  document.querySelectorAll(".topicbtn").forEach(b => b.classList.toggle("active", b.textContent === "All"));
+  expandedComments.add(qid);
+  document.getElementById("notifPanel").classList.remove("open");
+  render();
+  requestAnimationFrame(() => {
+    const el = document.querySelector(`[data-qcardid="${qid}"]`);
+    if (el){
+      el.scrollIntoView({behavior:"smooth", block:"center"});
+      el.classList.add("highlight");
+      setTimeout(()=> el.classList.remove("highlight"), 1600);
+    }
+  });
+}
+
+/* ---------------- notifications ---------------- */
+async function notify(recipientId, type, message, extra = {}){
+  if (!recipientId || recipientId === uid) return; // never notify yourself
+  try {
+    await addDoc(collection(db,"notifications"), {
+      recipientId, type, message,
+      actorId: uid, actorName: myName,
+      questionId: extra.questionId || null,
+      commentId: extra.commentId || null,
+      read: false,
+      createdAt: serverTimestamp()
+    });
+  } catch(err){
+    console.error("Notification failed:", err);
+    // Surfaced so it's easy to diagnose (usually a Firestore rules or
+    // missing-composite-index issue) — remove this toast once notifications
+    // are confirmed working end-to-end.
+    showToast("Notification failed: " + err.message, "error");
+  }
+}
+
+function startNotifications(){
+  const nRef = query(collection(db,"notifications"), where("recipientId","==",uid), orderBy("createdAt","desc"));
+  onSnapshot(nRef, (snap) => {
+    notifications = snap.docs.slice(0,40).map(d => ({ id: d.id, ...d.data() }));
+    renderNotifications();
+  }, (err) => {
+    console.error("Notifications error:", err);
+    // Same as above: surfaced temporarily to make diagnosis easy. If you
+    // see "failed-precondition" here, Firestore needs a composite index —
+    // check the browser console for a link to create it. If you see
+    // "permission-denied", your Firestore rules need updating (see the
+    // SETUP comment at the top of this file).
+    showToast("Notifications error: " + err.message, "error");
+  });
+}
+
+function renderNotifications(){
+  const badge = document.getElementById("notifBadge");
+  const unread = notifications.filter(n => !n.read).length;
+  badge.classList.toggle("show", unread > 0);
+  badge.textContent = unread > 9 ? "9+" : String(unread);
+  const list = document.getElementById("notifList");
+  if (!notifications.length){
+    list.innerHTML = `<div class="notif-empty">You're all caught up.</div>`;
+    return;
+  }
+  list.innerHTML = notifications.map(n => `
+    <button class="notif-item ${n.read ? '' : 'unread'}" data-notif="${n.id}" data-q="${n.questionId||''}" data-c="${n.commentId||''}">
+      <span class="notif-dot"></span>
+      <span class="notif-text">${escapeHtml(n.message)}</span>
+      <span class="notif-time">${timeAgo(n.createdAt)}</span>
+    </button>`).join("");
+  list.querySelectorAll("[data-notif]").forEach(btn => {
+    btn.onclick = () => {
+      const n = notifications.find(x => x.id === btn.dataset.notif);
+      if (n && !n.read) updateDoc(doc(db,"notifications", n.id), { read: true }).catch(()=>{});
+      document.getElementById("notifPanel").classList.remove("open");
+      if (btn.dataset.q) goToQuestion(btn.dataset.q, btn.dataset.c || null);
+    };
+  });
+}
+
+document.getElementById("bellBtn").onclick = (e) => {
+  e.stopPropagation();
+  document.getElementById("notifPanel").classList.toggle("open");
+};
+document.addEventListener("click", (e) => {
+  const panel = document.getElementById("notifPanel");
+  if (panel.classList.contains("open") && !panel.contains(e.target) && e.target.id !== "bellBtn"){
+    panel.classList.remove("open");
+  }
+});
+document.getElementById("markAllReadBtn").onclick = async (e) => {
+  e.stopPropagation();
+  const unread = notifications.filter(n => !n.read);
+  await Promise.all(unread.map(n => updateDoc(doc(db,"notifications", n.id), { read: true }).catch(()=>{})));
+};
+</script>
+</body>
+</html>
