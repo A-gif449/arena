@@ -554,6 +554,24 @@
   .trial-cta:hover{filter:brightness(1.06);}
   .trial-ended .trial-banner{background:linear-gradient(120deg, #3a1a1a, #1c2540 65%);}
   .trial-ended .trial-badge{background:var(--alert-dim); border-color:var(--alert); color:var(--alert);}
+
+  .pricing-title{font-size:0.76rem; color:var(--dim); text-transform:uppercase; letter-spacing:0.05em; font-weight:600; margin:18px 0 10px;}
+  .pricing-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:9px;}
+  .price-card{
+    position:relative; background:var(--ink); border:1px solid var(--rule); border-radius:10px;
+    padding:14px 10px 12px; text-align:center; display:flex; flex-direction:column; gap:3px;
+  }
+  .price-card.best{border-color:var(--mark); background:var(--mark-dim);}
+  .price-badge{
+    position:absolute; top:-9px; left:50%; transform:translateX(-50%); background:var(--mark); color:#1c1206;
+    font-size:0.6rem; font-weight:700; letter-spacing:0.03em; padding:2px 9px; border-radius:var(--radius-pill); white-space:nowrap;
+  }
+  .price-plan{font-size:0.72rem; color:var(--dim); font-weight:600; text-transform:uppercase; letter-spacing:0.03em; margin-top:2px;}
+  .price-amount{font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:1.3rem; color:var(--ivory);}
+  .price-card.best .price-amount{color:var(--mark);}
+  .price-amount sup{font-size:0.6rem; font-weight:600; margin-right:1px; top:-0.5em;}
+  .price-permo{font-size:0.66rem; color:var(--dim);}
+  @media(max-width:420px){ .pricing-grid{grid-template-columns:1fr; gap:8px;} .price-card{flex-direction:row; align-items:center; justify-content:space-between; text-align:left; padding:10px 14px;} .price-badge{position:static; transform:none; margin-bottom:2px;} }
 </style>
 </head>
 <body>
@@ -2282,6 +2300,29 @@ function trialDaysLeft(){
   return Math.ceil(diffMs / (1000*60*60*24));
 }
 
+function pricingGridHtml(){
+  return `
+    <div class="pricing-title">Pricing after the trial</div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <span class="price-plan">Monthly</span>
+        <span class="price-amount"><sup>₹</sup>25</span>
+        <span class="price-permo">per month</span>
+      </div>
+      <div class="price-card">
+        <span class="price-plan">3 months</span>
+        <span class="price-amount"><sup>₹</sup>59</span>
+        <span class="price-permo">≈ ₹19.7 / month</span>
+      </div>
+      <div class="price-card best">
+        <span class="price-badge">Best value</span>
+        <span class="price-plan">1 year</span>
+        <span class="price-amount"><sup>₹</sup>199</span>
+        <span class="price-permo">≈ ₹16.6 / month</span>
+      </div>
+    </div>`;
+}
+
 function renderTrialModal(){
   const daysLeft = trialDaysLeft();
   const ended = daysLeft <= 0;
@@ -2303,9 +2344,10 @@ function renderTrialModal(){
       <div class="trial-body">
         <ul class="trial-list">
           <li><span class="ti ok">✓</span> Full access to the question bank, mock tests and discussion threads through <b>${endDateLabel}</b>.</li>
-          <li><span class="ti info">i</span> Paid plans launch after the trial — pricing and tiers will be announced here before anything changes.</li>
           <li><span class="ti ok">✓</span> Anything you've posted, answered or saved stays on your account either way.</li>
         </ul>
+        ${pricingGridHtml()}
+        <p style="font-size:0.76rem; color:var(--dim); margin:12px 0 0;">Lock in the yearly rate any time — you won't be charged until the trial ends.</p>
       </div>
       <div class="trial-foot">
         <label class="trial-remember">
@@ -2323,14 +2365,15 @@ function renderTrialModal(){
       <div class="trial-body">
         <ul class="trial-list">
           <li><span class="ti ok">✓</span> Everything you've already posted, answered and saved is safe on your account.</li>
-          <li><span class="ti info">i</span> We'll let you know as soon as paid plans are ready, right here in the app.</li>
+          <li><span class="ti info">i</span> Pick any plan below to keep full access — no long-term lock-in beyond what you choose.</li>
         </ul>
+        ${pricingGridHtml()}
       </div>
       <div class="trial-foot">
         <label class="trial-remember">
           <input type="checkbox" id="trialDismissForeverChk"> Don't show this again
         </label>
-        <button class="trial-cta" id="trialCtaBtn">Got it</button>
+        <button class="trial-cta" id="trialCtaBtn">Choose a plan</button>
       </div>`;
   }
 
