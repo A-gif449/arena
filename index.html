@@ -219,6 +219,22 @@
   .avatar{width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--paper-raised); border:1px solid var(--rule); font-weight:600; font-size:0.8rem; color:var(--ivory); flex-shrink:0; overflow:hidden; position:relative;}
   .avatar img{width:100%; height:100%; object-fit:cover; display:block;}
   .avatar.admin{background:var(--mark-dim); border-color:var(--mark); color:var(--mark);}
+  .avatar.owner{
+    background:var(--mark-dim); border-color:var(--mark); color:var(--mark);
+    box-shadow:0 0 0 2px var(--ink), 0 0 0 4px var(--mark), 0 0 14px 2px rgba(255,176,32,0.5);
+    animation:ownerglow 2.2s ease-in-out infinite;
+  }
+  @keyframes ownerglow{
+    0%,100%{ box-shadow:0 0 0 2px var(--ink), 0 0 0 4px var(--mark), 0 0 9px 1px rgba(255,176,32,0.3); }
+    50%{ box-shadow:0 0 0 2px var(--ink), 0 0 0 4px var(--mark), 0 0 18px 4px rgba(255,176,32,0.7); }
+  }
+  .avatar.owner::after{
+    content:"👑"; position:absolute; bottom:-3px; right:-3px; font-size:0.6em; line-height:1;
+    background:var(--mark); color:#1c1206; border-radius:50%; width:1.5em; height:1.5em;
+    display:flex; align-items:center; justify-content:center; border:1.5px solid var(--ink);
+  }
+  .pt-role.owner-role, .role.owner-role{color:var(--mark); font-weight:700;}
+  .mini-avatar-btn.owner{border-color:var(--mark); box-shadow:0 0 0 2px rgba(255,176,32,0.55);}
   .avatar.big{width:64px; height:64px; font-size:1.3rem;}
   .avatar-btn{background:none; border:none; padding:0; cursor:pointer; flex-shrink:0; position:relative;}
   .avatar-btn .avatar{width:38px; height:38px; font-size:0.92rem;}
@@ -943,21 +959,28 @@
    1. Firebase project → Firestore (production mode) + Authentication with
       the Email/Password provider enabled.
    2. Paste your real config into firebaseConfig below.
-   3. List the email address(es) that should start out as admin in
-      OWNER_ADMIN_EMAILS — the first time that email signs up, it's made an
-      admin automatically. Admins can promote other signed-up users from the
-      admin panel afterward.
+   3. List your own email address in OWNER_ADMIN_EMAILS — the first time
+      that email signs up, it's made role:"owner" automatically. This is
+      the "Group Admin": one tier above regular admins, shown with a
+      glowing ring + crown on their avatar everywhere it appears, and the
+      only one who can grant or revoke admin status from other users (via
+      the admin panel). Regular admins can still manage content (edit/
+      delete any question or comment) exactly like before.
    4. Firestore rules must enforce this server-side — hiding buttons in the
       UI is not real security. At minimum:
         - users/{uid}: any signed-in user may READ any profile (needed to
           show names/photos on comments, questions, and the profile pages),
           but a user may only WRITE their own doc, and only when the "role"
           field stays the same UNLESS the caller's own users/{uid}.role ==
-          "admin" (so only admins can promote/demote).
+          "owner" (so only the Group Admin can promote to admin, demote an
+          admin, or — carefully — hand off ownership; a plain "admin" can
+          manage content but must NOT be able to change anyone's role,
+          including their own).
         - questions/{id} and questions/{id}/comments/{id}: create requires
           request.auth != null. Update/delete is allowed when the caller is
-          the doc's own authorId OR the caller's users/{uid}.role ==
-          "admin" — this is what lets someone delete their own comment.
+          the doc's own authorId OR the caller's users/{uid}.role in
+          ["admin","owner"] — this is what lets someone delete their own
+          comment, and lets admins/the owner moderate anyone's.
           Voting only ever touches upvoters/downvoters, so also allow any
           signed-in user to update just those two fields.
         - notifications/{id}: create is allowed when request.auth != null
@@ -982,7 +1005,7 @@ const firebaseConfig = {
   appId: "1:676034857782:web:ddd8bf3b0f87c5efae8197",
   measurementId: "G-EP2WWG4K83"
 };
-const OWNER_ADMIN_EMAILS = ["admin@example.com"]; // <-- your email(s), lowercase
+const OWNER_ADMIN_EMAILS = ["basuabhishek748@gmail.com"]; // <-- your email(s), lowercase
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
@@ -991,7 +1014,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, addDoc, doc, setDoc, getDoc, deleteDoc, updateDoc, onSnapshot,
-  query, where, orderBy, serverTimestamp, runTransaction, arrayUnion, arrayRemove, getDocs
+  query, where, orderBy, limit, serverTimestamp, runTransaction, arrayUnion, arrayRemove, getDocs, increment,
+  getCountFromServer
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
@@ -1000,6 +1024,8 @@ const db = getFirestore(app);
 
 let uid = null, myEmail = null, myName = null, myPhoto = null;
 let isAdmin = false;
+let isOwner = false;
+let myRole = "user";
 let feedStarted = false;
 let notifStarted = false;
 let userDocUnsub = null;
@@ -1037,7 +1063,7 @@ document.getElementById("gateSerial").textContent = "seat no. arena-" + Math.flo
 /* ---------------- auth state ---------------- */
 onAuthStateChanged(auth, (user) => {
   if (!user){
-    uid = null; isAdmin = false;
+    uid = null; isAdmin = false; isOwner = false; myRole = "user";
     if (userDocUnsub){ userDocUnsub(); userDocUnsub = null; }
     document.getElementById("authGate").style.display = "grid";
     document.getElementById("appRoot").style.display = "none";
@@ -1054,7 +1080,9 @@ function subscribeUserDoc(){
     const data = snap.data();
     myName = data.name || myEmail;
     myPhoto = data.photoURL || null;
-    isAdmin = data.role === "admin";
+    isAdmin = data.role === "admin" || data.role === "owner";
+    isOwner = data.role === "owner";
+    myRole = data.role || "user";
     document.getElementById("authGate").style.display = "none";
     document.getElementById("appRoot").style.display = "block";
     if (!feedStarted){ feedStarted = true; startFeed(); }
@@ -1111,7 +1139,7 @@ document.getElementById("gateSubmitBtn").onclick = async () => {
       await updateProfile(cred.user, { displayName: name });
       await setDoc(doc(db,"users",cred.user.uid), {
         name, email,
-        role: OWNER_ADMIN_EMAILS.includes(email.toLowerCase()) ? "admin" : "user",
+        role: OWNER_ADMIN_EMAILS.includes(email.toLowerCase()) ? "owner" : "user",
         createdAt: serverTimestamp()
       });
       const stamp = document.getElementById("gateStamp");
@@ -1143,7 +1171,9 @@ TOPICS.forEach(t => {
   b.onclick = () => {
     activeTopic = t;
     [...tabsEl.children].forEach(c => c.classList.toggle("active", c === b));
-    render();
+    feedLimit = 20;
+    feedReachedEnd = false;
+    startFeed();
   };
   tabsEl.appendChild(b);
 });
@@ -1192,18 +1222,19 @@ function updateAuthUI(){
   const wrap = document.getElementById("profileMenuWrap");
   const initials = (myName||"?").split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
   const avatarInner = myPhoto ? `<img src="${myPhoto}" alt="">` : initials;
+  const roleCls = avatarRoleClass(myRole);
   wrap.innerHTML = `
     <button class="profile-trigger ${profileMenuOpen?'open':''}" id="profileTrigger" title="Account menu">
-      <div class="avatar ${isAdmin?'admin':''}" style="width:32px;height:32px;font-size:0.78rem;">${avatarInner}</div>
+      <div class="avatar ${roleCls}" style="width:32px;height:32px;font-size:0.78rem;">${avatarInner}</div>
       <span class="pt-id">
         <span class="pt-name">${escapeHtml(myName||"")}</span>
-        <span class="pt-role ${isAdmin?'admin-role':''}">${isAdmin?'Admin':'Solver'}</span>
+        <span class="pt-role ${isOwner?'owner-role':isAdmin?'admin-role':''}">${roleLabel(myRole)}</span>
       </span>
       <span class="pt-chevron">▼</span>
     </button>
     <div class="profile-dropdown ${profileMenuOpen?'open':''}" id="profileDropdown">
       <div class="pd-head">
-        <div class="avatar ${isAdmin?'admin':''}">${avatarInner}</div>
+        <div class="avatar ${roleCls}">${avatarInner}</div>
         <div style="min-width:0;">
           <div class="pd-name">${escapeHtml(myName||"")}</div>
           <div class="pd-email">${escapeHtml(myEmail||"")}</div>
@@ -1212,7 +1243,7 @@ function updateAuthUI(){
       <div class="pd-actions">
         <button class="pd-action" id="pdViewProfile"><span class="pd-icon">👤</span> View profile</button>
         <button class="pd-action" id="pdPlansPricing"><span class="pd-icon">💎</span> Plans &amp; Pricing</button>
-        ${isAdmin ? `<button class="pd-action" id="pdAdminPanel"><span class="pd-icon">🛠️</span> Admin panel</button>` : ""}
+        ${isAdmin ? `<button class="pd-action" id="pdAdminPanel"><span class="pd-icon">${isOwner?'👑':'🛠️'}</span> ${isOwner?'Group Admin console':'Admin panel'}</button>` : ""}
         <hr class="pd-divider">
         <button class="pd-action danger" id="pdLogout"><span class="pd-icon">↪</span> Log out</button>
       </div>
@@ -1247,37 +1278,52 @@ function closeProfileMenu(){
 }
 
 /* ---------------- live feed ---------------- */
+// Pagination + lazy comment loading. This is the part that keeps the app
+// fast as the question bank grows into the hundreds/thousands:
+//   1. The feed query is capped with limit(feedLimit) instead of pulling
+//      every question in the collection on every load.
+//   2. When a topic filter is active, the "where" clause is pushed into
+//      the query itself, so filtering to one topic only ever reads that
+//      topic's documents — not the whole bank filtered client-side.
+//   3. A question's comments subcollection is only ever subscribed to
+//      while that question is actually expanded (or is a "discussion"
+//      type, which is always shown open). Collapsed MCQ cards show a
+//      denormalized commentCount field instead of opening a live listener
+//      — so 500 questions in the feed does NOT mean 500 open listeners,
+//      only however many the person actually has expanded right now.
+let feedLimit = 20;
+let feedUnsub = null;
+let feedReachedEnd = false;
+let healedCommentCounts = new Set(); // qids we've already self-healed this session, so we don't re-write on every snapshot
+
 function startFeed(){
-  const qRef = query(collection(db, "questions"), orderBy("createdAt", "desc"));
-  onSnapshot(qRef, (snap) => {
+  if (feedUnsub) feedUnsub();
+  document.getElementById("feed").innerHTML = `<div class="empty">Loading…</div>`;
+
+  const constraints = [orderBy("createdAt", "desc"), limit(feedLimit)];
+  if (activeTopic !== "All") constraints.unshift(where("topic", "==", activeTopic));
+  const qRef = query(collection(db, "questions"), ...constraints);
+
+  feedUnsub = onSnapshot(qRef, (snap) => {
+    feedReachedEnd = snap.docs.length < feedLimit;
     const seenIds = new Set();
     questions = snap.docs.map(d => {
       seenIds.add(d.id);
       // Keep any comments we've already loaded for this question instead
-      // of wiping them back to [] on every re-render — that used to cause
-      // comments to flicker/disappear briefly on every vote anywhere in
-      // the whole feed.
+      // of wiping them back to [] on every re-render.
       const existing = questions.find(q => q.id === d.id);
       return { id: d.id, ...d.data(), comments: existing ? existing.comments : [] };
     });
 
-    // Only ever subscribe to a question's comments ONCE. Re-subscribing on
-    // every snapshot (the old behavior) stacked up duplicate listeners
-    // that each re-rendered the whole feed independently — this was the
-    // main cause of voting/commenting feeling slower over time.
+    // Only keep a live comments listener open for questions that are
+    // actually expanded right now (or discussion-type, always "open").
     questions.forEach(q => {
-      if (commentUnsubs[q.id]) return;
-      commentUnsubs[q.id] = onSnapshot(collection(db, "questions", q.id, "comments"), (csnap) => {
-        const target = questions.find(x => x.id === q.id);
-        if (!target) return;
-        target.comments = csnap.docs.map(d => ({ id: d.id, ...d.data() }))
-          .sort((a,b) => (a.createdAt?.toMillis?.()||0) - (b.createdAt?.toMillis?.()||0));
-        render();
-      });
+      const shouldBeOpen = q.type === "discussion" || expandedComments.has(q.id);
+      if (shouldBeOpen) subscribeComments(q.id);
     });
 
-    // Clean up listeners for questions that got deleted, so we don't leak
-    // them forever either.
+    // Drop listeners for questions no longer in view (deleted, or fell
+    // off this page) so we never leak them.
     Object.keys(commentUnsubs).forEach(qid => {
       if (!seenIds.has(qid)){ commentUnsubs[qid](); delete commentUnsubs[qid]; }
     });
@@ -1286,8 +1332,30 @@ function startFeed(){
   }, (err) => {
     console.error("Feed error:", err);
     document.getElementById("feed").innerHTML =
-      `<div class="empty">Feed error: ${err.message}. If this says "permission-denied", update your Firestore rules.</div>`;
+      `<div class="empty">Feed error: ${err.message}. If this says "permission-denied", update your Firestore rules. If it mentions a missing index, open the link Firestore prints in the browser console (F12) and click "create index" — only needed once.</div>`;
   });
+}
+
+function subscribeComments(qid){
+  if (commentUnsubs[qid]) return;
+  commentUnsubs[qid] = onSnapshot(collection(db, "questions", qid, "comments"), (csnap) => {
+    const target = questions.find(x => x.id === qid);
+    if (!target) return;
+    target.comments = csnap.docs.map(d => ({ id: d.id, ...d.data() }))
+      .sort((a,b) => (a.createdAt?.toMillis?.()||0) - (b.createdAt?.toMillis?.()||0));
+
+    // Self-heal: if this question predates the commentCount field, quietly
+    // backfill it the first time someone opens it, so the count shown on
+    // the collapsed card becomes accurate without a manual migration step.
+    if (target.commentCount === undefined && !healedCommentCounts.has(qid)){
+      healedCommentCounts.add(qid);
+      updateDoc(doc(db,"questions",qid), { commentCount: csnap.size }).catch(()=>{});
+    }
+    render();
+  });
+}
+function unsubscribeComments(qid){
+  if (commentUnsubs[qid]){ commentUnsubs[qid](); delete commentUnsubs[qid]; }
 }
 
 function upDown(list){ return { up: (list?.upvoters||[]).length, down: (list?.downvoters||[]).length }; }
@@ -1305,13 +1373,19 @@ function fullDate(ts){ return ts && ts.toDate ? ts.toDate().toLocaleString() : "
 
 function render(){
   const feed = document.getElementById("feed");
-  let list = activeTopic === "All" ? questions : questions.filter(q => q.topic === activeTopic);
+  let list = questions; // topic filtering now happens server-side in the query itself
 
+  // NOTE on sort limitations: "Top voted" and "Most discussed" only sort
+  // the page of questions currently loaded (feedLimit worth), not the
+  // entire question bank — sorting the whole collection server-side would
+  // need denormalized counter fields indexed for it, which isn't set up
+  // here. Click "Load more" to pull in older questions before trusting a
+  // sort as exhaustive.
   if (sortMode === "top") list = [...list].sort((a,b) => (upDown(b).up - upDown(b).down) - (upDown(a).up - upDown(a).down));
-  else if (sortMode === "discussed") list = [...list].sort((a,b) => (b.comments?.length||0) - (a.comments?.length||0));
+  else if (sortMode === "discussed") list = [...list].sort((a,b) => commentCountOf(b) - commentCountOf(a));
 
-  const totalComments = questions.reduce((s,q)=> s + (q.comments?.length||0), 0);
-  document.getElementById("statLine").textContent = `${questions.length} live`;
+  const totalComments = questions.reduce((s,q)=> s + commentCountOf(q), 0);
+  document.getElementById("statLine").textContent = `${questions.length}${feedReachedEnd?"":"+"} loaded`;
   document.getElementById("statQ").textContent = questions.length;
   document.getElementById("statC").textContent = totalComments;
   document.getElementById("gateStatQ").textContent = questions.length || "–";
@@ -1321,8 +1395,21 @@ function render(){
     feed.innerHTML = `<div class="empty">Nothing here yet — be the first to post one.</div>`;
     return;
   }
-  feed.innerHTML = list.map(q => renderCard(q)).join("");
+  const tailHtml = feedReachedEnd
+    ? `<div class="empty" style="padding:22px;">You've reached the end — that's everything for this filter.</div>`
+    : `<button class="btn-ghost btn-block" id="loadMoreBtn">Load more questions</button>`;
+  feed.innerHTML = list.map(q => renderCard(q)).join("") + tailHtml;
   list.forEach(q => wireCard(q));
+  const loadMoreBtn = document.getElementById("loadMoreBtn");
+  if (loadMoreBtn) loadMoreBtn.onclick = () => { feedLimit += 20; startFeed(); };
+}
+
+// Accurate comment count for a question regardless of whether its
+// comments subcollection is currently subscribed: prefer the denormalized
+// commentCount field (kept in sync on comment create/delete), fall back
+// to the live array length only if that field hasn't been set yet.
+function commentCountOf(q){
+  return q.commentCount ?? (q.comments?.length || 0);
 }
 
 function renderCard(q){
@@ -1356,7 +1443,7 @@ function renderCard(q){
   const tagPills = (q.tags||[]).map(t => `<span class="pill tag">#${escapeHtml(t)}</span>`).join("");
   const hotPill = net >= 5 ? `<span class="pill hot">Popular</span>` : "";
   const flagPill = flagCount > 0 ? `<span class="pill flag">Flagged ×${flagCount}</span>` : "";
-  const commentCount = q.comments?.length || 0;
+  const commentCount = commentCountOf(q);
   const commentsBlock = isOpen ? renderCommentsBlock(q) : "";
   const toggleBtn = q.type === "mcq"
     ? `<button class="toggle-comments mono" data-toggle="${q.id}">${commentCount} comment${commentCount!==1?"s":""} ${expandedComments.has(q.id)?"▲":"▼"}</button>`
@@ -1461,7 +1548,13 @@ function wireCard(q){
 
   const toggle = document.querySelector(`[data-toggle="${q.id}"]`);
   if (toggle) toggle.onclick = () => {
-    if (expandedComments.has(q.id)) expandedComments.delete(q.id); else expandedComments.add(q.id);
+    if (expandedComments.has(q.id)){
+      expandedComments.delete(q.id);
+      unsubscribeComments(q.id);
+    } else {
+      expandedComments.add(q.id);
+      subscribeComments(q.id);
+    }
     render();
   };
 
@@ -1480,6 +1573,7 @@ function wireCard(q){
         text, type: typeSel.value, authorId: uid, authorName: myName, isAdmin,
         createdAt: serverTimestamp(), upvoters: [], downvoters: []
       });
+      updateDoc(doc(db,"questions",q.id), { commentCount: increment(1) }).catch(()=>{});
       delete drafts[q.id];
       showToast("Comment posted", "success");
       if (q.authorId && q.authorId !== uid){
@@ -1524,7 +1618,10 @@ function wireCard(q){
     const delC = document.querySelector(`[data-del-c="${q.id}|${c.id}"]`);
     if (delC) delC.onclick = async () => {
       if (!confirm("Delete this comment?")) return;
-      try { await deleteDoc(doc(db,"questions",q.id,"comments",c.id)); }
+      try {
+        await deleteDoc(doc(db,"questions",q.id,"comments",c.id));
+        updateDoc(doc(db,"questions",q.id), { commentCount: increment(-1) }).catch(()=>{});
+      }
       catch(err){ console.error(err); showToast("Couldn't delete: " + err.message, "error"); }
     };
   });
@@ -1556,6 +1653,14 @@ async function castVote(ref, dir, bumpSelector){
   }
 }
 
+// role -> CSS class for .avatar elements ("owner" gets the glowing ring + crown, "admin" gets the amber tint, plain users get neither)
+function avatarRoleClass(role){
+  return role === "owner" ? "owner" : role === "admin" ? "admin" : "";
+}
+// role -> the label shown next to a name (profile trigger, profile page, etc.)
+function roleLabel(role){
+  return role === "owner" ? "Group Admin" : role === "admin" ? "Admin" : "Solver";
+}
 function escapeHtml(s){
   const d = document.createElement("div");
   d.textContent = s || "";
@@ -1679,7 +1784,7 @@ submitBtn.onclick = async () => {
       showToast("Question updated", "success");
     } else {
       payload.authorId = uid; payload.authorName = myName; payload.createdAt = serverTimestamp();
-      payload.upvoters = []; payload.downvoters = []; payload.flaggedBy = [];
+      payload.upvoters = []; payload.downvoters = []; payload.flaggedBy = []; payload.commentCount = 0;
       if (postType === "mcq") payload.responses = {};
       await addDoc(collection(db,"questions"), payload);
       showToast("Question posted", "success");
@@ -1755,8 +1860,9 @@ function miniAvatar(authorId, fallbackName){
   const name = (cached && cached.name) || fallbackName || "?";
   const photo = cached && cached.photoURL;
   const initials = name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
-  const adminCls = cached && cached.role === "admin" ? " admin" : "";
-  return `<button class="mini-avatar-btn${adminCls}" data-openprofile="${authorId}" title="View profile">${photo?`<img src="${photo}" alt="">`:initials}</button>`;
+  const roleCls = avatarRoleClass(cached && cached.role);
+  const roleTitle = cached && cached.role === "owner" ? " (Group Admin)" : cached && cached.role === "admin" ? " (Admin)" : "";
+  return `<button class="mini-avatar-btn${roleCls?' '+roleCls:''}" data-openprofile="${authorId}" title="View profile${roleTitle}">${photo?`<img src="${photo}" alt="">`:initials}</button>`;
 }
 
 function computeUserStats(targetUid){
@@ -1989,20 +2095,42 @@ document.getElementById("mtCountSlider").oninput = (e) => {
   document.getElementById("mtCountBadge").textContent = mtCount;
   updateMtSummary();
 };
-function eligibleMtPool(){
-  return questions.filter(q =>
-    q.type === "mcq" &&
-    mtSelectedTopics.has(q.topic) &&
-    (mtSelectedDiff === "any" || q.difficulty === mtSelectedDiff)
-  );
+// Builds the Firestore query for the person's chosen topics/difficulty.
+// Queried directly against the "questions" collection — deliberately NOT
+// filtered from the client-side `questions` array, because that array is
+// now only ever a paginated slice of the feed (see startFeed). A mock test
+// needs to be able to draw from the entire bank, not just whatever page
+// happens to be loaded in the feed at that moment.
+function mtBuildQuery(){
+  const topicsArr = [...mtSelectedTopics];
+  const constraints = [where("type", "==", "mcq")];
+  // Firestore's "in" operator supports up to 30 values — five topics is
+  // comfortably inside that, so this is safe even if more topics are added later.
+  if (topicsArr.length < (TOPICS.length - 1)) constraints.push(where("topic", "in", topicsArr));
+  if (mtSelectedDiff !== "any") constraints.push(where("difficulty", "==", mtSelectedDiff));
+  return query(collection(db, "questions"), ...constraints);
 }
-function updateMtSummary(){
-  const pool = eligibleMtPool();
+
+let mtSummaryToken = 0; // guards against a slow older count overwriting a newer one
+async function updateMtSummary(){
   document.getElementById("mtSumQ").textContent = mtCount;
   const totalSecs = mtCount * SECONDS_PER_QUESTION;
   document.getElementById("mtSumDuration").textContent = formatClock(totalSecs);
-  document.getElementById("mtSumAvail").textContent = pool.length;
   document.getElementById("mtSetupError").textContent = "";
+  const availEl = document.getElementById("mtSumAvail");
+  availEl.textContent = "…";
+  const myToken = ++mtSummaryToken;
+  try {
+    // getCountFromServer returns just a number — it does not download the
+    // matching documents, so checking "how many are available" never gets
+    // slower as the question bank grows.
+    const snap = await getCountFromServer(mtBuildQuery());
+    if (myToken !== mtSummaryToken) return; // a newer call already superseded this one
+    availEl.textContent = snap.data().count;
+  } catch (err) {
+    console.error("Couldn't count matching questions:", err);
+    if (myToken === mtSummaryToken) availEl.textContent = "–";
+  }
 }
 function formatClock(totalSeconds){
   const m = Math.floor(totalSeconds/60), s = totalSeconds%60;
@@ -2016,21 +2144,36 @@ document.getElementById("openMockSetupBtn").onclick = () => {
 };
 document.getElementById("mtSetupCancelBtn").onclick = () => mockSetupOverlay.classList.remove("open");
 
-document.getElementById("mtBeginBtn").onclick = () => {
+document.getElementById("mtBeginBtn").onclick = async () => {
   const errEl = document.getElementById("mtSetupError");
   errEl.textContent = "";
   if (!mtSelectedTopics.size){ errEl.textContent = "Pick at least one topic."; return; }
-  const pool = eligibleMtPool();
-  if (pool.length < mtCount){
-    errEl.textContent = `Only ${pool.length} matching question${pool.length!==1?"s":""} available — lower the count or widen your filters.`;
-    return;
+  const btn = document.getElementById("mtBeginBtn");
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  btn.textContent = "Preparing…";
+  try {
+    // Cap at 200 candidates — plenty to shuffle a random 5–10 from, and it
+    // keeps this a fixed-cost read no matter how large the bank gets.
+    const snap = await getDocs(query(mtBuildQuery(), limit(200)));
+    const pool = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+    if (pool.length < mtCount){
+      errEl.textContent = `Only ${pool.length} matching question${pool.length!==1?"s":""} available — lower the count or widen your filters.`;
+      return;
+    }
+    const picked = shuffle(pool).slice(0, mtCount).map(q => ({
+      id:q.id, topic:q.topic, difficulty:q.difficulty, text:q.text,
+      options:q.options, correctIndex:q.correctIndex
+    }));
+    mockSetupOverlay.classList.remove("open");
+    startExam(picked);
+  } catch (err) {
+    console.error("Couldn't load mock test questions:", err);
+    errEl.textContent = "Couldn't load questions: " + err.message + " — if it mentions a missing index, open the link in the browser console (F12) and click \"create index\" (one-time setup).";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
   }
-  const picked = shuffle([...pool]).slice(0, mtCount).map(q => ({
-    id:q.id, topic:q.topic, difficulty:q.difficulty, text:q.text,
-    options:q.options, correctIndex:q.correctIndex
-  }));
-  mockSetupOverlay.classList.remove("open");
-  startExam(picked);
 };
 
 function shuffle(arr){
