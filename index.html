@@ -6,6 +6,10 @@
 <title>Arena — GATE Aptitude Practice</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📝</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://firestore.googleapis.com">
+<link rel="preconnect" href="https://identitytoolkit.googleapis.com">
+<link rel="dns-prefetch" href="https://www.gstatic.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -315,8 +319,9 @@
   .qcard.highlight{outline:2px solid var(--info); outline-offset:2px;}
 
   .voterail{display:flex; flex-direction:column; align-items:center; gap:2px; flex-shrink:0; width:40px;}
-  .vrbtn{background:none; border:none; color:var(--dim); font-size:1.1rem; padding:4px; border-radius:5px; line-height:1;}
+  .vrbtn{background:none; border:none; color:var(--dim); font-size:1.1rem; padding:4px; border-radius:5px; line-height:1; transition:transform .08s ease, color .1s ease;}
   .vrbtn:hover{background:var(--paper-raised); color:var(--ivory);}
+  .vrbtn:active{transform:scale(0.82);}
   .vrbtn.up.active{color:var(--verified);}
   .vrbtn.down.active{color:var(--alert);}
   .vrcount{font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; font-weight:700; font-size:1.05rem; transition:transform .2s ease;}
@@ -365,7 +370,8 @@
   .ctime{color:var(--dim); font-size:0.74rem; font-family:'IBM Plex Mono',monospace;}
 
   .vote.small{display:flex; align-items:center; gap:4px; border:1px solid var(--rule); border-radius:var(--radius-pill); padding:2px 6px; flex-shrink:0;}
-  .vote.small .vbtn{background:none; border:none; color:var(--dim); font-size:0.82rem; padding:1px 4px; line-height:1;}
+  .vote.small .vbtn{background:none; border:none; color:var(--dim); font-size:0.82rem; padding:1px 4px; line-height:1; transition:transform .08s ease, color .1s ease;}
+  .vote.small .vbtn:active{transform:scale(0.8);}
   .vote.small .vbtn.up.active{color:var(--verified);} .vote.small .vbtn.down.active{color:var(--alert);}
   .vote.small .vcount{font-family:'IBM Plex Mono',monospace; font-size:0.75rem; min-width:14px; text-align:center;}
 
@@ -751,6 +757,16 @@
     <nav class="topicnav" id="topicTabs"></nav>
 
     <div class="sortwrap">
+      <label>GATE year</label>
+      <select id="yearSel"><option value="All">All years</option></select>
+    </div>
+
+    <div class="sortwrap">
+      <label>Branch</label>
+      <select id="branchSel"><option value="All">All branches</option></select>
+    </div>
+
+    <div class="sortwrap">
       <label>Sort by</label>
       <select id="sortSel">
         <option value="new">Newest first</option>
@@ -803,6 +819,23 @@
         </select>
       </div>
     </div>
+    <div class="row2">
+      <div class="field">
+        <label>GATE year</label>
+        <select id="fGateYear"></select>
+      </div>
+      <div class="field">
+        <label>Branch / paper</label>
+        <select id="fBranch"></select>
+      </div>
+      <div class="field" style="max-width:110px;">
+        <label>Marks</label>
+        <select id="fMarks">
+          <option value="1">1 mark</option>
+          <option value="2">2 marks</option>
+        </select>
+      </div>
+    </div>
     <div class="field">
       <label>Question</label>
       <textarea id="fText" placeholder="Type the question exactly as it should appear…"></textarea>
@@ -839,6 +872,39 @@
       <span class="form-error" id="promoteError"></span>
       <button class="btn-ghost" id="adminCloseBtn">Close</button>
       <button class="btn-primary" id="promoteBtn">Make admin</button>
+    </div>
+  </div>
+</div>
+
+<!-- Bulk import modal (admin only) -->
+<div class="overlay" id="bulkImportOverlay">
+  <div class="modal" style="max-width:640px;">
+    <h2>Bulk import questions</h2>
+    <p class="hint">
+      Paste an array of question objects — from your own notes or archived papers you already have
+      legal access to. Each object: <span class="mono">text, options[4], correctIndex, topic, difficulty,
+      gateYear, branch, marks</span>. Unknown/missing fields default to sensible values.
+    </p>
+    <div class="field">
+      <label>Questions (JSON array)</label>
+      <textarea id="bulkImportInput" style="min-height:220px; font-family:'IBM Plex Mono',monospace; font-size:0.8rem;"
+        placeholder='[
+  {
+    "text": "If a train travels 60 km in 45 minutes, its speed in km/h is:",
+    "options": ["60", "75", "80", "90"],
+    "correctIndex": 1,
+    "topic": "Quantitative Aptitude",
+    "difficulty": "easy",
+    "gateYear": 2019,
+    "branch": "Common (General Aptitude)",
+    "marks": 1
+  }
+]'></textarea>
+    </div>
+    <div class="modal-actions">
+      <span class="form-error" id="bulkImportError"></span>
+      <button class="btn-ghost" id="bulkImportCancelBtn">Cancel</button>
+      <button class="btn-primary" id="bulkImportBtn">Import questions</button>
     </div>
   </div>
 </div>
@@ -1061,13 +1127,23 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, addDoc, doc, setDoc, getDoc, deleteDoc, updateDoc, onSnapshot,
-  query, where, orderBy, limit, serverTimestamp, runTransaction, arrayUnion, arrayRemove, getDocs, increment,
-  getCountFromServer
+  query, where, orderBy, limit, serverTimestamp, arrayUnion, arrayRemove, getDocs, increment,
+  getCountFromServer, writeBatch, enableIndexedDbPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+// Offline/local cache: lets Firestore serve reads from an on-device cache
+// instantly (before the network round trip even finishes) and queue writes
+// while offline. This is the single biggest lever for "feels fast no
+// matter the network" — repeat visits and flaky connections both benefit.
+// Fails harmlessly if the browser has multiple tabs open to this app
+// (only one tab can hold the persistence lock) or doesn't support it.
+enableIndexedDbPersistence(db).catch((err) => {
+  console.warn("Offline persistence not enabled (" + err.code + ") — app still works, just without the local cache speed boost.");
+});
 
 let uid = null, myEmail = null, myName = null, myPhoto = null;
 let isAdmin = false;
@@ -1104,6 +1180,20 @@ const CTYPES = {
   explanation:{label:"Explanation", cls:"explanation"},
   correction:{label:"Correction", cls:"correction"}
 };
+
+// GATE metadata: which exam year, which branch paper, and how many marks a
+// question is worth. General Aptitude is a common section across every
+// branch's paper, so "Common (General Aptitude)" covers most of what you'll
+// tag — the specific branches are here for anything pulled from a
+// branch-specific paper instead.
+const GATE_YEARS = Array.from({length: 2026-2010+1}, (_,i) => 2026-i); // 2026 down to 2010
+const BRANCHES = [
+  "Common (General Aptitude)","CS/IT","Mechanical","Electrical","Electronics (ECE)",
+  "Civil","Chemical","Instrumentation","Biotechnology","Aerospace","Mining",
+  "Metallurgy","Textile","Production & Industrial","Other"
+];
+let activeGateYear = "All";
+let activeBranch = "All";
 
 document.getElementById("gateSerial").textContent = "seat no. arena-" + Math.floor(100000 + Math.random()*899999);
 
@@ -1226,6 +1316,37 @@ TOPICS.forEach(t => {
 });
 document.getElementById("sortSel").onchange = (e) => { sortMode = e.target.value; render(); };
 
+const yearSel = document.getElementById("yearSel");
+GATE_YEARS.forEach(y => {
+  const opt = document.createElement("option");
+  opt.value = String(y); opt.textContent = "GATE " + y;
+  yearSel.appendChild(opt);
+});
+yearSel.onchange = (e) => { activeGateYear = e.target.value; render(); };
+
+const branchSel = document.getElementById("branchSel");
+BRANCHES.forEach(b => {
+  const opt = document.createElement("option");
+  opt.value = b; opt.textContent = b;
+  branchSel.appendChild(opt);
+});
+branchSel.onchange = (e) => { activeBranch = e.target.value; render(); };
+
+// Post/edit modal's own year & branch selects (separate from the sidebar
+// filter selects above — these set a value on the question being saved).
+const fGateYear = document.getElementById("fGateYear");
+GATE_YEARS.forEach(y => {
+  const opt = document.createElement("option");
+  opt.value = String(y); opt.textContent = "GATE " + y;
+  fGateYear.appendChild(opt);
+});
+const fBranch = document.getElementById("fBranch");
+BRANCHES.forEach(b => {
+  const opt = document.createElement("option");
+  opt.value = b; opt.textContent = b;
+  fBranch.appendChild(opt);
+});
+
 /* ---------------- avatar upload ---------------- */
 const avatarFileInput = document.getElementById("avatarFileInput");
 avatarFileInput.onchange = async (e) => {
@@ -1291,6 +1412,7 @@ function updateAuthUI(){
         <button class="pd-action" id="pdViewProfile"><span class="pd-icon">👤</span> View profile</button>
         <button class="pd-action" id="pdPlansPricing"><span class="pd-icon">💎</span> Plans &amp; Pricing</button>
         ${isAdmin ? `<button class="pd-action" id="pdAdminPanel"><span class="pd-icon">${isOwner?'👑':'🛠️'}</span> ${isOwner?'Group Admin console':'Admin panel'}</button>` : ""}
+        ${isAdmin ? `<button class="pd-action" id="pdBulkImport"><span class="pd-icon">📥</span> Bulk import questions</button>` : ""}
         <hr class="pd-divider">
         <button class="pd-action danger" id="pdLogout"><span class="pd-icon">↪</span> Log out</button>
       </div>
@@ -1314,6 +1436,7 @@ function updateAuthUI(){
   document.getElementById("pdLogout").onclick = () => { closeProfileMenu(); signOut(auth); };
   if (isAdmin){
     document.getElementById("pdAdminPanel").onclick = () => { closeProfileMenu(); adminOverlay.classList.add("open"); };
+    document.getElementById("pdBulkImport").onclick = () => { closeProfileMenu(); document.getElementById("bulkImportOverlay").classList.add("open"); };
   }
 }
 function closeProfileMenu(){
@@ -1398,7 +1521,7 @@ function subscribeComments(qid){
       healedCommentCounts.add(qid);
       updateDoc(doc(db,"questions",qid), { commentCount: csnap.size }).catch(()=>{});
     }
-    render();
+    rerenderCard(qid);
   });
 }
 function unsubscribeComments(qid){
@@ -1421,6 +1544,13 @@ function fullDate(ts){ return ts && ts.toDate ? ts.toDate().toLocaleString() : "
 function render(){
   const feed = document.getElementById("feed");
   let list = questions; // topic filtering now happens server-side in the query itself
+
+  // Year/branch filters run client-side on whatever page is loaded (same
+  // trade-off as sort — see the NOTE below). Older questions posted before
+  // this feature existed have no gateYear/branch and are hidden by an
+  // active filter rather than shown under a wrong label.
+  if (activeGateYear !== "All") list = list.filter(q => String(q.gateYear) === activeGateYear);
+  if (activeBranch !== "All") list = list.filter(q => q.branch === activeBranch);
 
   // NOTE on sort limitations: "Top voted" and "Most discussed" only sort
   // the page of questions currently loaded (feedLimit worth), not the
@@ -1449,6 +1579,26 @@ function render(){
   list.forEach(q => wireCard(q));
   const loadMoreBtn = document.getElementById("loadMoreBtn");
   if (loadMoreBtn) loadMoreBtn.onclick = () => { feedLimit += 20; startFeed(); };
+}
+
+// Targeted re-render: rebuilds and rewires ONE question card in place,
+// instead of calling render() (which rebuilds and rewires every visible
+// card, plus re-sorts and re-filters the whole list). Used for anything
+// that only changes a single question — a vote, an MCQ answer, a flag
+// toggle, a new/edited comment — so the interaction feels instant
+// (Instagram/Facebook-style) instead of waiting on a full feed repaint.
+// Falls back to a full render() the first time (or if the card isn't in
+// the DOM for some reason, e.g. it was filtered out), so state never gets
+// out of sync with what's actually on screen.
+function rerenderCard(qid){
+  const q = questions.find(x => x.id === qid);
+  const el = document.querySelector(`[data-qcardid="${qid}"]`);
+  if (!q || !el){ render(); return; }
+  const wrapper = document.createElement("div");
+  wrapper.innerHTML = renderCard(q);
+  const freshEl = wrapper.firstElementChild;
+  el.replaceWith(freshEl);
+  wireCard(q);
 }
 
 // Accurate comment count for a question regardless of whether its
@@ -1513,6 +1663,9 @@ function renderCard(q){
       <div class="qtop">
         <span class="pill">${escapeHtml(q.topic)}</span>
         <span class="pill ${q.difficulty}">${q.difficulty}</span>
+        ${q.gateYear ? `<span class="pill">GATE ${q.gateYear}</span>` : ""}
+        ${q.branch ? `<span class="pill">${escapeHtml(q.branch)}</span>` : ""}
+        ${q.marks ? `<span class="pill">${q.marks} mark${q.marks>1?"s":""}</span>` : ""}
         ${tagPills}${hotPill}${flagPill}
         <span class="qauthor-line">${miniAvatar(q.authorId, q.authorName)}<button class="linklike qauthor-name" data-openprofile="${q.authorId}">${escapeHtml(q.authorName||'solver')}</button></span>
         <span class="qtime" title="${fullDate(q.createdAt)}">${timeAgo(q.createdAt)}</span>
@@ -1555,7 +1708,7 @@ function renderComment(qid, c){
   <div class="comment">
     <div class="vote small" title="Like / dislike this">
       <button class="vbtn up ${myVote==='up'?'active':''}" data-vote-c="${qid}|${c.id}" data-dir="up">▲</button>
-      <span class="vcount">${up-down}</span>
+      <span class="vcount" data-ccount="${qid}|${c.id}">${up-down}</span>
       <button class="vbtn down ${myVote==='down'?'active':''}" data-vote-c="${qid}|${c.id}" data-dir="down">▼</button>
     </div>
     <div style="flex:1">
@@ -1576,7 +1729,7 @@ function renderComment(qid, c){
 function wireCard(q){
   document.querySelectorAll(`[data-vote-q="${q.id}"]`).forEach(btn=>{
     btn.onclick = async () => {
-      const applied = await castVote(doc(db,"questions",q.id), btn.dataset.dir, `[data-count-q="${q.id}"]`);
+      const applied = await castVote(q, doc(db,"questions",q.id), btn.dataset.dir, () => rerenderCard(q.id));
       if (applied && q.authorId){
         const snippet = q.text.length > 40 ? q.text.slice(0,40) + "…" : q.text;
         notify(q.authorId, "vote", `${myName} ${btn.dataset.dir==="up"?"upvoted":"downvoted"} your question "${snippet}"`, {questionId:q.id});
@@ -1587,9 +1740,22 @@ function wireCard(q){
     el.onclick = () => {
       if (q.responses?.[uid] !== undefined) return;
       const idx = parseInt(el.dataset.idx);
+      const isCorrect = idx === q.correctIndex;
+      if (isCorrect) spawnConfetti(el); // capture click position before the card is rebuilt below
+
+      // Optimistic: show the answer as locked-in immediately, don't wait
+      // on the network round trip to see whether you got it right.
+      if (!q.responses) q.responses = {};
+      q.responses[uid] = idx;
+      rerenderCard(q.id);
+
       updateDoc(doc(db,"questions",q.id), { [`responses.${uid}`]: idx })
-        .then(()=>{ if (idx === q.correctIndex) spawnConfetti(el); })
-        .catch(err => { console.error("Answer failed:", err); showToast("Couldn't submit answer: " + err.message, "error"); });
+        .catch(err => {
+          console.error("Answer failed:", err);
+          delete q.responses[uid];
+          rerenderCard(q.id);
+          showToast("Couldn't submit answer: " + err.message, "error");
+        });
     };
   });
 
@@ -1602,7 +1768,7 @@ function wireCard(q){
       expandedComments.add(q.id);
       subscribeComments(q.id);
     }
-    render();
+    rerenderCard(q.id);
   };
 
   const input = document.querySelector(`[data-comment-input="${q.id}"]`);
@@ -1614,6 +1780,10 @@ function wireCard(q){
     const typeSel = document.querySelector(`[data-ctype="${q.id}"]`);
     const text = ta.value.trim();
     if (!text) return;
+    // Optimistic: clear the box and disable Post immediately so the
+    // interaction feels instant, restore both if the write fails.
+    ta.value = "";
+    delete drafts[q.id];
     submitBtn.disabled = true;
     try {
       await addDoc(collection(db,"questions",q.id,"comments"), {
@@ -1621,7 +1791,6 @@ function wireCard(q){
         createdAt: serverTimestamp(), upvoters: [], downvoters: []
       });
       updateDoc(doc(db,"questions",q.id), { commentCount: increment(1) }).catch(()=>{});
-      delete drafts[q.id];
       showToast("Comment posted", "success");
       if (q.authorId && q.authorId !== uid){
         const snippet = q.text.length > 40 ? q.text.slice(0,40) + "…" : q.text;
@@ -1629,6 +1798,8 @@ function wireCard(q){
       }
     } catch (err) {
       console.error("Posting comment failed:", err);
+      drafts[q.id] = text;
+      ta.value = text;
       showToast("Couldn't post comment: " + err.message, "error");
     } finally {
       submitBtn.disabled = false;
@@ -1637,10 +1808,18 @@ function wireCard(q){
 
   const flagBtn = document.querySelector(`[data-flag-q="${q.id}"]`);
   if (flagBtn) flagBtn.onclick = async () => {
-    const iFlagged = (q.flaggedBy||[]).includes(uid);
+    const wasFlagged = (q.flaggedBy||[]).includes(uid);
+    // Optimistic toggle
+    q.flaggedBy = wasFlagged ? (q.flaggedBy||[]).filter(x=>x!==uid) : [...(q.flaggedBy||[]), uid];
+    rerenderCard(q.id);
     try {
-      await updateDoc(doc(db,"questions",q.id), { flaggedBy: iFlagged ? arrayRemove(uid) : arrayUnion(uid) });
-    } catch (err) { console.error(err); showToast("Couldn't update flag: " + err.message, "error"); }
+      await updateDoc(doc(db,"questions",q.id), { flaggedBy: wasFlagged ? arrayRemove(uid) : arrayUnion(uid) });
+    } catch (err) {
+      console.error(err);
+      q.flaggedBy = wasFlagged ? [...(q.flaggedBy||[]), uid] : (q.flaggedBy||[]).filter(x=>x!==uid);
+      rerenderCard(q.id);
+      showToast("Couldn't update flag: " + err.message, "error");
+    }
   };
 
   const editQ = document.querySelector(`[data-edit-q="${q.id}"]`);
@@ -1656,7 +1835,7 @@ function wireCard(q){
   (q.comments||[]).forEach(c=>{
     document.querySelectorAll(`[data-vote-c="${q.id}|${c.id}"]`).forEach(btn=>{
       btn.onclick = async () => {
-        const applied = await castVote(doc(db,"questions",q.id,"comments",c.id), btn.dataset.dir);
+        const applied = await castVote(c, doc(db,"questions",q.id,"comments",c.id), btn.dataset.dir, () => rerenderCard(q.id));
         if (applied && c.authorId){
           notify(c.authorId, "vote", `${myName} ${btn.dataset.dir==="up"?"upvoted":"downvoted"} your comment`, {questionId:q.id, commentId:c.id});
         }
@@ -1674,28 +1853,46 @@ function wireCard(q){
   });
 }
 
-async function castVote(ref, dir, bumpSelector){
+// Instant, Instagram/Facebook-style voting: mutates the LOCAL cached
+// object (targetObj — a question or a comment straight out of the
+// `questions` array) and calls onLocalUpdate() synchronously, before the
+// network write even starts. The write itself uses arrayUnion/arrayRemove
+// directly instead of a read-then-write transaction, so there's no extra
+// round trip to read the current vote state first — the button reacts the
+// moment it's clicked, same as the feed you're copying the feel of.
+// Concurrent votes from other people stay safe because arrayUnion/
+// arrayRemove are atomic server-side operations regardless of what any
+// client's local cache currently believes the array looks like.
+async function castVote(targetObj, ref, dir, onLocalUpdate){
+  const wasUp = (targetObj.upvoters||[]).includes(uid);
+  const wasDown = (targetObj.downvoters||[]).includes(uid);
+  const goingUp = dir === "up";
+  const alreadySameDir = goingUp ? wasUp : wasDown;
+
+  targetObj.upvoters = (targetObj.upvoters||[]).filter(x=>x!==uid);
+  targetObj.downvoters = (targetObj.downvoters||[]).filter(x=>x!==uid);
+  if (!alreadySameDir) (goingUp ? targetObj.upvoters : targetObj.downvoters).push(uid);
+  if (onLocalUpdate) onLocalUpdate();
+
+  const updates = {};
+  if (wasUp) updates.upvoters = arrayRemove(uid);
+  if (wasDown) updates.downvoters = arrayRemove(uid);
+  if (!alreadySameDir){
+    if (goingUp) updates.upvoters = arrayUnion(uid);
+    else updates.downvoters = arrayUnion(uid);
+  }
   try {
-    const applied = await runTransaction(db, async (tx) => {
-      const snap = await tx.get(ref);
-      const data = snap.data();
-      let up = data.upvoters || [], down = data.downvoters || [];
-      const hasUp = up.includes(uid), hasDown = down.includes(uid);
-      const wasSameDir = (dir === "up" && hasUp) || (dir === "down" && hasDown);
-      up = up.filter(x=>x!==uid); down = down.filter(x=>x!==uid);
-      if (dir === "up" && !hasUp) up.push(uid);
-      if (dir === "down" && !hasDown) down.push(uid);
-      tx.update(ref, { upvoters: up, downvoters: down });
-      return !wasSameDir; // true only when this click newly applied a vote (not a removal)
-    });
-    if (bumpSelector){
-      const el = document.querySelector(bumpSelector);
-      if (el){ el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
-    }
-    return applied;
+    await updateDoc(ref, updates);
+    return !alreadySameDir; // true only when this click newly applied a vote (not a removal)
   } catch (err) {
     console.error("Vote failed:", err);
-    showToast("Couldn't vote: " + err.message, "error");
+    showToast("Couldn't vote — reverting.", "error");
+    // revert the optimistic change
+    targetObj.upvoters = (targetObj.upvoters||[]).filter(x=>x!==uid);
+    targetObj.downvoters = (targetObj.downvoters||[]).filter(x=>x!==uid);
+    if (wasUp) targetObj.upvoters.push(uid);
+    if (wasDown) targetObj.downvoters.push(uid);
+    if (onLocalUpdate) onLocalUpdate();
     return false;
   }
 }
@@ -1798,6 +1995,9 @@ function openEditModal(q){
   document.getElementById("mcqFields").style.display = postType === "mcq" ? "block" : "none";
   document.getElementById("fTopic").value = q.topic;
   document.getElementById("fDifficulty").value = q.difficulty;
+  document.getElementById("fGateYear").value = String(q.gateYear || GATE_YEARS[0]);
+  document.getElementById("fBranch").value = q.branch || BRANCHES[0];
+  document.getElementById("fMarks").value = String(q.marks || 1);
   document.getElementById("fText").value = q.text;
   newTags = [...(q.tags||[])];
   renderChips();
@@ -1815,7 +2015,12 @@ submitBtn.onclick = async () => {
   const topic = document.getElementById("fTopic").value;
   const difficulty = document.getElementById("fDifficulty").value;
 
-  const payload = { text, topic, difficulty, type: postType, tags: newTags };
+  const payload = {
+    text, topic, difficulty, type: postType, tags: newTags,
+    gateYear: parseInt(document.getElementById("fGateYear").value),
+    branch: document.getElementById("fBranch").value,
+    marks: parseInt(document.getElementById("fMarks").value)
+  };
   if (postType === "mcq"){
     const options = [...document.querySelectorAll("[data-opt]")].map(i=>i.value.trim());
     if (options.some(o=>!o)) { formError.textContent = "Fill in all four options."; return; }
@@ -1852,6 +2057,9 @@ function resetForm(){
   document.getElementById("fText").value = "";
   document.getElementById("fTopic").selectedIndex = 0;
   document.getElementById("fDifficulty").value = "medium";
+  document.getElementById("fGateYear").selectedIndex = 0;
+  document.getElementById("fBranch").selectedIndex = 0;
+  document.getElementById("fMarks").value = "1";
   postType = "mcq";
   document.querySelectorAll(".type-toggle button").forEach(x=>x.classList.toggle("active", x.dataset.type==="mcq"));
   document.getElementById("mcqFields").style.display = "block";
@@ -1883,6 +2091,87 @@ document.getElementById("promoteBtn").onclick = async () => {
     errEl.textContent = "Couldn't update: " + err.message;
   } finally {
     btn.disabled = false;
+  }
+};
+
+/* ---------------- bulk import (admin only) ---------------- */
+// Writes are chunked at 400 per batch (Firestore's hard cap is 500 writes
+// per batch) so an import of, say, 1500 questions just fires a handful of
+// batches back to back instead of needing pagination logic here.
+const bulkImportOverlay = document.getElementById("bulkImportOverlay");
+document.getElementById("bulkImportCancelBtn").onclick = () => {
+  bulkImportOverlay.classList.remove("open");
+  document.getElementById("bulkImportError").textContent = "";
+};
+
+function validateBulkQuestion(raw, idx){
+  const problems = [];
+  if (!raw.text || typeof raw.text !== "string") problems.push(`#${idx+1}: missing "text"`);
+  if (!Array.isArray(raw.options) || raw.options.length !== 4 || raw.options.some(o=>!o)) problems.push(`#${idx+1}: needs exactly 4 non-empty "options"`);
+  if (typeof raw.correctIndex !== "number" || raw.correctIndex < 0 || raw.correctIndex > 3) problems.push(`#${idx+1}: "correctIndex" must be 0-3`);
+  if (raw.topic && !TOPICS.includes(raw.topic)) problems.push(`#${idx+1}: "topic" must be one of ${TOPICS.filter(t=>t!=="All").join(", ")}`);
+  if (raw.difficulty && !["easy","medium","hard"].includes(raw.difficulty)) problems.push(`#${idx+1}: "difficulty" must be easy/medium/hard`);
+  if (raw.gateYear && (raw.gateYear < 2010 || raw.gateYear > 2026)) problems.push(`#${idx+1}: "gateYear" must be 2010-2026`);
+  if (raw.branch && !BRANCHES.includes(raw.branch)) problems.push(`#${idx+1}: "branch" must be one of the listed branches`);
+  return problems;
+}
+
+document.getElementById("bulkImportBtn").onclick = async () => {
+  const errEl = document.getElementById("bulkImportError");
+  errEl.textContent = "";
+  const raw = document.getElementById("bulkImportInput").value.trim();
+  if (!raw){ errEl.textContent = "Paste a JSON array first."; return; }
+
+  let arr;
+  try { arr = JSON.parse(raw); }
+  catch(err){ errEl.textContent = "That's not valid JSON: " + err.message; return; }
+  if (!Array.isArray(arr) || !arr.length){ errEl.textContent = "Expected a non-empty JSON array of question objects."; return; }
+
+  const allProblems = arr.flatMap((q,i) => validateBulkQuestion(q,i));
+  if (allProblems.length){
+    errEl.textContent = "Fix these first: " + allProblems.slice(0,5).join(" · ") + (allProblems.length>5 ? ` (+${allProblems.length-5} more)` : "");
+    return;
+  }
+
+  const btn = document.getElementById("bulkImportBtn");
+  btn.disabled = true;
+  const originalLabel = btn.textContent;
+  try {
+    const CHUNK = 400;
+    let written = 0;
+    for (let i=0; i<arr.length; i+=CHUNK){
+      const chunk = arr.slice(i, i+CHUNK);
+      const batch = writeBatch(db);
+      chunk.forEach(q => {
+        const ref = doc(collection(db,"questions"));
+        batch.set(ref, {
+          text: q.text,
+          options: q.options,
+          correctIndex: q.correctIndex,
+          type: "mcq",
+          topic: q.topic || "Quantitative Aptitude",
+          difficulty: q.difficulty || "medium",
+          gateYear: q.gateYear || null,
+          branch: q.branch || "Common (General Aptitude)",
+          marks: q.marks || 1,
+          tags: Array.isArray(q.tags) ? q.tags : [],
+          authorId: uid, authorName: myName, createdAt: serverTimestamp(),
+          upvoters: [], downvoters: [], flaggedBy: [], commentCount: 0, responses: {}
+        });
+      });
+      await batch.commit();
+      written += chunk.length;
+      btn.textContent = `Importing… ${written}/${arr.length}`;
+    }
+    showToast(`Imported ${written} question${written!==1?"s":""}`, "success");
+    document.getElementById("bulkImportInput").value = "";
+    bulkImportOverlay.classList.remove("open");
+  } catch (err) {
+    console.error("Bulk import failed:", err);
+    errEl.textContent = "Import failed partway through: " + err.message + " — check the console for how many made it in before retrying with the rest.";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = originalLabel;
   }
 };
 
