@@ -1560,21 +1560,26 @@ function subscribeUserDoc(){
     myRole = data.role || "user";
     document.getElementById("authGate").style.display = "none";
     document.getElementById("appRoot").style.display = "block";
+    const hasQuestionRoute = !!getQuestionRouteId();
     if (!feedStarted){
       feedStarted = true;
-      if (getQuestionRouteId()) {
+      if (hasQuestionRoute) {
         handleQuestionRoute();
       } else {
         startFeed();
       }
-    } else if (getQuestionRouteId()) {
+    } else if (hasQuestionRoute) {
       handleQuestionRoute();
     }
     if (!notifStarted){ notifStarted = true; startNotifications(); }
     if (!followsStarted) startFollows();
     if (!convUnsub) startConversations();
     updateAuthUI();
-    render();
+    // When a shared question URL is active, handleQuestionRoute() owns the
+    // feed area. Calling the normal renderer here would immediately replace
+    // the question detail with the regular feed, making deep links appear
+    // to do nothing. Preserve the existing renderer for normal visits.
+    if (!hasQuestionRoute) render();
     maybeShowTrialModal();
     if (currentProfileUid === uid && document.getElementById("profileOverlay").classList.contains("open")) renderProfileModal();
   }, (err) => {
