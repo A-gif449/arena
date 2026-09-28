@@ -32,6 +32,7 @@
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
   body{
     background:
       radial-gradient(ellipse 1200px 800px at 50% -10%, rgba(255,157,28,0.05), transparent 60%),
@@ -77,6 +78,71 @@
     bottom:7px; right:7px; border-bottom:1.5px solid var(--mark); border-right:1.5px solid var(--mark);
   }
 
+  /* ================= PUBLIC LANDING PAGE ================= */
+  #landingPage{ display:block; }
+  .land-nav{ position:sticky; top:0; z-index:40; background:var(--paper); border-bottom:1px solid var(--rule); }
+  .land-nav-inner{ max-width:1180px; margin:0 auto; padding:14px 24px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+  .land-brand{ display:flex; align-items:center; gap:9px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.05rem; }
+  .land-logo-mark{ width:26px; height:26px; color:var(--mark); flex-shrink:0; }
+  .land-nav-links{ display:flex; gap:26px; }
+  .land-nav-links a{ color:var(--dim); font-size:0.86rem; font-weight:500; text-decoration:none; }
+  .land-nav-links a:hover{ color:var(--ivory); }
+  .land-nav-actions{ display:flex; gap:10px; }
+  @media(max-width:720px){ .land-nav-links{ display:none; } }
+
+  .land-hero{ padding:64px 24px 40px; background:
+      radial-gradient(ellipse 1000px 600px at 15% 0%, rgba(255,157,28,0.08), transparent 60%),
+      var(--ink); border-bottom:1px solid var(--rule); }
+  .land-hero-inner{ max-width:1180px; margin:0 auto; display:grid; grid-template-columns:1.1fr 1fr; gap:48px; align-items:center; }
+  @media(max-width:900px){ .land-hero-inner{ grid-template-columns:1fr; } }
+  .land-badge{ display:inline-flex; align-items:center; background:var(--mark-dim); border:1px solid var(--mark); color:var(--mark); font-size:0.74rem; font-weight:700; padding:5px 12px; border-radius:var(--radius-pill); margin-bottom:18px; font-family:'IBM Plex Mono',monospace; }
+  .land-hero-copy h1{ font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:clamp(2.1rem,4.4vw,3.1rem); line-height:1.14; letter-spacing:-0.02em; margin:0 0 18px; max-width:18ch; }
+  .land-hero-copy p{ color:var(--dim); font-size:1.02rem; line-height:1.6; max-width:52ch; margin:0 0 28px; }
+  .land-hero-ctas{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:32px; }
+  .land-cta-lg{ padding:13px 22px; font-size:0.94rem; text-decoration:none; display:inline-flex; align-items:center; }
+  .land-trust-row{ display:flex; flex-direction:column; gap:10px; }
+  .land-trust-item{ display:flex; align-items:center; gap:9px; color:var(--dim); font-size:0.84rem; }
+  .land-ic{ width:18px; height:18px; flex-shrink:0; stroke:var(--verified); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+
+  .land-hero-visual{ display:flex; justify-content:center; }
+  .land-preview-card{ width:100%; max-width:360px; background:var(--paper); border:1px solid var(--rule); border-left:3px solid var(--mark); border-radius:var(--radius-card); padding:22px; box-shadow:0 24px 60px rgba(0,0,0,0.4); }
+  .land-preview-tag{ display:inline-block; font-size:0.7rem; font-weight:600; color:var(--dim); border:1px solid var(--rule); border-radius:4px; padding:3px 9px; margin-bottom:14px; font-family:'IBM Plex Mono',monospace; }
+  .land-preview-q{ font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:1.08rem; line-height:1.45; margin:0 0 16px; }
+  .land-preview-opts{ display:flex; flex-direction:column; gap:8px; }
+  .land-preview-opt{ border:1px solid var(--rule); border-radius:6px; padding:9px 12px; font-size:0.86rem; color:var(--dim); font-family:'IBM Plex Mono',monospace; }
+  .land-preview-opt.correct{ border-color:var(--verified); color:var(--verified); }
+
+  .land-section{ padding:72px 24px; }
+  .land-section-alt{ background:var(--paper); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); }
+  .land-section-inner{ max-width:1180px; margin:0 auto; }
+  .land-eyebrow{ display:block; font-size:0.74rem; font-weight:700; color:var(--mark); font-family:'IBM Plex Mono',monospace; margin-bottom:10px; }
+  .land-section h2{ font-family:'Space Grotesk',sans-serif; font-size:clamp(1.5rem,2.6vw,2rem); font-weight:700; letter-spacing:-0.01em; max-width:32ch; margin:0 0 40px; }
+
+  .land-feature-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:26px; }
+  @media(max-width:860px){ .land-feature-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media(max-width:600px){ .land-feature-grid{ grid-template-columns:1fr; } }
+  .land-feature{ background:var(--paper); border:1px solid var(--rule); border-radius:var(--radius-card); padding:22px; }
+  .land-fic{ width:26px; height:26px; stroke:var(--mark); fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; margin-bottom:14px; }
+  .land-feature h3{ font-family:'Space Grotesk',sans-serif; font-size:1.02rem; font-weight:700; margin:0 0 8px; }
+  .land-feature p{ color:var(--dim); font-size:0.87rem; line-height:1.55; margin:0; }
+
+  .land-steps{ display:grid; grid-template-columns:repeat(3,1fr); gap:30px; }
+  @media(max-width:800px){ .land-steps{ grid-template-columns:1fr; } }
+  .land-step-num{ display:block; font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--mark); font-size:1.3rem; margin-bottom:12px; }
+  .land-step h3{ font-family:'Space Grotesk',sans-serif; font-size:1.05rem; font-weight:700; margin:0 0 8px; }
+  .land-step p{ color:var(--dim); font-size:0.88rem; line-height:1.55; margin:0; }
+
+  .land-final-cta{ padding:72px 24px; text-align:center; background:linear-gradient(180deg, rgba(255,157,28,0.06), transparent); border-top:1px solid var(--rule); }
+  .land-final-cta h2{ font-family:'Space Grotesk',sans-serif; font-size:1.7rem; font-weight:700; margin:0 0 10px; }
+  .land-final-cta p{ color:var(--dim); margin:0 0 26px; }
+
+  .land-footer{ border-top:1px solid var(--rule); padding:26px 24px; }
+  .land-footer-inner{ display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+  .land-footer-links{ display:flex; gap:20px; }
+  .land-footer-links a{ color:var(--dim); font-size:0.82rem; text-decoration:none; }
+  .land-footer-links a:hover{ color:var(--ivory); }
+  .land-footer-copy{ color:var(--dim); font-size:0.78rem; font-family:'IBM Plex Mono',monospace; }
+
   /* ================= AUTH GATE ================= */
   #authGate{
     position:fixed; inset:0; z-index:100;
@@ -84,7 +150,7 @@
       radial-gradient(ellipse 1200px 800px at 50% -10%, rgba(255,157,28,0.06), transparent 60%),
       radial-gradient(circle at 1px 1px, rgba(255,255,255,0.035) 1px, transparent 0) 0 0/24px 24px,
       var(--ink);
-    display:grid; grid-template-columns:1.1fr 1fr;
+    display:none; grid-template-columns:1.1fr 1fr;
     overflow-y:auto;
   }
   @media(max-width:840px){ #authGate{grid-template-columns:1fr;} }
@@ -189,7 +255,8 @@
   .notif-item .notif-dot{width:7px; height:7px; border-radius:50%; background:transparent; margin-top:6px; flex-shrink:0;}
   .notif-item.unread .notif-dot{background:var(--info);}
   .notif-item .notif-text{flex:1; font-size:0.84rem; line-height:1.4;}
-  .notif-item .notif-time{font-size:0.7rem; color:var(--dim); flex-shrink:0; white-space:nowrap;}
+  .notif-item{flex-wrap:wrap;}
+  .notif-item .notif-time{font-size:0.7rem; color:var(--dim); width:100%; padding-left:15px; font-family:'IBM Plex Mono',monospace;}
   .notif-empty{padding:28px 14px; text-align:center; color:var(--dim); font-size:0.84rem;}
 
   /* ================= PROFILE MENU (top right) ================= */
@@ -666,6 +733,60 @@
     .compare-table{font-size:0.8rem;}
     .compare-table th, .compare-table td{padding:9px 6px;}
   }
+
+  /* ================= PROFILE — banner redesign ================= */
+  .profile-banner{ height:64px; margin:-26px -26px 0; background:linear-gradient(135deg, var(--mark-dim), var(--info-dim)); border-radius:var(--radius-card) var(--radius-card) 0 0; }
+  .profile-header-row{ display:flex; align-items:flex-end; justify-content:space-between; gap:14px; flex-wrap:wrap; margin:-38px 0 20px; padding:0 2px; }
+  .profile-header-id{ display:flex; align-items:flex-end; gap:12px; min-width:0; }
+  .profile-header-id .avatar.big{ border:3px solid var(--paper); }
+  .profile-header-id h2{ margin:0 0 6px; font-family:'Space Grotesk',sans-serif; font-size:1.25rem; font-weight:700; }
+  .profile-header-actions{ display:flex; gap:8px; margin-bottom:4px; flex-wrap:wrap; }
+  .profile-name-input{ background:var(--ink); border:1px solid var(--rule); border-radius:var(--radius-input); color:var(--ivory); padding:8px 10px; font-size:1rem; font-family:'Space Grotesk',sans-serif; font-weight:700; margin-bottom:6px; max-width:100%; }
+  .profile-badges{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .profile-badge{ font-size:0.7rem; font-family:'IBM Plex Mono',monospace; padding:3px 9px; border-radius:4px; border:1px solid var(--rule); color:var(--dim); background:var(--paper-raised); }
+  .profile-badge.role-owner, .profile-badge.role-admin{ color:var(--mark); border-color:var(--mark); }
+  .profile-stats-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:22px; }
+  @media(max-width:420px){ .profile-stats-grid{ grid-template-columns:repeat(2,1fr); } }
+  .profile-section-sub{ color:var(--dim); font-weight:400; font-family:'IBM Plex Sans',sans-serif; font-size:0.76rem; margin-left:8px; }
+  .profile-empty-cta{ margin-top:10px; align-self:flex-start; }
+
+  /* ================= POMODORO FOCUS TIMER ================= */
+  .pomo-btn{ display:flex; align-items:center; gap:7px; background:var(--verified-dim); border:1px solid var(--verified); color:var(--verified); font-weight:700; font-size:0.82rem; padding:8px 14px; border-radius:var(--radius-pill); font-family:'IBM Plex Mono',monospace; }
+  .pomo-btn:hover{ filter:brightness(1.2); }
+  @media(max-width:640px){ .pomo-btn span.mt-label{ display:none; } .pomo-btn{ padding:8px 10px; } }
+
+  /* Mini pill: stacked above the + button (bottom-right) so it never
+     collides with toasts, which live bottom-left. */
+  .pomo-mini{ position:fixed; right:26px; bottom:96px; z-index:45; display:none; align-items:center; gap:9px; background:var(--paper-raised); border:1px solid var(--rule); border-radius:var(--radius-pill); padding:9px 16px 9px 12px; box-shadow:0 8px 26px rgba(0,0,0,0.35); cursor:pointer; }
+  .pomo-mini:hover{ border-color:var(--mark); }
+  @media(max-width:640px){ .pomo-mini{ right:14px; } .pomo-mini .pomo-mini-label{ display:none; } }
+  .pomo-mini-dot{ width:9px; height:9px; border-radius:50%; background:var(--mark); flex-shrink:0; }
+  .pomo-mini.phase-short .pomo-mini-dot, .pomo-mini.phase-long .pomo-mini-dot{ background:var(--info); }
+  .pomo-mini:not(.paused) .pomo-mini-dot{ animation:pomoPulse 1.4s ease-in-out infinite; }
+  .pomo-mini.paused .pomo-mini-dot{ animation:none; opacity:0.5; }
+  @keyframes pomoPulse{ 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+  .pomo-mini-time{ font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; font-weight:700; font-size:0.92rem; color:var(--ivory); }
+  .pomo-mini-label{ font-size:0.72rem; color:var(--dim); font-family:'IBM Plex Mono',monospace; }
+
+  .pomo-modal{ text-align:center; }
+  .pomo-modal .field{ text-align:left; }
+  .pomo-ring-wrap{ position:relative; width:196px; height:196px; margin:6px auto 20px; }
+  .pomo-ring{ width:100%; height:100%; transform:rotate(-90deg); }
+  .pomo-ring-track{ fill:none; stroke:var(--rule); stroke-width:8; }
+  .pomo-ring-fill{ fill:none; stroke:var(--mark); stroke-width:8; stroke-linecap:round; transition:stroke-dashoffset .25s linear, stroke .3s ease; }
+  .pomo-ring-center{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; }
+  .pomo-phase-label{ font-family:'IBM Plex Mono',monospace; font-size:0.72rem; color:var(--dim); letter-spacing:0.06em; }
+  .pomo-time{ font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; font-weight:700; font-size:2.15rem; color:var(--ivory); }
+  .pomo-cycledots{ display:flex; gap:5px; margin-top:2px; }
+  .pomo-cycledots .dot{ width:7px; height:7px; border-radius:50%; background:var(--rule); }
+  .pomo-cycledots .dot.filled{ background:var(--mark); }
+  .pomo-controls{ display:flex; gap:10px; justify-content:center; margin:6px 0 16px; }
+  .pomo-startbtn{ min-width:118px; }
+  .pomo-todaystats{ display:flex; justify-content:center; gap:18px; font-size:0.82rem; color:var(--dim); font-family:'IBM Plex Mono',monospace; margin-bottom:16px; }
+  .pomo-todaystats b{ color:var(--ivory); }
+  .pomo-settings{ text-align:left; border-top:1px dashed var(--rule-strong); padding-top:14px; margin-top:4px; }
+  .pomo-settings summary{ cursor:pointer; font-size:0.84rem; color:var(--dim); margin-bottom:10px; }
+  .pomo-settings input[type=number]{ width:100%; background:var(--ink); border:1px solid var(--rule); border-radius:var(--radius-input); color:var(--ivory); padding:9px 10px; font-size:0.88rem; }
 </style>
 </head>
 <body>
@@ -723,6 +844,7 @@
     <div class="topbar-brand"><span class="mark">📝</span> Arena</div>
     <div class="topbar-right">
       <button class="mocktest-btn" id="openMockSetupBtn" title="Take a timed mock test">⏱ <span class="mt-label">Mock Test</span></button>
+      <button class="pomo-btn" id="openPomodoroBtn" title="Start a focus timer">🍅 <span class="mt-label">Focus Timer</span></button>
       <div class="notif-wrap">
         <button class="bell-btn" id="bellBtn" title="Notifications">
           🔔<span class="notif-badge" id="notifBadge">0</span>
@@ -911,7 +1033,7 @@
 
 <!-- Profile modal -->
 <div class="overlay" id="profileOverlay">
-  <div class="modal" style="max-width:480px;">
+  <div class="modal" style="max-width:540px;">
     <div id="profileContent"></div>
     <div class="modal-actions">
       <span></span>
@@ -1064,6 +1186,65 @@
     <!-- filled by JS -->
   </div>
 </div>
+
+<!-- Floating mini timer: only visible while a focus/break phase is running or paused -->
+<div class="pomo-mini" id="pomoMini" title="Open focus timer">
+  <span class="pomo-mini-dot"></span>
+  <span class="pomo-mini-time" id="pomoMiniTime">25:00</span>
+  <span class="pomo-mini-label" id="pomoMiniLabel">Focus</span>
+</div>
+
+<!-- Pomodoro focus timer -->
+<div class="overlay" id="pomodoroOverlay">
+  <div class="modal pomo-modal" style="max-width:420px;">
+    <h2>Focus timer</h2>
+    <div class="pomo-ring-wrap">
+      <svg viewBox="0 0 120 120" class="pomo-ring">
+        <circle class="pomo-ring-track" cx="60" cy="60" r="52"></circle>
+        <circle class="pomo-ring-fill" id="pomoRingFill" cx="60" cy="60" r="52"></circle>
+      </svg>
+      <div class="pomo-ring-center">
+        <span class="pomo-phase-label" id="pomoPhaseLabel">Focus</span>
+        <span class="pomo-time" id="pomoTimeDisplay">25:00</span>
+        <span class="pomo-cycledots" id="pomoCycleDots"></span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Subject</label>
+      <select id="pomoSubjectSel"></select>
+    </div>
+    <div class="field" id="pomoCustomSubjectField" style="display:none;">
+      <label>Custom subject</label>
+      <input type="text" id="pomoCustomSubjectInput" placeholder="e.g. Thermodynamics revision">
+    </div>
+
+    <div class="pomo-controls">
+      <button class="btn-ghost" id="pomoResetBtn">Reset</button>
+      <button class="btn-primary pomo-startbtn" id="pomoStartBtn">Start</button>
+      <button class="btn-ghost" id="pomoSkipBtn">Skip</button>
+    </div>
+
+    <div class="pomo-todaystats" id="pomoTodayStats"></div>
+
+    <details class="pomo-settings">
+      <summary>Advanced settings</summary>
+      <div class="row2">
+        <div class="field"><label>Focus (min)</label><input type="number" min="1" max="120" id="pomoFocusMin"></div>
+        <div class="field"><label>Short break (min)</label><input type="number" min="1" max="60" id="pomoShortMin"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Long break (min)</label><input type="number" min="1" max="90" id="pomoLongMin"></div>
+        <div class="field"><label>Sessions before long break</label><input type="number" min="1" max="10" id="pomoCyclesInput"></div>
+      </div>
+    </details>
+
+    <div class="modal-actions">
+      <span></span>
+      <button class="btn-ghost" id="pomoCloseBtn">Close</button>
+    </div>
+  </div>
+</div>
 </div><!-- /#appRoot -->
 
 <script type="module">
@@ -1108,6 +1289,16 @@
       console and click "create index". If notifications never show up,
       open the browser console (F12) and look there first — this is the
       single most common cause.
+        - pomodoroSessions/{id}: create requires request.auth != null and
+          request.resource.data.uid == request.auth.uid. Read is open to
+          any signed-in user — this powers the "study time by subject"
+          section on every profile, including other people's, so it is
+          intentionally public. Only the person who logged a session may
+          delete it (resource.data.uid == request.auth.uid); nothing needs
+          update, these are immutable log entries. Profile stats query by
+          uid + a completedAt >= (now minus 1 year) range with an orderBy,
+          so Firestore will ask for a composite index the first time —
+          open the console link and click "create index".
    ========================================================================= */
 const firebaseConfig = {
   apiKey: "AIzaSyDjJkoKx30k2ESQBjoXMjYlZTAGV_4RVd4",
@@ -1466,18 +1657,31 @@ let feedUnsub = null;
 let feedReachedEnd = false;
 let healedCommentCounts = new Set(); // qids we've already self-healed this session, so we don't re-write on every snapshot
 
+// Flips to true the first time Firestore says the topic+createdAt composite
+// index is missing, after which the feed filters by topic on the client
+// instead of showing users a raw Firebase error.
+let topicIndexMissing = false;
+
 function startFeed(){
   if (feedUnsub) feedUnsub();
   document.getElementById("feed").innerHTML = `<div class="empty">Loading…</div>`;
 
-  const constraints = [orderBy("createdAt", "desc"), limit(feedLimit)];
-  if (activeTopic !== "All") constraints.unshift(where("topic", "==", activeTopic));
+  const filterOnClient = activeTopic !== "All" && topicIndexMissing;
+  // When filtering on the client we pull a bigger slice of the newest
+  // questions, since some of them will be thrown away by the topic filter.
+  const fetchLimit = filterOnClient ? feedLimit * 5 : feedLimit;
+
+  const constraints = [orderBy("createdAt", "desc"), limit(fetchLimit)];
+  if (activeTopic !== "All" && !topicIndexMissing) constraints.unshift(where("topic", "==", activeTopic));
   const qRef = query(collection(db, "questions"), ...constraints);
 
   feedUnsub = onSnapshot(qRef, (snap) => {
-    feedReachedEnd = snap.docs.length < feedLimit;
+    feedReachedEnd = snap.docs.length < fetchLimit;
+    let docs = snap.docs;
+    if (filterOnClient) docs = docs.filter(d => d.data().topic === activeTopic);
+
     const seenIds = new Set();
-    questions = snap.docs.map(d => {
+    questions = docs.map(d => {
       seenIds.add(d.id);
       // Keep any comments we've already loaded for this question instead
       // of wiping them back to [] on every re-render.
@@ -1501,8 +1705,22 @@ function startFeed(){
     render();
   }, (err) => {
     console.error("Feed error:", err);
-    document.getElementById("feed").innerHTML =
-      `<div class="empty">Feed error: ${err.message}. If this says "permission-denied", update your Firestore rules. If it mentions a missing index, open the link Firestore prints in the browser console (F12) and click "create index" — only needed once.</div>`;
+
+    // Missing composite index on a topic-filtered query: switch to the
+    // no-index fallback and retry once, silently.
+    if (err.code === "failed-precondition" && activeTopic !== "All" && !topicIndexMissing){
+      topicIndexMissing = true;
+      console.warn("Missing questions(topic, createdAt) index — using client-side topic filtering until it's created. Details/link: " + err.message);
+      startFeed();
+      return;
+    }
+
+    // Regular users get a plain message; only admins see the raw Firebase text.
+    document.getElementById("feed").innerHTML = `<div class="empty">${
+      isAdmin
+        ? "Feed error: " + escapeHtml(err.message)
+        : "Couldn't load questions right now. Please refresh in a moment."
+    }</div>`;
   });
 }
 
@@ -1668,7 +1886,7 @@ function renderCard(q){
         ${q.marks ? `<span class="pill">${q.marks} mark${q.marks>1?"s":""}</span>` : ""}
         ${tagPills}${hotPill}${flagPill}
         <span class="qauthor-line">${miniAvatar(q.authorId, q.authorName)}<button class="linklike qauthor-name" data-openprofile="${q.authorId}">${escapeHtml(q.authorName||'solver')}</button></span>
-        <span class="qtime" title="${fullDate(q.createdAt)}">${timeAgo(q.createdAt)}</span>
+        <span class="qtime" title="${timeAgo(q.createdAt)}">${formatModernDateTime(q.createdAt)}</span>
       </div>
       <p class="qtext">${escapeHtml(q.text)}</p>
       ${body}
@@ -1719,7 +1937,7 @@ function renderComment(qid, c){
           ${miniAvatar(c.authorId, c.authorName)}
           <button class="linklike cauthor ${c.isAdmin?'admin-tag':''}" data-openprofile="${c.authorId}">${c.isAdmin?'admin · ':''}${escapeHtml(c.authorName||'solver')}</button>
         </span>
-        <span class="ctime" title="${fullDate(c.createdAt)}">${timeAgo(c.createdAt)}</span>
+        <span class="ctime" title="${timeAgo(c.createdAt)}">${formatModernDateTime(c.createdAt)}</span>
         ${deleteBtn}
       </div>
     </div>
@@ -2211,9 +2429,87 @@ function computeUserStats(targetUid){
   return { myQs, comments, netVotes };
 }
 
+// "9:42 PM · 27 Sep 2026" — absolute time, date and year, shown everywhere
+// a timestamp appears. The relative version ("2h ago") moves to the hover tooltip.
+function formatModernDateTime(ts){
+  if (!ts || !ts.toDate) return "Just now";
+  const d = ts.toDate();
+  const time = d.toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit" });
+  const date = d.toLocaleDateString(undefined, { day:"numeric", month:"short", year:"numeric" });
+  return `${time} · ${date}`;
+}
+
+function formatMinutes(mins){
+  mins = Math.round(mins || 0);
+  if (!mins) return "0m";
+  const h = Math.floor(mins/60), m = mins % 60;
+  return h ? `${h}h ${m}m` : `${m}m`;
+}
+
+// Consecutive days with at least one completed focus session. A streak is
+// still "alive" if you haven't studied yet today but did yesterday.
+function computeStreak(sessions){
+  if (!sessions.length) return 0;
+  const daySet = new Set(sessions.map(s => s.completedAt.toDate().toDateString()));
+  const cursor = new Date();
+  if (!daySet.has(cursor.toDateString())){
+    cursor.setDate(cursor.getDate() - 1);
+    if (!daySet.has(cursor.toDateString())) return 0;
+  }
+  let streak = 0;
+  while (daySet.has(cursor.toDateString())){
+    streak++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
+// Public study-time stats per profile, limited to the last 365 days.
+// Cached per uid the same way usersCache works: render with what's cached,
+// kick off the fetch, re-render the profile once it resolves.
+let studyStatsCache = {};
+let loadingStudyStats = new Set();
+function ensureStudyStatsLoaded(targetUid){
+  if (!targetUid || studyStatsCache[targetUid] || loadingStudyStats.has(targetUid)) return;
+  loadingStudyStats.add(targetUid);
+  const oneYearAgo = new Date();
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  const qRef = query(
+    collection(db, "pomodoroSessions"),
+    where("uid", "==", targetUid),
+    where("completedAt", ">=", oneYearAgo),
+    orderBy("completedAt", "desc"),
+    limit(2000)
+  );
+  const refreshIfOpen = () => {
+    if (currentProfileUid === targetUid && document.getElementById("profileOverlay").classList.contains("open")) renderProfileModal();
+  };
+  getDocs(qRef).then(snap => {
+    const sessions = snap.docs.map(d => d.data()).filter(s => s.completedAt && s.completedAt.toDate);
+    const totalMinutes = sessions.reduce((s,x) => s + (x.focusMinutes || 0), 0);
+    const bySubjectMap = {};
+    sessions.forEach(x => {
+      const key = x.subject || "General";
+      bySubjectMap[key] = (bySubjectMap[key] || 0) + (x.focusMinutes || 0);
+    });
+    const bySubject = Object.entries(bySubjectMap)
+      .map(([subject, minutes]) => ({ subject, minutes }))
+      .sort((a,b) => b.minutes - a.minutes);
+    studyStatsCache[targetUid] = { totalMinutes, sessionCount: sessions.length, streak: computeStreak(sessions), bySubject };
+    loadingStudyStats.delete(targetUid);
+    refreshIfOpen();
+  }).catch(err => {
+    loadingStudyStats.delete(targetUid);
+    console.error("Couldn't load study stats:", err);
+    studyStatsCache[targetUid] = { totalMinutes:0, sessionCount:0, streak:0, bySubject:[], error:true };
+    refreshIfOpen();
+  });
+}
+
 function openProfile(targetUid){
   if (!targetUid) return;
   currentProfileUid = targetUid;
+  delete studyStatsCache[targetUid]; // always refetch on open so new sessions show up
   ensureUserLoaded(targetUid);
   renderProfileModal();
   document.getElementById("profileOverlay").classList.add("open");
@@ -2223,35 +2519,76 @@ function renderProfileModal(){
   const targetUid = currentProfileUid;
   if (!targetUid) return;
   const isOwn = targetUid === uid;
-  const data = isOwn ? { name: myName, photoURL: myPhoto, role: isAdmin ? "admin" : "user" } : usersCache[targetUid];
+  const data = isOwn ? { name: myName, photoURL: myPhoto, role: myRole, createdAt: null } : usersCache[targetUid];
+  ensureStudyStatsLoaded(targetUid);
+  const study = studyStatsCache[targetUid];
+
   const stats = computeUserStats(targetUid);
   const name = data ? (data.name || "Unknown solver") : "Loading…";
   const role = data ? data.role : null;
   const photo = data ? data.photoURL : null;
   const initials = name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
-  const joined = data && data.createdAt && data.createdAt.toDate ? data.createdAt.toDate().toLocaleDateString(undefined,{month:"long", year:"numeric"}) : "";
+  const joined = data && data.createdAt && data.createdAt.toDate
+    ? data.createdAt.toDate().toLocaleDateString(undefined,{ day:"numeric", month:"short", year:"numeric" }) : "";
+  const roleCls = avatarRoleClass(role);
+  const roleBadge = role === "owner" ? `<span class="profile-badge role-owner">👑 Group Admin</span>`
+    : role === "admin" ? `<span class="profile-badge role-admin">🛠️ Admin</span>`
+    : `<span class="profile-badge">Solver</span>`;
+
+  let studySectionHtml;
+  if (!study){
+    studySectionHtml = `<div class="profile-empty">Loading study data…</div>`;
+  } else if (study.error){
+    studySectionHtml = `<div class="profile-empty">Study data isn't available right now.</div>`;
+  } else if (!study.bySubject.length){
+    studySectionHtml = `
+      <div class="profile-empty">No focus sessions logged in the last 12 months.</div>
+      ${isOwn ? `<button class="btn-ghost profile-empty-cta" id="profileStartFocusBtn">🍅 Start a focus session</button>` : ""}`;
+  } else {
+    const maxMin = Math.max(...study.bySubject.map(s => s.minutes));
+    studySectionHtml = study.bySubject.slice(0, 8).map(s => `
+      <div class="topic-bar-row">
+        <span class="topic-bar-label">${escapeHtml(s.subject)}</span>
+        <div class="topic-bar-track"><div class="topic-bar-fill" style="width:${Math.max(4, Math.round((s.minutes/maxMin)*100))}%; background:var(--mark);"></div></div>
+        <span class="topic-bar-frac" style="width:64px;">${formatMinutes(s.minutes)}</span>
+      </div>`).join("");
+  }
 
   document.getElementById("profileContent").innerHTML = `
-    <div class="profile-head">
-      <div class="profile-avatar-wrap">
-        <div class="avatar big ${role==='admin'?'admin':''}">${photo?`<img src="${photo}" alt="">`:initials}</div>
-        ${isOwn ? `<button class="btn-ghost profile-photo-btn" id="profileChangePhotoBtn">Change photo</button>` : ""}
+    <div class="profile-banner"></div>
+    <div class="profile-header-row">
+      <div class="profile-header-id">
+        <div class="avatar big ${roleCls}">${photo ? `<img src="${photo}" alt="">` : initials}</div>
+        <div style="min-width:0;">
+          ${isOwn
+            ? `<input type="text" id="profileNameInput" class="profile-name-input" value="${escapeHtml(name)}">`
+            : `<h2>${escapeHtml(name)}</h2>`}
+          <div class="profile-badges">
+            ${roleBadge}
+            ${joined ? `<span class="profile-badge">Joined ${joined}</span>` : ""}
+          </div>
+        </div>
       </div>
-      <div class="profile-id">
-        ${isOwn
-          ? `<div class="field"><input type="text" id="profileNameInput" value="${escapeHtml(name)}"></div>
-             <button class="btn-primary" id="profileSaveNameBtn" style="padding:7px 14px; font-size:0.8rem;">Save name</button>`
-          : `<h2>${escapeHtml(name)}</h2>`
-        }
-        <div class="role ${role==='admin'?'admin-role':''}" style="margin-top:8px;">${role==='admin'?'Admin':(role?'Solver':'')}${joined?` · joined ${joined}`:""}</div>
-      </div>
+      ${isOwn ? `
+        <div class="profile-header-actions">
+          <button class="btn-ghost profile-photo-btn" id="profileChangePhotoBtn">Change photo</button>
+          <button class="btn-primary profile-photo-btn" id="profileSaveNameBtn">Save name</button>
+        </div>` : ""}
     </div>
-    <div class="profile-stats">
+
+    <div class="profile-stats-grid">
       <div class="pstat"><span class="pnum">${stats.myQs.length}</span><span class="plabel">questions</span></div>
       <div class="pstat"><span class="pnum">${stats.comments.length}</span><span class="plabel">comments</span></div>
       <div class="pstat"><span class="pnum">${stats.netVotes>=0?'+':''}${stats.netVotes}</span><span class="plabel">net votes</span></div>
+      <div class="pstat"><span class="pnum">${study && !study.error ? formatMinutes(study.totalMinutes) : '–'}</span><span class="plabel">focus time (1y)</span></div>
+      <div class="pstat"><span class="pnum">${study && !study.error ? study.sessionCount : '–'}</span><span class="plabel">sessions</span></div>
+      <div class="pstat"><span class="pnum">${study && !study.error ? study.streak : '–'}</span><span class="plabel">day streak</span></div>
     </div>
-    <hr class="rule" style="margin:16px 0;">
+
+    <div class="profile-section-title">Study time by subject<span class="profile-section-sub">last 12 months</span></div>
+    <div class="profile-list" style="max-height:none;">${studySectionHtml}</div>
+
+    <hr class="rule" style="margin:20px 0;">
     <div class="profile-section-title">Questions posted</div>
     <div class="profile-list">
       ${stats.myQs.length
@@ -2270,6 +2607,11 @@ function renderProfileModal(){
       if (!val){ showToast("Name can't be empty.", "error"); return; }
       try { await updateDoc(doc(db,"users",uid), { name: val }); showToast("Name updated", "success"); }
       catch(err){ console.error(err); showToast("Couldn't update name: " + err.message, "error"); }
+    };
+    const startFocusBtn = document.getElementById("profileStartFocusBtn");
+    if (startFocusBtn) startFocusBtn.onclick = () => {
+      document.getElementById("profileOverlay").classList.remove("open");
+      openPomodoroModal();
     };
   }
 }
@@ -2313,10 +2655,9 @@ async function notify(recipientId, type, message, extra = {}){
     });
   } catch(err){
     console.error("Notification failed:", err);
-    // Surfaced so it's easy to diagnose (usually a Firestore rules or
-    // missing-composite-index issue) — remove this toast once notifications
-    // are confirmed working end-to-end.
-    showToast("Notification failed: " + err.message, "error");
+    // Only admins see the raw error — regular users shouldn't be shown
+    // Firebase internals (usually a rules or missing-index issue).
+    if (isAdmin) showToast("Notification failed: " + err.message, "error");
   }
 }
 
@@ -2327,12 +2668,11 @@ function startNotifications(){
     renderNotifications();
   }, (err) => {
     console.error("Notifications error:", err);
-    // Same as above: surfaced temporarily to make diagnosis easy. If you
-    // see "failed-precondition" here, Firestore needs a composite index —
-    // check the browser console for a link to create it. If you see
-    // "permission-denied", your Firestore rules need updating (see the
-    // SETUP comment at the top of this file).
-    showToast("Notifications error: " + err.message, "error");
+    // Same as above: admins only. If you see "failed-precondition" here,
+    // Firestore needs a composite index — check the browser console for a
+    // link to create it. If you see "permission-denied", your Firestore
+    // rules need updating (see the SETUP comment at the top of this file).
+    if (isAdmin) showToast("Notifications error: " + err.message, "error");
   });
 }
 
@@ -2350,7 +2690,7 @@ function renderNotifications(){
     <button class="notif-item ${n.read ? '' : 'unread'}" data-notif="${n.id}" data-q="${n.questionId||''}" data-c="${n.commentId||''}">
       <span class="notif-dot"></span>
       <span class="notif-text">${escapeHtml(n.message)}</span>
-      <span class="notif-time">${timeAgo(n.createdAt)}</span>
+      <span class="notif-time" title="${timeAgo(n.createdAt)}">${formatModernDateTime(n.createdAt)}</span>
     </button>`).join("");
   list.querySelectorAll("[data-notif]").forEach(btn => {
     btn.onclick = () => {
@@ -2981,6 +3321,226 @@ function openPlansModal(){
 }
 
 document.getElementById("openPlansBtn").onclick = openPlansModal;
+
+/* =========================================================================
+   POMODORO FOCUS TIMER
+   Focus / short break / long break cycle with subject tagging. Each FULLY
+   completed focus block writes one doc to "pomodoroSessions"; skipping
+   early never logs anything, so a profile's numbers only reflect real
+   focused time. State persists in localStorage using an absolute end
+   timestamp (endAt) — the same trick the exam timer uses — so the
+   countdown stays accurate through tab throttling or a page reload.
+   After each phase the timer advances to the next one but waits for you
+   to press Start, so it can never run away in a background tab.
+   ========================================================================= */
+const POMO_STORAGE_KEY = "arena_pomodoro_state_v1";
+const originalDocTitle = document.title;
+const POMO_RING_CIRC = 2 * Math.PI * 52;
+
+function loadPomoState(){
+  try { const raw = localStorage.getItem(POMO_STORAGE_KEY); return raw ? JSON.parse(raw) : null; }
+  catch(e){ return null; }
+}
+function savePomoState(){
+  try { localStorage.setItem(POMO_STORAGE_KEY, JSON.stringify(pomo)); } catch(e){}
+}
+
+let pomo = Object.assign({
+  focusMin: 25, shortMin: 5, longMin: 15, cyclesBeforeLong: 4,
+  subject: TOPICS[1], customSubject: "",
+  phase: "focus", cyclesCompleted: 0,
+  running: false, endAt: null, remainingMs: 25 * 60 * 1000
+}, loadPomoState() || {});
+
+function pomoPhaseTotalMs(){
+  const mins = pomo.phase === "focus" ? pomo.focusMin : pomo.phase === "short" ? pomo.shortMin : pomo.longMin;
+  return mins * 60 * 1000;
+}
+function pomoPhaseLabel(){
+  return pomo.phase === "focus" ? "Focus" : pomo.phase === "short" ? "Short break" : "Long break";
+}
+function pomoRemainingMs(){
+  if (pomo.running && pomo.endAt) return Math.max(0, pomo.endAt - Date.now());
+  return pomo.remainingMs;
+}
+
+function initPomodoroUI(){
+  const sel = document.getElementById("pomoSubjectSel");
+  sel.innerHTML = TOPICS.filter(t => t !== "All").map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("")
+    + `<option value="__other__">Other / custom…</option>`;
+  sel.value = pomo.subject;
+  if (sel.value !== pomo.subject){ pomo.subject = "__other__"; sel.value = "__other__"; }
+  document.getElementById("pomoCustomSubjectField").style.display = sel.value === "__other__" ? "block" : "none";
+  document.getElementById("pomoCustomSubjectInput").value = pomo.customSubject || "";
+  document.getElementById("pomoFocusMin").value = pomo.focusMin;
+  document.getElementById("pomoShortMin").value = pomo.shortMin;
+  document.getElementById("pomoLongMin").value = pomo.longMin;
+  document.getElementById("pomoCyclesInput").value = pomo.cyclesBeforeLong;
+  renderPomoFace();
+  renderPomoTodayStats();
+}
+
+document.getElementById("pomoSubjectSel").onchange = (e) => {
+  pomo.subject = e.target.value;
+  document.getElementById("pomoCustomSubjectField").style.display = pomo.subject === "__other__" ? "block" : "none";
+  savePomoState();
+};
+document.getElementById("pomoCustomSubjectInput").oninput = (e) => { pomo.customSubject = e.target.value; savePomoState(); };
+[["pomoFocusMin","focusMin"],["pomoShortMin","shortMin"],["pomoLongMin","longMin"],["pomoCyclesInput","cyclesBeforeLong"]].forEach(([elId, key]) => {
+  document.getElementById(elId).onchange = (e) => {
+    const v = Math.max(1, parseInt(e.target.value) || 1);
+    pomo[key] = v;
+    e.target.value = v;
+    if (!pomo.running) pomo.remainingMs = pomoPhaseTotalMs();
+    savePomoState();
+    renderPomoFace();
+  };
+});
+
+function renderPomoFace(){
+  const remaining = pomoRemainingMs();
+  const total = pomoPhaseTotalMs();
+  const frac = total ? Math.min(1, remaining / total) : 0;
+  document.getElementById("pomoTimeDisplay").textContent = formatClock(Math.ceil(remaining / 1000));
+  document.getElementById("pomoPhaseLabel").textContent = pomoPhaseLabel();
+  const ring = document.getElementById("pomoRingFill");
+  ring.style.stroke = pomo.phase === "focus" ? "var(--mark)" : "var(--info)";
+  ring.style.strokeDasharray = String(POMO_RING_CIRC);
+  ring.style.strokeDashoffset = String(POMO_RING_CIRC * (1 - frac));
+  document.getElementById("pomoStartBtn").textContent = pomo.running ? "Pause" : (remaining < total ? "Resume" : "Start");
+  const filled = pomo.cyclesCompleted % pomo.cyclesBeforeLong;
+  document.getElementById("pomoCycleDots").innerHTML = Array.from({ length: pomo.cyclesBeforeLong })
+    .map((_, i) => `<span class="dot ${i < filled ? "filled" : ""}"></span>`).join("");
+  renderPomoMini();
+}
+
+function renderPomoMini(){
+  const mini = document.getElementById("pomoMini");
+  const started = pomo.running || pomo.remainingMs < pomoPhaseTotalMs();
+  if (!started){ mini.style.display = "none"; return; }
+  mini.style.display = "flex";
+  mini.className = "pomo-mini phase-" + pomo.phase + (pomo.running ? "" : " paused");
+  document.getElementById("pomoMiniTime").textContent = formatClock(Math.ceil(pomoRemainingMs() / 1000));
+  document.getElementById("pomoMiniLabel").textContent = pomoPhaseLabel();
+}
+
+async function renderPomoTodayStats(){
+  const el = document.getElementById("pomoTodayStats");
+  el.innerHTML = `<span>Today: <b>…</b></span>`;
+  if (!uid) return;
+  try {
+    const startOfDay = new Date(); startOfDay.setHours(0,0,0,0);
+    const snap = await getDocs(query(collection(db,"pomodoroSessions"), where("uid","==",uid), where("completedAt",">=",startOfDay)));
+    const mins = snap.docs.reduce((s,d) => s + (d.data().focusMinutes || 0), 0);
+    el.innerHTML = `<span>Today: <b>${formatMinutes(mins)}</b></span><span>Sessions: <b>${snap.size}</b></span>`;
+  } catch(err){
+    console.error("Couldn't load today's focus stats:", err);
+    el.innerHTML = `<span>Today's total unavailable</span>`;
+  }
+}
+
+function logPomoSession(){
+  if (!uid) return;
+  const subject = pomo.subject === "__other__" ? (pomo.customSubject.trim() || "General") : pomo.subject;
+  addDoc(collection(db,"pomodoroSessions"), {
+    uid, subject, focusMinutes: pomo.focusMin, completedAt: serverTimestamp()
+  }).then(() => {
+    delete studyStatsCache[uid];
+    if (pomodoroOverlay.classList.contains("open")) renderPomoTodayStats();
+  }).catch(err => {
+    console.error("Couldn't log focus session:", err);
+    showToast("Session finished, but couldn't save it: " + err.message, "error");
+  });
+}
+
+// Moves to the next phase and stops. Only a naturally completed focus
+// block is logged (logIfFocus = true); "Skip" passes false.
+function pomoAdvancePhase(logIfFocus){
+  pomo.running = false;
+  document.title = originalDocTitle;
+  if (pomo.phase === "focus"){
+    pomo.cyclesCompleted++;
+    if (logIfFocus) logPomoSession();
+    pomo.phase = (pomo.cyclesCompleted % pomo.cyclesBeforeLong === 0) ? "long" : "short";
+  } else {
+    pomo.phase = "focus";
+  }
+  pomo.remainingMs = pomoPhaseTotalMs();
+  pomo.endAt = null;
+  savePomoState();
+  renderPomoFace();
+}
+
+function pomoNotify(title, body){
+  if (window.Notification && Notification.permission === "granted"){
+    try { new Notification(title, { body }); } catch(e){}
+  }
+}
+
+function pomoPhaseComplete(){
+  const wasFocus = pomo.phase === "focus";
+  pomoAdvancePhase(true);
+  if (wasFocus){
+    showToast("Focus session complete — take a break!", "success");
+    pomoNotify("Focus session complete", "Time for a break.");
+  } else {
+    showToast("Break's over — ready for another round?", "info");
+    pomoNotify("Break's over", "Ready to focus again?");
+  }
+}
+
+setInterval(() => {
+  const remaining = pomoRemainingMs();
+  if (pomo.running) document.title = `${formatClock(Math.ceil(remaining / 1000))} · ${pomoPhaseLabel()} – Arena`;
+  renderPomoFace();
+  if (pomo.running && remaining <= 0 && uid) pomoPhaseComplete();
+}, 250);
+
+const pomodoroOverlay = document.getElementById("pomodoroOverlay");
+function openPomodoroModal(){
+  initPomodoroUI();
+  pomodoroOverlay.classList.add("open");
+}
+document.getElementById("openPomodoroBtn").onclick = openPomodoroModal;
+document.getElementById("pomoMini").onclick = openPomodoroModal;
+document.getElementById("pomoCloseBtn").onclick = () => pomodoroOverlay.classList.remove("open");
+
+document.getElementById("pomoStartBtn").onclick = () => {
+  if (pomo.running){
+    pomo.remainingMs = pomoRemainingMs();
+    pomo.running = false;
+    pomo.endAt = null;
+    document.title = originalDocTitle;
+  } else {
+    if (window.Notification && Notification.permission === "default") Notification.requestPermission().catch(()=>{});
+    pomo.endAt = Date.now() + pomo.remainingMs;
+    pomo.running = true;
+  }
+  savePomoState();
+  renderPomoFace();
+};
+document.getElementById("pomoResetBtn").onclick = () => {
+  pomo.running = false; pomo.endAt = null; pomo.remainingMs = pomoPhaseTotalMs();
+  document.title = originalDocTitle;
+  savePomoState();
+  renderPomoFace();
+};
+document.getElementById("pomoSkipBtn").onclick = () => {
+  pomoAdvancePhase(false);
+  showToast(`Skipped — now on ${pomoPhaseLabel().toLowerCase()}.`, "info");
+};
+
+// Space toggles start/pause while the timer window is open
+document.addEventListener("keydown", (e) => {
+  if (e.code !== "Space" || !pomodoroOverlay.classList.contains("open")) return;
+  const tag = document.activeElement && document.activeElement.tagName;
+  if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+  e.preventDefault();
+  document.getElementById("pomoStartBtn").click();
+});
+
+// Show the mini pill on load if a session was mid-way before a refresh
+renderPomoMini();
 </script>
 </body>
 </html>
