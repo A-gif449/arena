@@ -403,6 +403,30 @@
   .pill.tag{color:var(--info); border-color:var(--info-dim);}
   .pill.flag{color:var(--alert); border-color:var(--alert);}
   .qtime{margin-left:auto; color:var(--dim); font-size:0.76rem; font-family:'IBM Plex Mono',monospace;}
+  .q-permalink{color:var(--info); text-decoration:none; font-size:0.72rem; font-family:'IBM Plex Mono',monospace; white-space:nowrap;}
+  .q-permalink:hover{text-decoration:underline;}
+  .q-share-btn{background:none; border:1px solid var(--rule); color:var(--dim); font-size:0.7rem; font-family:'IBM Plex Mono',monospace; padding:3px 7px; border-radius:4px; white-space:nowrap;}
+  .q-share-btn:hover{color:var(--info); border-color:var(--info);}
+  .q-share-btn.copied{color:var(--verified); border-color:var(--verified);}
+
+  .question-detail{display:flex; flex-direction:column; gap:14px;}
+  .question-detail-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;}
+  .question-detail-head h2{font-family:'Space Grotesk',sans-serif; font-size:1.18rem; margin:0; font-weight:700;}
+  .question-back{color:var(--info); text-decoration:none; font-size:0.82rem; font-family:'IBM Plex Mono',monospace;}
+  .question-back:hover{text-decoration:underline;}
+  .related-questions{background:var(--paper); border:1px solid var(--rule); border-radius:var(--radius-card); overflow:hidden;}
+  .related-head{padding:16px 18px; border-bottom:1px solid var(--rule);}
+  .related-head h3{font-family:'Space Grotesk',sans-serif; margin:0 0 4px; font-size:1rem;}
+  .related-head p{margin:0; color:var(--dim); font-size:0.78rem;}
+  .related-list{display:flex; flex-direction:column;}
+  .related-item{display:flex; align-items:flex-start; gap:10px; padding:12px 14px; border:none; border-bottom:1px solid var(--rule); background:transparent; color:var(--ivory); text-decoration:none; text-align:left;}
+  .related-item:last-child{border-bottom:none;}
+  .related-item:hover{background:var(--paper-raised);}
+  .related-num{color:var(--mark); font-family:'IBM Plex Mono',monospace; font-size:0.72rem; min-width:28px; padding-top:2px;}
+  .related-main{min-width:0; flex:1;}
+  .related-text{font-size:0.86rem; line-height:1.45;}
+  .related-meta{display:flex; gap:7px; flex-wrap:wrap; margin-top:5px; color:var(--dim); font-size:0.7rem; font-family:'IBM Plex Mono',monospace;}
+  .related-item.current{background:var(--mark-dim);}
 
   .qtext{font-family:'Space Grotesk',sans-serif; font-size:1.18rem; font-weight:600; line-height:1.46; margin:0 0 16px; letter-spacing:-0.005em;}
 
@@ -1447,6 +1471,8 @@ let userDocUnsub = null;
 let questions = [];
 let notifications = [];
 let activeTopic = "All";
+let currentQuestionRoute = null;
+let routeRequestInFlight = false;
 let sortMode = "new";
 let expandedComments = new Set();
 let drafts = {};
@@ -1534,7 +1560,16 @@ function subscribeUserDoc(){
     myRole = data.role || "user";
     document.getElementById("authGate").style.display = "none";
     document.getElementById("appRoot").style.display = "block";
-    if (!feedStarted){ feedStarted = true; startFeed(); }
+    if (!feedStarted){
+      feedStarted = true;
+      if (getQuestionRouteId()) {
+        handleQuestionRoute();
+      } else {
+        startFeed();
+      }
+    } else if (getQuestionRouteId()) {
+      handleQuestionRoute();
+    }
     if (!notifStarted){ notifStarted = true; startNotifications(); }
     if (!followsStarted) startFollows();
     if (!convUnsub) startConversations();
@@ -1613,13 +1648,175 @@ function friendlyAuthError(code){
   return map[code];
 }
 
+/* ---------------- question URLs / detail route ---------------- */
+function getQuestionRouteId(){
+  return new URLSearchParams(window.location.search).get("question");
+}
+function questionUrl(qid){
+  const url = new URL(window.location.href);
+  url.searchParams.set("question", qid);
+  url.hash = "";
+  return url.pathname + "?" + url.searchParams.toString();
+}
+function clearQuestionRouteUrl(){
+  const url = new URL(window.location.href);
+  url.searchParams.delete("question");
+  url.hash = "";
+  history.pushState({question:null}, "", url.pathname + (url.search ? "?" + url.searchParams.toString() : ""));
+}
+function setQuestionRouteUrl(qid, replace=false){
+  const url = questionUrl(qid);
+  history[replace ? "replaceState" : "pushState"]({question:qid}, "", url);
+}
+function syncTopicTab(topic){
+  document.querySelectorAll(".topicbtn").forEach(b => b.classList.toggle("active", b.textContent === topic));
+}
+async function handleQuestionRoute(force=false){
+  const qid = getQuestionRouteId();
+  if (!qid){
+    currentQuestionRoute = null;
+    routeRequestInFlight = false;
+    if (feedUnsub) startFeed();
+    return;
+  }
+  if (!force && currentQuestionRoute === qid && document.querySelector(`[data-qdetail="${qid}"]`)) return;
+  if (routeRequestInFlight) return;
+  routeRequestInFlight = true;
+  try {
+    await openQuestionDetail(qid);
+    currentQuestionRoute = qid;
+  } finally {
+    routeRequestInFlight = false;
+  }
+}
+async function openQuestionDetail(qid){
+  if (feedUnsub){ feedUnsub(); feedUnsub = null; }
+  const feed = document.getElementById("feed");
+  feed.innerHTML = `<div class="empty">Loading question…</div>`;
+
+  let targetSnap;
+  try {
+    targetSnap = await getDoc(doc(db, "questions", qid));
+  } catch (err) {
+    console.error("Question detail load failed:", err);
+    feed.innerHTML = `<div class="empty">Couldn't load this question right now.</div>`;
+    return;
+  }
+  if (!targetSnap.exists()){
+    feed.innerHTML = `<div class="empty">That question isn't available anymore.</div>`;
+    return;
+  }
+
+  const target = { id: targetSnap.id, ...targetSnap.data(), comments: [] };
+  let categoryDocs = [];
+  try {
+    const snap = await getDocs(query(
+      collection(db, "questions"),
+      where("topic", "==", target.topic),
+      orderBy("createdAt", "desc")
+    ));
+    categoryDocs = snap.docs;
+  } catch (err) {
+    // If the composite index is not available, fetch the category without
+    // ordering and sort locally. This keeps question URLs working without
+    // changing the existing feed/index setup.
+    try {
+      const snap = await getDocs(query(collection(db, "questions"), where("topic", "==", target.topic)));
+      categoryDocs = snap.docs.sort((a,b) => {
+        const at = a.data().createdAt?.toMillis?.() || 0;
+        const bt = b.data().createdAt?.toMillis?.() || 0;
+        return bt - at;
+      });
+    } catch (fallbackErr) {
+      console.error("Category question load failed:", fallbackErr);
+    }
+  }
+
+  const byId = new Map();
+  categoryDocs.forEach(d => byId.set(d.id, { id:d.id, ...d.data(), comments:[] }));
+  byId.set(target.id, target);
+  questions = [...byId.values()].sort((a,b) => {
+    const at = a.createdAt?.toMillis?.() || 0;
+    const bt = b.createdAt?.toMillis?.() || 0;
+    return bt - at;
+  });
+
+  expandedComments.add(target.id);
+  subscribeComments(target.id);
+  activeTopic = target.topic || "All";
+  syncTopicTab(activeTopic);
+  renderQuestionDetail(target.id);
+}
+function renderQuestionDetail(qid){
+  const target = questions.find(q => q.id === qid);
+  const feed = document.getElementById("feed");
+  if (!target){ feed.innerHTML = `<div class="empty">That question isn't available anymore.</div>`; return; }
+
+  const sameTopic = questions.filter(q => q.topic === target.topic);
+  const related = sameTopic.map((q,i) => `
+    <a class="related-item ${q.id===qid?'current':''}" href="${escapeHtml(questionUrl(q.id))}" data-question-link="${q.id}">
+      <span class="related-num">${i+1}</span>
+      <span class="related-main">
+        <span class="related-text">${escapeHtml(q.text)}</span>
+        <span class="related-meta"><span>${escapeHtml(q.difficulty || "")}</span><span>${escapeHtml(q.authorName || "solver")}</span></span>
+      </span>
+    </a>`).join("");
+
+  feed.innerHTML = `
+    <div class="question-detail" data-qdetail="${escapeHtml(qid)}">
+      <div class="question-detail-head">
+        <h2>${escapeHtml(target.topic || "Question")}</h2>
+        <a class="question-back" href="${escapeHtml(window.location.pathname)}" data-back-feed>← Back to feed</a>
+      </div>
+      ${renderCard(target)}
+      <section class="related-questions">
+        <div class="related-head">
+          <h3>More ${escapeHtml(target.topic)} questions</h3>
+          <p>${sameTopic.length} question${sameTopic.length===1?"":"s"} in this category</p>
+        </div>
+        <div class="related-list">${related}</div>
+      </section>
+    </div>`;
+
+  wireCard(target);
+
+  feed.querySelectorAll("[data-question-link]").forEach(link => {
+    link.addEventListener("click", e => {
+      e.preventDefault();
+      const id = link.dataset.questionLink;
+      setQuestionRouteUrl(id);
+      currentQuestionRoute = null;
+      handleQuestionRoute(true);
+    });
+  });
+  const back = feed.querySelector("[data-back-feed]");
+  if (back) back.addEventListener("click", e => {
+    e.preventDefault();
+    clearQuestionRouteUrl();
+    currentQuestionRoute = null;
+    startFeed();
+  });
+}
+window.addEventListener("popstate", () => {
+  currentQuestionRoute = null;
+  if (getQuestionRouteId()) handleQuestionRoute(true);
+  else startFeed();
+});
+
 /* ---------------- topic tabs ---------------- */
+
 const tabsEl = document.getElementById("topicTabs");
 TOPICS.forEach(t => {
   const b = document.createElement("button");
   b.className = "topicbtn" + (t === "All" ? " active" : "");
   b.textContent = t;
   b.onclick = () => {
+    if (getQuestionRouteId()){
+      const url = new URL(window.location.href);
+      url.searchParams.delete("question");
+      history.pushState({question:null}, "", url.pathname + (url.search ? "?" + url.searchParams.toString() : ""));
+      currentQuestionRoute = null;
+    }
     activeTopic = t;
     [...tabsEl.children].forEach(c => c.classList.toggle("active", c === b));
     feedLimit = 20;
@@ -1935,6 +2132,15 @@ function render(){
     : `<button class="btn-ghost btn-block" id="loadMoreBtn">Load more questions</button>`;
   feed.innerHTML = list.map(q => renderCard(q)).join("") + tailHtml;
   list.forEach(q => wireCard(q));
+  feed.querySelectorAll("[data-question-link]").forEach(link => {
+    link.onclick = (e) => {
+      e.preventDefault();
+      const id = link.dataset.questionLink;
+      setQuestionRouteUrl(id);
+      currentQuestionRoute = null;
+      handleQuestionRoute(true);
+    };
+  });
   const loadMoreBtn = document.getElementById("loadMoreBtn");
   if (loadMoreBtn) loadMoreBtn.onclick = () => { feedLimit += 20; startFeed(); };
 }
@@ -2026,6 +2232,9 @@ function renderCard(q){
         ${q.marks ? `<span class="pill">${q.marks} mark${q.marks>1?"s":""}</span>` : ""}
         ${tagPills}${hotPill}${flagPill}
         <span class="qauthor-line">${miniAvatar(q.authorId, q.authorName)}<button class="linklike qauthor-name" data-openprofile="${q.authorId}">${escapeHtml(q.authorName||'solver')}</button></span>
+        <a class="q-permalink" href="${escapeHtml(questionUrl(q.id))}" data-question-link="${q.id}" title="Open this question">Open ↗</a>
+        <button class="q-share-btn" type="button" data-copy-question="${q.id}" title="Copy shareable question link">Copy link</button>
+        <button class="q-share-btn" type="button" data-share-question="${q.id}" title="Share this question">Share</button>
         <span class="qtime" title="${timeAgo(q.createdAt)}">${formatModernDateTime(q.createdAt)}</span>
       </div>
       <p class="qtext">${escapeHtml(q.text)}</p>
@@ -2084,7 +2293,84 @@ function renderComment(qid, c){
   </div>`;
 }
 
+async function copyQuestionLink(qid, btn){
+  const absoluteUrl = new URL(questionUrl(qid), window.location.href).href;
+  try {
+    let copied = false;
+
+    // Preferred method on HTTPS / localhost.
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      try {
+        await navigator.clipboard.writeText(absoluteUrl);
+        copied = true;
+      } catch (clipboardErr) {
+        console.warn("Clipboard API unavailable, using fallback:", clipboardErr);
+      }
+    }
+
+    // Fallback for HTTP hosting and browsers that block the Clipboard API.
+    if (!copied) {
+      const ta = document.createElement("textarea");
+      ta.value = absoluteUrl;
+      ta.setAttribute("aria-hidden", "true");
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      ta.style.top = "0";
+      ta.style.width = "1px";
+      ta.style.height = "1px";
+      ta.style.opacity = "0";
+      ta.style.pointerEvents = "none";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      copied = document.execCommand("copy");
+      ta.remove();
+    }
+
+    if (!copied) throw new Error("Browser did not allow copying to the clipboard");
+
+    if (btn) {
+      const oldText = btn.textContent;
+      btn.textContent = "Copied ✓";
+      btn.classList.add("copied");
+      setTimeout(() => { btn.textContent = oldText; btn.classList.remove("copied"); }, 1400);
+    }
+    showToast("Question link copied", "success");
+  } catch (err) {
+    console.error("Copy question link failed:", err);
+    showToast("Couldn't copy the question link. Please copy the URL from the address bar.", "error");
+  }
+}
+
+async function shareQuestionLink(qid){
+  const absoluteUrl = new URL(questionUrl(qid), window.location.origin).href;
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: "Arena — GATE Aptitude Practice",
+        text: "Check out this question on Arena",
+        url: absoluteUrl
+      });
+      return;
+    } catch (err) {
+      if (err && err.name === "AbortError") return;
+    }
+  }
+  await copyQuestionLink(qid);
+}
+
+function wireQuestionSharing(q){
+  document.querySelectorAll(`[data-copy-question="${q.id}"]`).forEach(btn => {
+    btn.onclick = () => copyQuestionLink(q.id, btn);
+  });
+  document.querySelectorAll(`[data-share-question="${q.id}"]`).forEach(btn => {
+    btn.onclick = () => shareQuestionLink(q.id);
+  });
+}
+
 function wireCard(q){
+  wireQuestionSharing(q);
   document.querySelectorAll(`[data-vote-q="${q.id}"]`).forEach(btn=>{
     btn.onclick = async () => {
       const applied = await castVote(q, doc(db,"questions",q.id), btn.dataset.dir, () => rerenderCard(q.id));
@@ -2843,21 +3129,10 @@ document.addEventListener("click", (e) => {
 });
 
 function goToQuestion(qid, commentId){
-  const q = questions.find(x => x.id === qid);
-  if (!q){ showToast("That question isn't available anymore.", "error"); return; }
-  activeTopic = "All";
-  document.querySelectorAll(".topicbtn").forEach(b => b.classList.toggle("active", b.textContent === "All"));
-  expandedComments.add(qid);
   document.getElementById("notifPanel").classList.remove("open");
-  render();
-  requestAnimationFrame(() => {
-    const el = document.querySelector(`[data-qcardid="${qid}"]`);
-    if (el){
-      el.scrollIntoView({behavior:"smooth", block:"center"});
-      el.classList.add("highlight");
-      setTimeout(()=> el.classList.remove("highlight"), 1600);
-    }
-  });
+  setQuestionRouteUrl(qid);
+  currentQuestionRoute = null;
+  handleQuestionRoute(true);
 }
 
 /* =========================================================================
