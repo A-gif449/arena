@@ -1563,11 +1563,8 @@ function subscribeUserDoc(){
     const hasQuestionRoute = !!getQuestionRouteId();
     if (!feedStarted){
       feedStarted = true;
-      if (hasQuestionRoute) {
-        handleQuestionRoute();
-      } else {
-        startFeed();
-      }
+      if (hasQuestionRoute) handleQuestionRoute();
+      else startFeed();
     } else if (hasQuestionRoute) {
       handleQuestionRoute();
     }
@@ -1654,24 +1651,33 @@ function friendlyAuthError(code){
 }
 
 /* ---------------- question URLs / detail route ---------------- */
+// Question links use the URL hash instead of a server-side route.
+// This is important for static hosting (GitHub Pages, Netlify, Firebase
+// Hosting, local HTML files, etc.): opening / reloading a hash URL still
+// loads this exact HTML file, then the app opens the requested question.
 function getQuestionRouteId(){
-  return new URLSearchParams(window.location.search).get("question");
+  const queryId = new URLSearchParams(window.location.search).get("question");
+  if (queryId) return queryId;
+  const hash = window.location.hash.replace(/^#/, "");
+  if (!hash) return null;
+  const params = new URLSearchParams(hash);
+  return params.get("question");
 }
 function questionUrl(qid){
   const url = new URL(window.location.href);
-  url.searchParams.set("question", qid);
-  url.hash = "";
-  return url.pathname + "?" + url.searchParams.toString();
+  url.searchParams.delete("question");
+  url.hash = "question=" + encodeURIComponent(qid);
+  return url.href;
 }
 function clearQuestionRouteUrl(){
   const url = new URL(window.location.href);
-  url.searchParams.delete("question");
   url.hash = "";
-  history.pushState({question:null}, "", url.pathname + (url.search ? "?" + url.searchParams.toString() : ""));
+  history.pushState({question:null}, "", url.pathname + (url.search ? url.search : ""));
 }
 function setQuestionRouteUrl(qid, replace=false){
-  const url = questionUrl(qid);
-  history[replace ? "replaceState" : "pushState"]({question:qid}, "", url);
+  const url = new URL(window.location.href);
+  url.hash = "question=" + encodeURIComponent(qid);
+  history[replace ? "replaceState" : "pushState"]({question:qid}, "", url.pathname + (url.search ? url.search : "") + url.hash);
 }
 function syncTopicTab(topic){
   document.querySelectorAll(".topicbtn").forEach(b => b.classList.toggle("active", b.textContent === topic));
@@ -1681,10 +1687,10 @@ async function handleQuestionRoute(force=false){
   if (!qid){
     currentQuestionRoute = null;
     routeRequestInFlight = false;
-    if (feedUnsub) startFeed();
+    if (feedStarted && !feedUnsub) startFeed();
     return;
   }
-  if (!force && currentQuestionRoute === qid && document.querySelector(`[data-qdetail="${qid}"]`)) return;
+  if (!force && currentQuestionRoute === qid && document.querySelector(`[data-qdetail="${CSS.escape(qid)}"]`)) return;
   if (routeRequestInFlight) return;
   routeRequestInFlight = true;
   try {
@@ -1715,6 +1721,8 @@ async function openQuestionDetail(qid){
   const target = { id: targetSnap.id, ...targetSnap.data(), comments: [] };
   let categoryDocs = [];
   try {
+    // Load every question in the same topic. The fallback avoids requiring
+    // a composite Firestore index on topic + createdAt.
     const snap = await getDocs(query(
       collection(db, "questions"),
       where("topic", "==", target.topic),
@@ -1722,9 +1730,6 @@ async function openQuestionDetail(qid){
     ));
     categoryDocs = snap.docs;
   } catch (err) {
-    // If the composite index is not available, fetch the category without
-    // ordering and sort locally. This keeps question URLs working without
-    // changing the existing feed/index setup.
     try {
       const snap = await getDocs(query(collection(db, "questions"), where("topic", "==", target.topic)));
       categoryDocs = snap.docs.sort((a,b) => {
@@ -1759,7 +1764,7 @@ function renderQuestionDetail(qid){
 
   const sameTopic = questions.filter(q => q.topic === target.topic);
   const related = sameTopic.map((q,i) => `
-    <a class="related-item ${q.id===qid?'current':''}" href="${escapeHtml(questionUrl(q.id))}" data-question-link="${q.id}">
+    <a class="related-item ${q.id===qid?'current':''}" href="${escapeHtml(questionUrl(q.id))}" data-question-link="${escapeHtml(q.id)}">
       <span class="related-num">${i+1}</span>
       <span class="related-main">
         <span class="related-text">${escapeHtml(q.text)}</span>
@@ -1802,6 +1807,11 @@ function renderQuestionDetail(qid){
     startFeed();
   });
 }
+window.addEventListener("hashchange", () => {
+  currentQuestionRoute = null;
+  if (getQuestionRouteId()) handleQuestionRoute(true);
+  else startFeed();
+});
 window.addEventListener("popstate", () => {
   currentQuestionRoute = null;
   if (getQuestionRouteId()) handleQuestionRoute(true);
@@ -1817,9 +1827,7 @@ TOPICS.forEach(t => {
   b.textContent = t;
   b.onclick = () => {
     if (getQuestionRouteId()){
-      const url = new URL(window.location.href);
-      url.searchParams.delete("question");
-      history.pushState({question:null}, "", url.pathname + (url.search ? "?" + url.searchParams.toString() : ""));
+      clearQuestionRouteUrl();
       currentQuestionRoute = null;
     }
     activeTopic = t;
@@ -2091,6 +2099,18 @@ function timeAgo(ts){
 function fullDate(ts){ return ts && ts.toDate ? ts.toDate().toLocaleString() : ""; }
 
 function render(){
+  // A question permalink owns the feed area. Other live listeners (comments,
+  // follows, notifications, etc.) may call render() while the detail page is
+  // loading. Never let one of those normal renders replace the permalink view.
+  const routeQid = getQuestionRouteId();
+  if (routeQid){
+    const routeTarget = questions.find(q => q.id === routeQid);
+    if (routeTarget){
+      renderQuestionDetail(routeQid);
+      return;
+    }
+  }
+
   const feed = document.getElementById("feed");
   let list = questions; // topic filtering now happens server-side in the query itself
 
@@ -2162,7 +2182,15 @@ function render(){
 function rerenderCard(qid){
   const q = questions.find(x => x.id === qid);
   const el = document.querySelector(`[data-qcardid="${qid}"]`);
-  if (!q || !el){ render(); return; }
+  if (!q) return;
+  if (!el){
+    if (getQuestionRouteId() === qid){
+      renderQuestionDetail(qid);
+      return;
+    }
+    render();
+    return;
+  }
   const wrapper = document.createElement("div");
   wrapper.innerHTML = renderCard(q);
   const freshEl = wrapper.firstElementChild;
@@ -2299,7 +2327,7 @@ function renderComment(qid, c){
 }
 
 async function copyQuestionLink(qid, btn){
-  const absoluteUrl = new URL(questionUrl(qid), window.location.href).href;
+  const absoluteUrl = questionUrl(qid);
   try {
     let copied = false;
 
@@ -2349,7 +2377,7 @@ async function copyQuestionLink(qid, btn){
 }
 
 async function shareQuestionLink(qid){
-  const absoluteUrl = new URL(questionUrl(qid), window.location.origin).href;
+  const absoluteUrl = questionUrl(qid);
   if (navigator.share) {
     try {
       await navigator.share({
