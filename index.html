@@ -330,6 +330,18 @@
     padding:9px 10px; border-radius:var(--radius-input); font-size:0.84rem;
   }
 
+  .rep-svg{display:inline-block;vertical-align:-0.18em;flex:0 0 auto;}
+  .rep-mini{display:inline-flex;align-items:center;gap:5px;color:var(--mark);font-family:'IBM Plex Mono',monospace;font-size:0.7rem;font-weight:700;padding:3px 7px;border:1px solid var(--mark-dim);background:rgba(255,157,28,0.05);border-radius:999px;margin-left:6px;}
+  .rep-level{display:inline-flex;align-items:center;gap:6px;color:var(--mark);font-weight:700;}
+  .rep-hero{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 18px;background:linear-gradient(135deg,rgba(255,157,28,.10),rgba(79,166,255,.04));border:1px solid var(--rule-strong);border-radius:10px;margin-bottom:16px;}
+  .rep-hero-main{min-width:0;}.rep-hero-score{font-family:'IBM Plex Mono',monospace;font-size:2.1rem;font-weight:800;line-height:1;color:var(--mark);}.rep-hero-label{font-size:.72rem;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;margin-top:5px;}
+  .rep-hero-level{display:flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid var(--rule);border-radius:8px;background:var(--paper);font-size:.8rem;white-space:nowrap;}
+  .rep-progress{height:5px;background:var(--rule);border-radius:99px;overflow:hidden;margin-top:10px;max-width:320px;}.rep-progress>span{display:block;height:100%;background:var(--mark);border-radius:inherit;}
+  .rep-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0 18px;}.rep-card{background:var(--paper-raised);border:1px solid var(--rule);border-radius:7px;padding:11px;}.rep-card-num{font-family:'IBM Plex Mono',monospace;font-weight:800;font-size:1.05rem;}.rep-card-label{font-size:.68rem;color:var(--dim);margin-top:3px;}
+  .rep-section{font-family:'Space Grotesk',sans-serif;font-size:1rem;font-weight:700;margin:18px 0 9px;display:flex;align-items:center;gap:7px;}.rep-badges{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}.rep-badge-card{display:flex;gap:10px;align-items:flex-start;background:var(--paper-raised);border:1px solid var(--rule);border-radius:8px;padding:10px;}.rep-badge-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--mark);background:var(--mark-dim);flex-shrink:0;}.rep-badge-name{font-weight:700;font-size:.8rem;}.rep-badge-desc{color:var(--dim);font-size:.68rem;margin-top:2px;}.rep-history{display:flex;flex-direction:column;border:1px solid var(--rule);border-radius:8px;overflow:hidden;}.rep-history-row{display:flex;align-items:center;gap:9px;padding:9px 10px;border-bottom:1px solid var(--rule);}.rep-history-row:last-child{border-bottom:0;}.rep-history-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--paper-raised);color:var(--mark);flex-shrink:0;}.rep-history-text{flex:1;min-width:0;font-size:.78rem;}.rep-history-date{font-size:.65rem;color:var(--dim);}.rep-positive{color:var(--verified);font-family:'IBM Plex Mono',monospace;font-weight:700;}.rep-negative{color:var(--alert);font-family:'IBM Plex Mono',monospace;font-weight:700;}
+  .accepted-answer{border-color:var(--verified) !important;box-shadow:0 0 0 1px rgba(47,208,140,.12);}.accepted-mark{display:inline-flex;align-items:center;gap:4px;color:var(--verified);font-size:.7rem;font-weight:700;}.accept-btn{color:var(--dim)!important;}.accept-btn:hover{color:var(--verified)!important;border-color:var(--verified)!important;}
+  @media(max-width:560px){.rep-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.rep-badges{grid-template-columns:1fr;}.rep-hero{align-items:flex-start;}.rep-hero-level{font-size:.72rem;}}
+
   .avatar{width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; background:var(--paper-raised); border:1px solid var(--rule); font-weight:600; font-size:0.8rem; color:var(--ivory); flex-shrink:0; overflow:hidden; position:relative; font-family:'IBM Plex Mono',monospace;}
   .avatar img{width:100%; height:100%; object-fit:cover; display:block;}
   .avatar.admin{background:var(--mark-dim); border-color:var(--mark); color:var(--mark);}
@@ -378,6 +390,9 @@
   .empty{color:var(--dim); text-align:center; padding:64px 20px; font-size:0.94rem; background:var(--paper); border:1px dashed var(--rule-strong); border-radius:var(--radius-card);}
 
   .qcard{background:var(--paper); border:1px solid var(--rule); border-left:3px solid var(--rule); border-radius:var(--radius-card); padding:20px 22px; display:flex; gap:16px; transition:outline .3s ease, border-color .2s ease;}
+  /* Browser-level virtualization: off-screen cards/related rows do not spend paint/layout time until they approach the viewport. */
+  .qcard{content-visibility:auto; contain-intrinsic-size:0 260px;}
+  .related-item{content-visibility:auto; contain-intrinsic-size:0 72px;}
   .qcard.diff-easy{border-left-color:var(--verified);}
   .qcard.diff-medium{border-left-color:var(--mark);}
   .qcard.diff-hard{border-left-color:var(--alert);}
@@ -1413,6 +1428,7 @@
           uid + a completedAt >= (now minus 1 year) range with an orderBy,
           so Firestore will ask for a composite index the first time —
           open the console link and click "create index".
+        - reputationEvents and reputation fields: the UI includes a reputation ledger under users/{uid}/reputationEvents. For production-grade anti-abuse, do NOT allow clients to directly write arbitrary reputation values. Use a trusted server/Cloud Function (or tightly constrained Firestore rules) to validate vote/acceptance events and maintain users/{uid}.reputation and the ledger. The client already uses deterministic transaction/state keys so repeated clicks do not double-count within the permitted data model.
         - follows/{followerUid_followeeUid}: READ is open to any signed-in
           user (it powers follower/following counts and lists on every
           profile). CREATE only when request.auth.uid ==
@@ -1443,8 +1459,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, addDoc, doc, setDoc, getDoc, deleteDoc, updateDoc, onSnapshot,
-  query, where, orderBy, limit, serverTimestamp, arrayUnion, arrayRemove, getDocs, increment,
-  getCountFromServer, writeBatch, enableIndexedDbPersistence
+  query, where, orderBy, limit, startAfter, serverTimestamp, arrayUnion, arrayRemove, getDocs, increment,
+  getCountFromServer, writeBatch, runTransaction, enableIndexedDbPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
@@ -1469,10 +1485,14 @@ let feedStarted = false;
 let notifStarted = false;
 let userDocUnsub = null;
 let questions = [];
+let questionsById = new Map();
 let notifications = [];
 let activeTopic = "All";
 let currentQuestionRoute = null;
 let routeRequestInFlight = false;
+let relatedRouteState = null;
+let relatedLoadObserver = null;
+let renderScheduled = false;
 let sortMode = "new";
 let expandedComments = new Set();
 let drafts = {};
@@ -1480,6 +1500,213 @@ let editingId = null;
 let currentProfileUid = null;
 let usersCache = {};
 let loadingUsers = new Set();
+
+// Reputation / community layer. Kept separate from the existing question/feed state
+// so the reputation UI can evolve without changing how Arena loads or renders questions.
+let myReputation = 0;
+let myRepStats = {};
+let reputationLoadedFor = null;
+let reputationHistoryCache = {};
+let reputationHistoryLoading = new Set();
+
+const REP_RULES = Object.freeze({
+  question_post: 5,
+  comment_post: 2,
+  question_up: 5,
+  question_down: -2,
+  comment_up: 10,
+  comment_down: -2,
+  accepted_answer: 15,
+  correct_answer: 3,
+  mock_complete: 10,
+  focus_complete: 5
+});
+
+const REP_LEVELS = [
+  { min:0, label:"Newcomer", icon:"spark" },
+  { min:100, label:"Contributor", icon:"bolt" },
+  { min:250, label:"Solver", icon:"target" },
+  { min:500, label:"Expert", icon:"brain" },
+  { min:1000, label:"Scholar", icon:"book" },
+  { min:2500, label:"Mentor", icon:"mentor" },
+  { min:5000, label:"Arena Master", icon:"crown" },
+  { min:10000, label:"GATE Legend", icon:"star" }
+];
+
+function repLevel(points){
+  let level = REP_LEVELS[0];
+  for (const x of REP_LEVELS) if (points >= x.min) level = x; else break;
+  return level;
+}
+function repIcon(name, size=16){
+  const paths = {
+    spark:'<path d="M12 2l1.7 6.3L20 10l-6.3 1.7L12 18l-1.7-6.3L4 10l6.3-1.7L12 2Z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z"/>',
+    bolt:'<path d="M13 2 4 14h6l-1 8 9-12h-6l1-8Z"/>',
+    target:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="m16.5 7.5 2-2"/>',
+    brain:'<path d="M9 4.5A3 3 0 0 0 6 7.5v.3A3.2 3.2 0 0 0 4 10.8a3.2 3.2 0 0 0 2 3v1.7a3 3 0 0 0 3 3h1V4.5H9Z"/><path d="M15 4.5a3 3 0 0 1 3 3v.3a3.2 3.2 0 0 1 2 3 3.2 3.2 0 0 1-2 3v1.7a3 3 0 0 1-3 3h-1V4.5h1Z"/><path d="M9 9h2M13 9h2M9 14h2M13 14h2"/>',
+    book:'<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21V5.5Z"/><path d="M4 5.5V21M8 7h8M8 11h8"/>',
+    mentor:'<circle cx="12" cy="8" r="3"/><path d="M5 21a7 7 0 0 1 14 0M17 11l2 2 3-3"/>',
+    crown:'<path d="m3 7 4 4 5-7 5 7 4-4-2 13H5L3 7Z"/><path d="M5 17h14"/>',
+    star:'<path d="m12 2 3 6.1 6.7 1-4.8 4.7 1.1 6.7-6-3.2-6 3.2 1.1-6.7-4.8-4.7 6.7-1L12 2Z"/>',
+    trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0V4Z"/><path d="M8 6H4v2a4 4 0 0 0 4 4M16 6h4v2a4 4 0 0 1-4 4M12 13v5M8 21h8M9 18h6"/>',
+    history:'<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5M12 7v5l3 2"/>',
+    check:'<path d="m5 12 4 4L19 6"/>',
+    arrowUp:'<path d="m6 11 6-6 6 6M12 5v14"/>',
+    shield:'<path d="M12 3 20 6v6c0 5-3.3 8-8 9-4.7-1-8-4-8-9V6l8-3Z"/><path d="m8 12 2.5 2.5L16 9"/>',
+    flame:'<path d="M12 22c4 0 7-2.8 7-7 0-3.2-1.7-5.4-4.5-8.5.1 2.5-.7 3.9-2 4.7.1-3.9-1.6-6.7-4.3-9.2C8.5 6.5 5 9.8 5 15c0 4.2 3 7 7 7Z"/>'
+  };
+  return `<svg class="rep-svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name]||paths.spark}</svg>`;
+}
+
+function repStatsDefaults(){
+  return { reputation:0, questionsPosted:0, commentsPosted:0, acceptedAnswers:0, mockTestsCompleted:0, focusSessions:0, upvotesReceived:0, downvotesReceived:0, repByTopic:{} };
+}
+
+async function ensureReputationProfile(){
+  if (!uid) return;
+  const defaults = repStatsDefaults();
+  try {
+    await setDoc(doc(db,"users",uid), defaults, { merge:true });
+    myReputation = Number((await getDoc(doc(db,"users",uid))).data()?.reputation || 0);
+    const d = (await getDoc(doc(db,"users",uid))).data() || {};
+    myRepStats = {...defaults, ...d};
+    reputationLoadedFor = uid;
+  } catch(err){ console.warn("Reputation profile init failed:", err); }
+}
+
+async function awardReputation(targetUid, points, reason, meta={}, eventKey, statPatch={}){
+  if (!targetUid || !points || !eventKey) return false;
+  const eventRef = doc(db,"users",targetUid,"reputationEvents",eventKey);
+  const userRef = doc(db,"users",targetUid);
+  try {
+    const applied = await runTransaction(db, async tx => {
+      const existing = await tx.get(eventRef);
+      if (existing.exists()) return false;
+      const patch = { reputation: increment(points), ...Object.fromEntries(Object.entries(statPatch).filter(([k])=>k!=="repByTopic").map(([k,v]) => [k, increment(v)])) };
+      if (meta.topic) patch[`repByTopic.${meta.topic}`] = increment(points);
+      tx.set(userRef, patch, { merge:true });
+      tx.set(eventRef, {
+        points, reason, icon: meta.icon || "spark", questionId: meta.questionId || null,
+        commentId: meta.commentId || null, actorId: meta.actorId || uid,
+        topic: meta.topic || null, createdAt: serverTimestamp()
+      });
+      return true;
+    });
+    if (applied && targetUid === uid){
+      myReputation += points;
+      Object.entries(statPatch).forEach(([k,v]) => myRepStats[k] = (myRepStats[k]||0) + v);
+      renderReputationUI();
+    }
+    return applied;
+  } catch(err){
+    console.error("Reputation update failed:", err);
+    return false;
+  }
+}
+
+async function adjustReputation(targetUid, points, reason, meta={}, eventKey, statPatch={}){
+  return awardReputation(targetUid, points, reason, meta, eventKey, statPatch);
+}
+
+// A deterministic state record makes vote/acceptance reputation reversible.
+// Changing up -> down, down -> none, or accepted -> unaccepted adjusts only
+// the difference, so repeated clicks cannot permanently farm points.
+async function syncReputationState(targetUid, stateKey, newState, statePoints, reasonMap, meta={}, statMaps={}){
+  if (!targetUid || !stateKey || !statePoints) return false;
+  const stateRef = doc(db,"users",targetUid,"reputationEvents",stateKey);
+  const userRef = doc(db,"users",targetUid);
+  try {
+    const applied = await runTransaction(db, async tx => {
+      const snap = await tx.get(stateRef);
+      const old = snap.exists() ? (snap.data().state || "none") : "none";
+      if (old === newState) return false;
+      const oldPoints = Number(statePoints[old] || 0);
+      const newPoints = Number(statePoints[newState] || 0);
+      const delta = newPoints - oldPoints;
+      const oldStats = statMaps[old] || {};
+      const newStats = statMaps[newState] || {};
+      const patch = { reputation: increment(delta) };
+      const keys = new Set([...Object.keys(oldStats), ...Object.keys(newStats)]);
+      keys.forEach(k => {
+        const d = Number(newStats[k] || 0) - Number(oldStats[k] || 0);
+        if (d) patch[k] = increment(d);
+      });
+      if (meta.topic && delta) patch[`repByTopic.${meta.topic}`] = increment(delta);
+      if (delta || keys.size || (meta.topic && delta)) tx.set(userRef, patch, {merge:true});
+      if (newState === "none") tx.delete(stateRef);
+      else tx.set(stateRef, {
+        state:newState, points:newPoints, reason:reasonMap[newState] || reasonMap.default || "Reputation update",
+        icon:meta.icon || "spark", questionId:meta.questionId || null, commentId:meta.commentId || null,
+        actorId:meta.actorId || uid, topic:meta.topic || null, createdAt:serverTimestamp()
+      }, {merge:true});
+      return true;
+    });
+    if (applied && targetUid === uid){
+      const oldState = null;
+      const current = myRepStats;
+      const delta = Number(statePoints[newState] || 0); // local refresh is corrected by the user snapshot
+      if (newState === "none") { /* snapshot is authoritative */ }
+      renderReputationUI();
+    }
+    return applied;
+  } catch(err){
+    console.error("Reputation state update failed:", err);
+    return false;
+  }
+}
+
+function reputationBadgeList(stats, points){
+  const s = {...repStatsDefaults(), ...(stats||{}), reputation:points};
+  const out = [];
+  if (s.questionsPosted >= 1) out.push({key:"first-question", name:"First Question", desc:"Posted your first question", icon:"spark"});
+  if (s.commentsPosted >= 25) out.push({key:"discussion-starter", name:"Discussion Starter", desc:"Posted 25 comments", icon:"mentor"});
+  if (s.questionsPosted >= 50) out.push({key:"question-setter", name:"Question Setter", desc:"Posted 50 questions", icon:"book"});
+  if (s.acceptedAnswers >= 1) out.push({key:"accepted", name:"Accepted Solver", desc:"Had an answer accepted", icon:"check"});
+  if (s.mockTestsCompleted >= 10) out.push({key:"accuracy-master", name:"Accuracy Master", desc:"Completed 10 mock tests", icon:"target"});
+  if (s.focusSessions >= 10) out.push({key:"focus-builder", name:"Focus Builder", desc:"Completed 10 focus sessions", icon:"flame"});
+  if (points >= 100) out.push({key:"contributor", name:"Contributor", desc:"Reached 100 reputation", icon:"bolt"});
+  if (points >= 1000) out.push({key:"scholar", name:"Scholar", desc:"Reached 1,000 reputation", icon:"book"});
+  if (points >= 2500) out.push({key:"mentor", name:"Mentor", desc:"Reached 2,500 reputation", icon:"mentor"});
+  if (points >= 5000) out.push({key:"arena-master", name:"Arena Master", desc:"Reached 5,000 reputation", icon:"crown"});
+  return out;
+}
+
+async function loadReputationHistory(targetUid, limitCount=30){
+  if (!targetUid || reputationHistoryLoading.has(targetUid)) return;
+  if (reputationHistoryCache[targetUid]) return;
+  reputationHistoryLoading.add(targetUid);
+  try {
+    const snap = await getDocs(query(collection(db,"users",targetUid,"reputationEvents"), orderBy("createdAt","desc"), limit(limitCount)));
+    reputationHistoryCache[targetUid] = snap.docs.map(d => ({id:d.id, ...d.data()}));
+  } catch(err){
+    console.error("Reputation history failed:", err);
+    reputationHistoryCache[targetUid] = [];
+  } finally {
+    reputationHistoryLoading.delete(targetUid);
+    if (currentProfileUid === targetUid) renderProfileModal();
+  }
+}
+
+function announceRepMilestone(points){
+  const milestones = [100,250,500,1000,2500,5000,10000];
+  const crossed = milestones.filter(m => points >= m);
+  if (!crossed.length) return;
+  const highest = crossed[crossed.length-1];
+  const key = `arena_rep_milestone_${highest}`;
+  if (localStorage.getItem(key)) return;
+  localStorage.setItem(key,"1");
+  showToast(`You reached ${highest.toLocaleString()} reputation!`, "success");
+}
+
+function renderReputationUI(){
+  const el = document.getElementById("myRepMini");
+  if (el) {
+    const level = repLevel(myReputation);
+    el.innerHTML = `${repIcon(level.icon,14)}<span>${myReputation.toLocaleString()}</span>`;
+    el.title = `${myReputation.toLocaleString()} reputation · ${level.label}`;
+  }
+}
+
 let profileMenuOpen = false;
 
 // Follow graph. myFollowing / myFollowers are kept live by two listeners
@@ -1552,15 +1779,22 @@ function subscribeUserDoc(){
   userDocUnsub = onSnapshot(doc(db,"users",uid), (snap) => {
     if (!snap.exists()) return; // still being created during signup
     const data = snap.data();
+    const previousRep = myReputation;
     myName = data.name || myEmail;
     myPhoto = data.photoURL || null;
     myIsPrivate = data.isPrivate === true;
     isAdmin = data.role === "admin" || data.role === "owner";
     isOwner = data.role === "owner";
     myRole = data.role || "user";
+    myReputation = Number(data.reputation || 0);
+    myRepStats = {...repStatsDefaults(), ...data};
+    if (previousRep > 0 && myReputation > previousRep) announceRepMilestone(myReputation);
+    reputationLoadedFor = uid;
     document.getElementById("authGate").style.display = "none";
     document.getElementById("appRoot").style.display = "block";
     const hasQuestionRoute = !!getQuestionRouteId();
+    if (!data.reputation && !data.questionsPosted && !data.commentsPosted) ensureReputationProfile();
+    renderReputationUI();
     if (!feedStarted){
       feedStarted = true;
       if (hasQuestionRoute) handleQuestionRoute();
@@ -1628,6 +1862,7 @@ document.getElementById("gateSubmitBtn").onclick = async () => {
       await setDoc(doc(db,"users",cred.user.uid), {
         name, email,
         role: OWNER_ADMIN_EMAILS.includes(email.toLowerCase()) ? "owner" : "user",
+        ...repStatsDefaults(),
         createdAt: serverTimestamp()
       });
       const stamp = document.getElementById("gateStamp");
@@ -1700,8 +1935,50 @@ async function handleQuestionRoute(force=false){
     routeRequestInFlight = false;
   }
 }
+const RELATED_BATCH_SIZE = 50;
+
+async function loadRelatedBatch(reset=false){
+  const state = relatedRouteState;
+  if (!state || state.loading || state.done) return;
+  state.loading = true;
+  try {
+    const constraints = [
+      where("topic", "==", state.topic),
+      orderBy("createdAt", "desc"),
+      limit(RELATED_BATCH_SIZE)
+    ];
+    if (!reset && state.lastDoc) constraints.push(startAfter(state.lastDoc));
+    const snap = await getDocs(query(collection(db,"questions"), ...constraints));
+    state.lastDoc = snap.docs.length ? snap.docs[snap.docs.length - 1] : state.lastDoc;
+    if (snap.docs.length < RELATED_BATCH_SIZE) state.done = true;
+
+    snap.docs.forEach(d => {
+      if (!state.byId.has(d.id)) state.byId.set(d.id, { id:d.id, ...d.data(), comments:[] });
+    });
+    // Keep the exact target available even if it is older than the first batch.
+    if (state.target && !state.byId.has(state.target.id)) state.byId.set(state.target.id, state.target);
+
+    questions = [...state.byId.values()].sort((a,b) =>
+      (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0)
+    );
+    questionsById = new Map(questions.map(q => [q.id, q]));
+    renderQuestionDetail(state.target.id);
+  } catch (err) {
+    console.error("Related question load failed:", err);
+    state.error = true;
+    renderQuestionDetail(state.target.id);
+  } finally {
+    state.loading = false;
+    // Repaint once after the fetch completes so the sentinel is installed
+    // and the next batch can be prefetched as the user approaches it.
+    if (relatedRouteState === state) renderQuestionDetail(state.target.id);
+  }
+}
+
 async function openQuestionDetail(qid){
   if (feedUnsub){ feedUnsub(); feedUnsub = null; }
+  if (relatedLoadObserver){ relatedLoadObserver.disconnect(); relatedLoadObserver = null; }
+  relatedRouteState = null;
   const feed = document.getElementById("feed");
   feed.innerHTML = `<div class="empty">Loading question…</div>`;
 
@@ -1718,51 +1995,40 @@ async function openQuestionDetail(qid){
     return;
   }
 
-  const target = { id: targetSnap.id, ...targetSnap.data(), comments: [] };
-  let categoryDocs = [];
-  try {
-    // Load every question in the same topic. The fallback avoids requiring
-    // a composite Firestore index on topic + createdAt.
-    const snap = await getDocs(query(
-      collection(db, "questions"),
-      where("topic", "==", target.topic),
-      orderBy("createdAt", "desc")
-    ));
-    categoryDocs = snap.docs;
-  } catch (err) {
-    try {
-      const snap = await getDocs(query(collection(db, "questions"), where("topic", "==", target.topic)));
-      categoryDocs = snap.docs.sort((a,b) => {
-        const at = a.data().createdAt?.toMillis?.() || 0;
-        const bt = b.data().createdAt?.toMillis?.() || 0;
-        return bt - at;
-      });
-    } catch (fallbackErr) {
-      console.error("Category question load failed:", fallbackErr);
-    }
-  }
+  const target = { id:targetSnap.id, ...targetSnap.data(), comments:[] };
+  relatedRouteState = {
+    topic: target.topic,
+    target,
+    byId: new Map([[target.id, target]]),
+    lastDoc: null,
+    loading: false,
+    done: false,
+    error: false
+  };
 
-  const byId = new Map();
-  categoryDocs.forEach(d => byId.set(d.id, { id:d.id, ...d.data(), comments:[] }));
-  byId.set(target.id, target);
-  questions = [...byId.values()].sort((a,b) => {
-    const at = a.createdAt?.toMillis?.() || 0;
-    const bt = b.createdAt?.toMillis?.() || 0;
-    return bt - at;
-  });
-
-  expandedComments.add(target.id);
-  subscribeComments(target.id);
   activeTopic = target.topic || "All";
   syncTopicTab(activeTopic);
+  expandedComments.add(target.id);
+  questionsById = new Map([[target.id, target]]);
+  questions = [target];
+  subscribeComments(target.id);
   renderQuestionDetail(target.id);
+
+  // Load only the first related batch immediately. More questions are fetched
+  // as the user approaches the bottom, so a category with 10,000 questions
+  // does not turn one click into a 10,000-document read/render operation.
+  await loadRelatedBatch(true);
 }
+
 function renderQuestionDetail(qid){
-  const target = questions.find(q => q.id === qid);
+  const target = questionsById.get(qid) || questions.find(q => q.id === qid);
+  const state = relatedRouteState;
   const feed = document.getElementById("feed");
   if (!target){ feed.innerHTML = `<div class="empty">That question isn't available anymore.</div>`; return; }
 
-  const sameTopic = questions.filter(q => q.topic === target.topic);
+  const sameTopic = state ? [...state.byId.values()].sort((a,b) =>
+    (b.createdAt?.toMillis?.()||0) - (a.createdAt?.toMillis?.()||0)
+  ) : questions.filter(q => q.topic === target.topic);
   const related = sameTopic.map((q,i) => `
     <a class="related-item ${q.id===qid?'current':''}" href="${escapeHtml(questionUrl(q.id))}" data-question-link="${escapeHtml(q.id)}">
       <span class="related-num">${i+1}</span>
@@ -1771,6 +2037,12 @@ function renderQuestionDetail(qid){
         <span class="related-meta"><span>${escapeHtml(q.difficulty || "")}</span><span>${escapeHtml(q.authorName || "solver")}</span></span>
       </span>
     </a>`).join("");
+
+  const loading = state?.loading ? `<div class="empty" style="padding:18px;">Loading more questions…</div>` : "";
+  const more = state && !state.done && !state.error
+    ? `<div class="related-load-sentinel" data-related-sentinel aria-hidden="true" style="height:1px;"></div>`
+    : "";
+  const error = state?.error ? `<div class="empty" style="padding:18px;">Couldn't load more questions right now.</div>` : "";
 
   feed.innerHTML = `
     <div class="question-detail" data-qdetail="${escapeHtml(qid)}">
@@ -1782,9 +2054,9 @@ function renderQuestionDetail(qid){
       <section class="related-questions">
         <div class="related-head">
           <h3>More ${escapeHtml(target.topic)} questions</h3>
-          <p>${sameTopic.length} question${sameTopic.length===1?"":"s"} in this category</p>
+          <p>${state ? `${sameTopic.length}${state.done ? "" : "+"} question${sameTopic.length===1?"":"s"} loaded` : `${sameTopic.length} question${sameTopic.length===1?"":"s"} in this category`}</p>
         </div>
-        <div class="related-list">${related}</div>
+        <div class="related-list">${related}${loading}${more}${error}</div>
       </section>
     </div>`;
 
@@ -1804,8 +2076,18 @@ function renderQuestionDetail(qid){
     e.preventDefault();
     clearQuestionRouteUrl();
     currentQuestionRoute = null;
+    if (relatedLoadObserver){ relatedLoadObserver.disconnect(); relatedLoadObserver = null; }
+    relatedRouteState = null;
     startFeed();
   });
+
+  const sentinel = feed.querySelector("[data-related-sentinel]");
+  if (sentinel && state && !state.done && !state.loading){
+    relatedLoadObserver = new IntersectionObserver(entries => {
+      if (entries.some(e => e.isIntersecting)) loadRelatedBatch(false);
+    }, { root: feed, rootMargin:"700px 0px" });
+    relatedLoadObserver.observe(sentinel);
+  }
 }
 window.addEventListener("hashchange", () => {
   currentQuestionRoute = null;
@@ -1920,7 +2202,7 @@ function updateAuthUI(){
     <button class="profile-trigger ${profileMenuOpen?'open':''}" id="profileTrigger" title="Account menu">
       <div class="avatar ${roleCls}" style="width:32px;height:32px;font-size:0.78rem;">${avatarInner}</div>
       <span class="pt-id">
-        <span class="pt-name">${escapeHtml(myName||"")}</span>
+        <span class="pt-name">${escapeHtml(myName||"")}<span class="rep-mini" id="myRepMini">${repIcon(repLevel(myReputation).icon,14)}<span>${myReputation.toLocaleString()}</span></span></span>
         <span class="pt-role ${isOwner?'owner-role':isAdmin?'admin-role':''}">${roleLabel(myRole)}</span>
       </span>
       <span class="pt-chevron">▼</span>
@@ -1968,6 +2250,7 @@ function updateAuthUI(){
     document.getElementById("pdAdminPanel").onclick = () => { closeProfileMenu(); adminOverlay.classList.add("open"); };
     document.getElementById("pdBulkImport").onclick = () => { closeProfileMenu(); document.getElementById("bulkImportOverlay").classList.add("open"); };
   }
+  renderReputationUI();
 }
 function closeProfileMenu(){
   profileMenuOpen = false;
@@ -2020,13 +2303,14 @@ function startFeed(){
     if (filterOnClient) docs = docs.filter(d => d.data().topic === activeTopic);
 
     const seenIds = new Set();
+    const previousById = questionsById;
     questions = docs.map(d => {
       seenIds.add(d.id);
-      // Keep any comments we've already loaded for this question instead
-      // of wiping them back to [] on every re-render.
-      const existing = questions.find(q => q.id === d.id);
+      // O(1) lookup instead of scanning the existing question array for every doc.
+      const existing = previousById.get(d.id);
       return { id: d.id, ...d.data(), comments: existing ? existing.comments : [] };
     });
+    questionsById = new Map(questions.map(q => [q.id, q]));
 
     // Only keep a live comments listener open for questions that are
     // actually expanded right now (or discussion-type, always "open").
@@ -2041,7 +2325,7 @@ function startFeed(){
       if (!seenIds.has(qid)){ commentUnsubs[qid](); delete commentUnsubs[qid]; }
     });
 
-    render();
+    scheduleRender();
   }, (err) => {
     console.error("Feed error:", err);
 
@@ -2066,7 +2350,7 @@ function startFeed(){
 function subscribeComments(qid){
   if (commentUnsubs[qid]) return;
   commentUnsubs[qid] = onSnapshot(collection(db, "questions", qid, "comments"), (csnap) => {
-    const target = questions.find(x => x.id === qid);
+    const target = questionsById.get(qid);
     if (!target) return;
     target.comments = csnap.docs.map(d => ({ id: d.id, ...d.data() }))
       .sort((a,b) => (a.createdAt?.toMillis?.()||0) - (b.createdAt?.toMillis?.()||0));
@@ -2098,13 +2382,22 @@ function timeAgo(ts){
 }
 function fullDate(ts){ return ts && ts.toDate ? ts.toDate().toLocaleString() : ""; }
 
+function scheduleRender(){
+  if (renderScheduled) return;
+  renderScheduled = true;
+  requestAnimationFrame(() => {
+    renderScheduled = false;
+    render();
+  });
+}
+
 function render(){
   // A question permalink owns the feed area. Other live listeners (comments,
   // follows, notifications, etc.) may call render() while the detail page is
   // loading. Never let one of those normal renders replace the permalink view.
   const routeQid = getQuestionRouteId();
   if (routeQid){
-    const routeTarget = questions.find(q => q.id === routeQid);
+    const routeTarget = questionsById.get(routeQid);
     if (routeTarget){
       renderQuestionDetail(routeQid);
       return;
@@ -2180,7 +2473,7 @@ function render(){
 // the DOM for some reason, e.g. it was filtered out), so state never gets
 // out of sync with what's actually on screen.
 function rerenderCard(qid){
-  const q = questions.find(x => x.id === qid);
+  const q = questionsById.get(qid);
   const el = document.querySelector(`[data-qcardid="${qid}"]`);
   if (!q) return;
   if (!el){
@@ -2252,9 +2545,9 @@ function renderCard(q){
   return `
   <div class="qcard diff-${q.difficulty} ${answered ? "answered" : ""} ${flagCount>0 && isAdmin ? "flagged" : ""}" data-qcardid="${q.id}">
     <div class="voterail">
-      <button class="vrbtn up ${myVote==='up'?'active':''}" data-vote-q="${q.id}" data-dir="up">▲</button>
+      <button class="vrbtn up ${myVote==='up'?'active':''}" data-vote-q="${q.id}" data-dir="up" title="Upvote">${repIcon("arrowUp",17)}</button>
       <span class="vrcount" data-count-q="${q.id}">${net}</span>
-      <button class="vrbtn down ${myVote==='down'?'active':''}" data-vote-q="${q.id}" data-dir="down">▼</button>
+      <button class="vrbtn down ${myVote==='down'?'active':''}" data-vote-q="${q.id}" data-dir="down" title="Downvote">${repIcon("arrowUp",17).replace("M12 5v14","M12 19V5").replace("m6 11 6-6 6 6","m6 13 6 6 6-6")}</button>
     </div>
     <div class="qbody">
       <div class="qtop">
@@ -2264,7 +2557,7 @@ function renderCard(q){
         ${q.branch ? `<span class="pill">${escapeHtml(q.branch)}</span>` : ""}
         ${q.marks ? `<span class="pill">${q.marks} mark${q.marks>1?"s":""}</span>` : ""}
         ${tagPills}${hotPill}${flagPill}
-        <span class="qauthor-line">${miniAvatar(q.authorId, q.authorName)}<button class="linklike qauthor-name" data-openprofile="${q.authorId}">${escapeHtml(q.authorName||'solver')}</button></span>
+        <span class="qauthor-line">${miniAvatar(q.authorId, q.authorName)}<button class="linklike qauthor-name" data-openprofile="${q.authorId}">${escapeHtml(q.authorName||'solver')}</button>${usersCache[q.authorId]?.reputation !== undefined ? `<span class="rep-mini">${repIcon(repLevel(Number(usersCache[q.authorId].reputation||0)).icon,12)}${Number(usersCache[q.authorId].reputation||0).toLocaleString()}</span>` : ""}</span>
         <a class="q-permalink" href="${escapeHtml(questionUrl(q.id))}" data-question-link="${q.id}" title="Open this question">Open ↗</a>
         <button class="q-share-btn" type="button" data-copy-question="${q.id}" title="Copy shareable question link">Copy link</button>
         <button class="q-share-btn" type="button" data-share-question="${q.id}" title="Share this question">Share</button>
@@ -2303,13 +2596,17 @@ function renderComment(qid, c){
   const myVote = c.upvoters?.includes(uid) ? "up" : c.downvoters?.includes(uid) ? "down" : null;
   const type = CTYPES[c.type] ? c.type : "comment";
   const canDelete = isAdmin || c.authorId === uid;
+  const qForComment = questionsById.get(qid);
+  const canAccept = qForComment && qForComment.authorId === uid && qForComment.type === "mcq";
+  const accepted = qForComment && qForComment.acceptedCommentId === c.id;
   const deleteBtn = canDelete ? `<button class="btn-icon danger" data-del-c="${qid}|${c.id}" title="Delete comment">Delete</button>` : "";
+  const acceptBtn = canAccept ? `<button class="btn-icon accept-btn" data-accept-c="${qid}|${c.id}" title="${accepted?'Remove accepted answer':'Accept this answer'}">${accepted ? repIcon("check",13)+" Accepted" : repIcon("check",13)+" Accept"}</button>` : "";
   return `
-  <div class="comment">
+  <div class="comment ${accepted ? "accepted-answer" : ""}">
     <div class="vote small" title="Like / dislike this">
-      <button class="vbtn up ${myVote==='up'?'active':''}" data-vote-c="${qid}|${c.id}" data-dir="up">▲</button>
+      <button class="vbtn up ${myVote==='up'?'active':''}" data-vote-c="${qid}|${c.id}" data-dir="up" title="Upvote">${repIcon("arrowUp",13)}</button>
       <span class="vcount" data-ccount="${qid}|${c.id}">${up-down}</span>
-      <button class="vbtn down ${myVote==='down'?'active':''}" data-vote-c="${qid}|${c.id}" data-dir="down">▼</button>
+      <button class="vbtn down ${myVote==='down'?'active':''}" data-vote-c="${qid}|${c.id}" data-dir="down" title="Downvote">${repIcon("arrowUp",13).replace("M12 5v14","M12 19V5").replace("m6 11 6-6 6 6","m6 13 6 6 6-6")}</button>
     </div>
     <div style="flex:1">
       <div class="ctext">${escapeHtml(c.text)}</div>
@@ -2317,9 +2614,11 @@ function renderComment(qid, c){
         <span class="cbadge ${CTYPES[type].cls}">${CTYPES[type].label}</span>
         <span class="cauthor-line">
           ${miniAvatar(c.authorId, c.authorName)}
-          <button class="linklike cauthor ${c.isAdmin?'admin-tag':''}" data-openprofile="${c.authorId}">${c.isAdmin?'admin · ':''}${escapeHtml(c.authorName||'solver')}</button>
+          <button class="linklike cauthor ${c.isAdmin?'admin-tag':''}" data-openprofile="${c.authorId}">${c.isAdmin?'admin · ':''}${escapeHtml(c.authorName||'solver')}</button>${usersCache[c.authorId]?.reputation !== undefined ? `<span class="rep-mini">${repIcon(repLevel(Number(usersCache[c.authorId].reputation||0)).icon,11)}${Number(usersCache[c.authorId].reputation||0).toLocaleString()}</span>` : ""}
         </span>
         <span class="ctime" title="${timeAgo(c.createdAt)}">${formatModernDateTime(c.createdAt)}</span>
+        ${accepted ? `<span class="accepted-mark">${repIcon("check",13)} Accepted answer</span>` : ""}
+        ${acceptBtn}
         ${deleteBtn}
       </div>
     </div>
@@ -2393,27 +2692,36 @@ async function shareQuestionLink(qid){
   await copyQuestionLink(qid);
 }
 
-function wireQuestionSharing(q){
-  document.querySelectorAll(`[data-copy-question="${q.id}"]`).forEach(btn => {
+function wireQuestionSharing(q, root=document){
+  root.querySelectorAll(`[data-copy-question="${q.id}"]`).forEach(btn => {
     btn.onclick = () => copyQuestionLink(q.id, btn);
   });
-  document.querySelectorAll(`[data-share-question="${q.id}"]`).forEach(btn => {
+  root.querySelectorAll(`[data-share-question="${q.id}"]`).forEach(btn => {
     btn.onclick = () => shareQuestionLink(q.id);
   });
 }
 
 function wireCard(q){
-  wireQuestionSharing(q);
-  document.querySelectorAll(`[data-vote-q="${q.id}"]`).forEach(btn=>{
+  const root = document.querySelector(`[data-qcardid="${CSS.escape(q.id)}"]`);
+  if (!root) return;
+  wireQuestionSharing(q, root);
+  root.querySelectorAll(`[data-vote-q="${q.id}"]`).forEach(btn=>{
     btn.onclick = async () => {
-      const applied = await castVote(q, doc(db,"questions",q.id), btn.dataset.dir, () => rerenderCard(q.id));
-      if (applied && q.authorId){
+      const voteResult = await castVote(q, doc(db,"questions",q.id), btn.dataset.dir, () => rerenderCard(q.id));
+      if (voteResult.changed && q.authorId && q.authorId !== uid){
+        syncReputationState(q.authorId, `qvote_${q.id}_${uid}`, voteResult.newState || "none",
+          {none:0, up:REP_RULES.question_up, down:REP_RULES.question_down},
+          {up:"Question upvoted", down:"Question downvoted"},
+          {icon:voteResult.newState === "up" ? "arrowUp" : "history", questionId:q.id, actorId:uid, topic:q.topic},
+          {none:{}, up:{upvotesReceived:1}, down:{downvotesReceived:1}}).catch(()=>{});
+      }
+      if (voteResult.changed && voteResult.applied && q.authorId){
         const snippet = q.text.length > 40 ? q.text.slice(0,40) + "…" : q.text;
         notify(q.authorId, "vote", `${myName} ${btn.dataset.dir==="up"?"upvoted":"downvoted"} your question "${snippet}"`, {questionId:q.id});
       }
     };
   });
-  document.querySelectorAll(`.opt[data-qid="${q.id}"]`).forEach(el=>{
+  root.querySelectorAll(`.opt[data-qid="${q.id}"]`).forEach(el=>{
     el.onclick = () => {
       if (q.responses?.[uid] !== undefined) return;
       const idx = parseInt(el.dataset.idx);
@@ -2436,7 +2744,7 @@ function wireCard(q){
     };
   });
 
-  const toggle = document.querySelector(`[data-toggle="${q.id}"]`);
+  const toggle = root.querySelector(`[data-toggle="${q.id}"]`);
   if (toggle) toggle.onclick = () => {
     if (expandedComments.has(q.id)){
       expandedComments.delete(q.id);
@@ -2448,13 +2756,13 @@ function wireCard(q){
     rerenderCard(q.id);
   };
 
-  const input = document.querySelector(`[data-comment-input="${q.id}"]`);
+  const input = root.querySelector(`[data-comment-input="${q.id}"]`);
   if (input) input.oninput = (e) => { drafts[q.id] = e.target.value; };
 
-  const submitBtn = document.querySelector(`[data-comment-submit="${q.id}"]`);
+  const submitBtn = root.querySelector(`[data-comment-submit="${q.id}"]`);
   if (submitBtn) submitBtn.onclick = async () => {
-    const ta = document.querySelector(`[data-comment-input="${q.id}"]`);
-    const typeSel = document.querySelector(`[data-ctype="${q.id}"]`);
+    const ta = root.querySelector(`[data-comment-input="${q.id}"]`);
+    const typeSel = root.querySelector(`[data-ctype="${q.id}"]`);
     const text = ta.value.trim();
     if (!text) return;
     // Optimistic: clear the box and disable Post immediately so the
@@ -2463,12 +2771,13 @@ function wireCard(q){
     delete drafts[q.id];
     submitBtn.disabled = true;
     try {
-      await addDoc(collection(db,"questions",q.id,"comments"), {
+      const commentRef = await addDoc(collection(db,"questions",q.id,"comments"), {
         text, type: typeSel.value, authorId: uid, authorName: myName, isAdmin,
         createdAt: serverTimestamp(), upvoters: [], downvoters: []
       });
       updateDoc(doc(db,"questions",q.id), { commentCount: increment(1) }).catch(()=>{});
-      showToast("Comment posted", "success");
+      awardReputation(uid, REP_RULES.comment_post, "Posted a comment", {icon:"mentor", questionId:q.id, commentId:commentRef.id, topic:q.topic}, `comment_post_${commentRef.id}`, {commentsPosted:1}).catch(()=>{});
+      showToast("Comment posted · +2 reputation", "success");
       if (q.authorId && q.authorId !== uid){
         const snippet = q.text.length > 40 ? q.text.slice(0,40) + "…" : q.text;
         notify(q.authorId, "comment", `${myName} commented on your question "${snippet}"`, {questionId:q.id});
@@ -2483,7 +2792,7 @@ function wireCard(q){
     }
   };
 
-  const flagBtn = document.querySelector(`[data-flag-q="${q.id}"]`);
+  const flagBtn = root.querySelector(`[data-flag-q="${q.id}"]`);
   if (flagBtn) flagBtn.onclick = async () => {
     const wasFlagged = (q.flaggedBy||[]).includes(uid);
     // Optimistic toggle
@@ -2512,12 +2821,41 @@ function wireCard(q){
   (q.comments||[]).forEach(c=>{
     document.querySelectorAll(`[data-vote-c="${q.id}|${c.id}"]`).forEach(btn=>{
       btn.onclick = async () => {
-        const applied = await castVote(c, doc(db,"questions",q.id,"comments",c.id), btn.dataset.dir, () => rerenderCard(q.id));
-        if (applied && c.authorId){
+        const voteResult = await castVote(c, doc(db,"questions",q.id,"comments",c.id), btn.dataset.dir, () => rerenderCard(q.id));
+        if (voteResult.changed && c.authorId && c.authorId !== uid){
+          syncReputationState(c.authorId, `cvote_${c.id}_${uid}`, voteResult.newState || "none",
+            {none:0, up:REP_RULES.comment_up, down:REP_RULES.comment_down},
+            {up:"Comment upvoted", down:"Comment downvoted"},
+            {icon:voteResult.newState === "up" ? "arrowUp" : "history", questionId:q.id, commentId:c.id, actorId:uid},
+            {none:{}, up:{upvotesReceived:1}, down:{downvotesReceived:1}}).catch(()=>{});
+        }
+        if (voteResult.changed && voteResult.applied && c.authorId){
           notify(c.authorId, "vote", `${myName} ${btn.dataset.dir==="up"?"upvoted":"downvoted"} your comment`, {questionId:q.id, commentId:c.id});
         }
       };
     });
+    const acceptC = document.querySelector(`[data-accept-c="${q.id}|${c.id}"]`);
+    if (acceptC) acceptC.onclick = async () => {
+      if (q.authorId !== uid) return;
+      const oldAcceptedId = q.acceptedCommentId || null;
+      const newAcceptedId = oldAcceptedId === c.id ? null : c.id;
+      try {
+        await updateDoc(doc(db,"questions",q.id), { acceptedCommentId: newAcceptedId });
+        if (oldAcceptedId && oldAcceptedId !== c.id){
+          const oldComment = (q.comments||[]).find(x=>x.id===oldAcceptedId);
+          if (oldComment?.authorId) syncReputationState(oldComment.authorId, `accepted_${q.id}_${oldAcceptedId}`, "none", {none:0, accepted:REP_RULES.accepted_answer}, {accepted:"Answer accepted"}, {icon:"history", questionId:q.id, commentId:oldAcceptedId}, {none:{}, accepted:{acceptedAnswers:1}}).catch(()=>{});
+        }
+        if (newAcceptedId){
+          syncReputationState(c.authorId, `accepted_${q.id}_${c.id}`, "accepted", {none:0, accepted:REP_RULES.accepted_answer}, {accepted:"Answer accepted"}, {icon:"check", questionId:q.id, commentId:c.id, topic:q.topic}, {none:{}, accepted:{acceptedAnswers:1}}).catch(()=>{});
+          if (c.authorId !== uid) notify(c.authorId, "accepted", `${myName} accepted your answer`, {questionId:q.id, commentId:c.id});
+          showToast("Answer accepted · +15 reputation", "success");
+        } else {
+          if (oldAcceptedId === c.id && c.authorId) syncReputationState(c.authorId, `accepted_${q.id}_${c.id}`, "none", {none:0, accepted:REP_RULES.accepted_answer}, {accepted:"Answer accepted"}, {icon:"history", questionId:q.id, commentId:c.id}, {none:{}, accepted:{acceptedAnswers:1}}).catch(()=>{});
+          showToast("Accepted answer removed", "info");
+        }
+      } catch(err){ console.error(err); showToast("Couldn't update accepted answer: " + err.message, "error"); }
+    };
+
     const delC = document.querySelector(`[data-del-c="${q.id}|${c.id}"]`);
     if (delC) delC.onclick = async () => {
       if (!confirm("Delete this comment?")) return;
@@ -2545,6 +2883,8 @@ async function castVote(targetObj, ref, dir, onLocalUpdate){
   const wasDown = (targetObj.downvoters||[]).includes(uid);
   const goingUp = dir === "up";
   const alreadySameDir = goingUp ? wasUp : wasDown;
+  const oldState = wasUp ? "up" : wasDown ? "down" : null;
+  const newState = alreadySameDir ? null : (goingUp ? "up" : "down");
 
   targetObj.upvoters = (targetObj.upvoters||[]).filter(x=>x!==uid);
   targetObj.downvoters = (targetObj.downvoters||[]).filter(x=>x!==uid);
@@ -2560,7 +2900,7 @@ async function castVote(targetObj, ref, dir, onLocalUpdate){
   }
   try {
     await updateDoc(ref, updates);
-    return !alreadySameDir; // true only when this click newly applied a vote (not a removal)
+    return { changed:true, applied:!alreadySameDir, oldState, newState };
   } catch (err) {
     console.error("Vote failed:", err);
     showToast("Couldn't vote — reverting.", "error");
@@ -2570,7 +2910,7 @@ async function castVote(targetObj, ref, dir, onLocalUpdate){
     if (wasUp) targetObj.upvoters.push(uid);
     if (wasDown) targetObj.downvoters.push(uid);
     if (onLocalUpdate) onLocalUpdate();
-    return false;
+    return { changed:false, applied:false, oldState, newState:oldState };
   }
 }
 
@@ -2715,8 +3055,9 @@ submitBtn.onclick = async () => {
       payload.authorId = uid; payload.authorName = myName; payload.createdAt = serverTimestamp();
       payload.upvoters = []; payload.downvoters = []; payload.flaggedBy = []; payload.commentCount = 0;
       if (postType === "mcq") payload.responses = {};
-      await addDoc(collection(db,"questions"), payload);
-      showToast("Question posted", "success");
+      const createdRef = await addDoc(collection(db,"questions"), payload);
+      awardReputation(uid, REP_RULES.question_post, "Posted a question", {icon:"spark", questionId:createdRef.id, topic}, `question_post_${createdRef.id}`, {questionsPosted:1}).catch(()=>{});
+      showToast("Question posted · +5 reputation", "success");
     }
     overlay.classList.remove("open");
     resetForm();
@@ -3030,6 +3371,8 @@ function renderProfileModal(){
     return;
   }
 
+  if (!reputationHistoryCache[targetUid]) loadReputationHistory(targetUid);
+
   // Follow state relative to the person viewing this profile
   const iFollow = !isOwn && myFollowing.has(targetUid);
   const followsMe = !isOwn && myFollowers.has(targetUid);
@@ -3094,6 +3437,35 @@ function renderProfileModal(){
     </div>
 
     ${isOwn ? `<label class="trial-remember" style="margin:-4px 0 16px;"><input type="checkbox" id="profilePrivateChk" ${myIsPrivate?'checked':''}> 🔒 Private profile — only friends can see it or message me</label>` : ""}
+    ${(() => {
+      const rs = isOwn ? {...repStatsDefaults(), ...myRepStats, reputation:myReputation} : {...repStatsDefaults(), ...(data||{})};
+      const points = Number(rs.reputation || 0);
+      const level = repLevel(points);
+      const next = REP_LEVELS.find(x=>x.min>points);
+      const progress = next ? Math.min(100, Math.round(((points-level.min)/(next.min-level.min))*100)) : 100;
+      const badges = reputationBadgeList(rs, points);
+      return `<div class="rep-hero">
+        <div class="rep-hero-main"><div class="rep-hero-score">${points.toLocaleString()}</div><div class="rep-hero-label">Reputation points</div>${next ? `<div class="rep-progress"><span style="width:${progress}%"></span></div><div style="font-size:.66rem;color:var(--dim);margin-top:5px;">${(next.min-points).toLocaleString()} to ${escapeHtml(next.label)}</div>` : `<div style="font-size:.66rem;color:var(--dim);margin-top:5px;">Highest Arena level reached</div>`}</div>
+        <div class="rep-hero-level">${repIcon(level.icon,18)} <span>${escapeHtml(level.label)}</span></div>
+      </div>
+      <div class="rep-grid">
+        <div class="rep-card"><div class="rep-card-num">${rs.questionsPosted||0}</div><div class="rep-card-label">Questions</div></div>
+        <div class="rep-card"><div class="rep-card-num">${rs.commentsPosted||0}</div><div class="rep-card-label">Comments</div></div>
+        <div class="rep-card"><div class="rep-card-num">${rs.acceptedAnswers||0}</div><div class="rep-card-label">Accepted</div></div>
+        <div class="rep-card"><div class="rep-card-num">${rs.upvotesReceived||0}</div><div class="rep-card-label">Upvotes received</div></div>
+        <div class="rep-card"><div class="rep-card-num">${rs.mockTestsCompleted||0}</div><div class="rep-card-label">Mock tests</div></div>
+        <div class="rep-card"><div class="rep-card-num">${rs.focusSessions||0}</div><div class="rep-card-label">Focus sessions</div></div>
+      </div>
+      <div class="rep-section">${repIcon("trophy",16)} Badges <span style="font-size:.68rem;color:var(--dim);font-family:'IBM Plex Sans';font-weight:400;">${badges.length}</span></div>
+      <div class="rep-badges">${badges.length ? badges.map(b=>`<div class="rep-badge-card"><div class="rep-badge-icon">${repIcon(b.icon,17)}</div><div><div class="rep-badge-name">${escapeHtml(b.name)}</div><div class="rep-badge-desc">${escapeHtml(b.desc)}</div></div></div>`).join("") : `<div class="profile-empty" style="grid-column:1/-1;">Keep contributing to unlock your first badge.</div>`}</div>
+      ${(() => {
+        const topicMap = rs.repByTopic || {};
+        const topicRows = Object.entries(topicMap).filter(([,v])=>v).sort((a,b)=>Math.abs(b[1])-Math.abs(a[1])).slice(0,6);
+        return `<div class="rep-section">${repIcon("target",16)} Topic contribution</div><div class="profile-list" style="max-height:none;">${topicRows.length ? topicRows.map(([topic,pts])=>`<div class="topic-bar-row"><span class="topic-bar-label">${escapeHtml(topic)}</span><div class="topic-bar-track"><div class="topic-bar-fill" style="width:${Math.min(100,Math.max(4,Math.abs(pts)/Math.max(1,Math.max(...topicRows.map(([,v])=>Math.abs(v))))*100))}%;background:var(--mark);"></div></div><span class="topic-bar-frac" style="width:52px;">${pts>=0?'+':''}${pts}</span></div>`).join("") : `<div class="profile-empty">Topic contribution will appear as you participate.</div>`}</div>`;
+      })()}
+      <div class="rep-section">${repIcon("history",16)} Reputation history</div>
+      <div class="rep-history">${reputationHistoryCache[targetUid] ? (reputationHistoryCache[targetUid].length ? reputationHistoryCache[targetUid].map(e=>`<div class="rep-history-row"><div class="rep-history-icon">${repIcon(e.icon||"spark",14)}</div><div class="rep-history-text"><div>${escapeHtml(e.reason||"Reputation update")}</div><div class="rep-history-date">${formatModernDateTime(e.createdAt)}</div></div><span class="${e.points>=0?'rep-positive':'rep-negative'}">${e.points>=0?'+':''}${e.points}</span></div>`).join("") : `<div class="profile-empty">No reputation activity yet.</div>`) : `<div class="profile-empty">Loading reputation history…</div>`}</div>`;
+    })()}
     <div class="profile-stats-grid">
       <div class="pstat"><span class="pnum">${stats.myQs.length}</span><span class="plabel">questions</span></div>
       <div class="pstat"><span class="pnum">${stats.comments.length}</span><span class="plabel">comments</span></div>
@@ -4017,6 +4389,8 @@ async function finishExam(autoSubmitted){
   renderResults({ correct, wrong, skipped, total, scorePct, timeUsedSecs, perTopic, reviewRows, autoSubmitted });
   document.getElementById("resultOverlay").classList.add("open");
 
+  awardReputation(uid, REP_RULES.mock_complete, "Completed a mock test", {icon:"target"}, `mock_${Date.now()}_${Math.random().toString(36).slice(2,8)}`, {mockTestsCompleted:1}).catch(()=>{});
+
   try {
     await addDoc(collection(db,"mockAttempts"), {
       uid, userName: myName,
@@ -4410,6 +4784,7 @@ function logPomoSession(){
   addDoc(collection(db,"pomodoroSessions"), {
     uid, subject, focusMinutes: pomo.focusMin, completedAt: serverTimestamp()
   }).then(() => {
+    awardReputation(uid, REP_RULES.focus_complete, "Completed a focus session", {icon:"flame"}, `focus_${Date.now()}_${Math.random().toString(36).slice(2,8)}`, {focusSessions:1}).catch(()=>{});
     delete studyStatsCache[uid];
     lbCache = { key: "", ts: 0, rows: null }; // weekly leaderboard should pick up the new session
     if (pomodoroOverlay.classList.contains("open")) renderPomoTodayStats();
