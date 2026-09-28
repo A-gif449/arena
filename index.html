@@ -325,7 +325,7 @@
   .topicbtn.active{border-left-color:var(--mark); color:var(--ivory); background:var(--paper-raised);}
 
   .sortwrap label{display:block; font-size:0.76rem; color:var(--dim); margin-bottom:6px;}
-  select#sortSel, .adminToggleRow select{
+  select#sortSel, select#yearSel, select#branchSel, select#feedScopeSel, .adminToggleRow select{
     width:100%; background:var(--paper); border:1px solid var(--rule); color:var(--ivory);
     padding:9px 10px; border-radius:var(--radius-input); font-size:0.84rem;
   }
@@ -787,6 +787,39 @@
   .pomo-settings{ text-align:left; border-top:1px dashed var(--rule-strong); padding-top:14px; margin-top:4px; }
   .pomo-settings summary{ cursor:pointer; font-size:0.84rem; color:var(--dim); margin-bottom:10px; }
   .pomo-settings input[type=number]{ width:100%; background:var(--ink); border:1px solid var(--rule); border-radius:var(--radius-input); color:var(--ivory); padding:9px 10px; font-size:0.88rem; }
+
+  /* ================= FOLLOWERS / FRIENDS ================= */
+  .profile-follow-row{ display:flex; gap:10px; margin:-8px 0 18px; }
+  .follow-stat{ background:var(--paper-raised); border:1px solid var(--rule); border-radius:var(--radius-pill); color:var(--dim); font-size:0.8rem; padding:6px 14px; }
+  .follow-stat b{ color:var(--ivory); font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; margin-right:3px; }
+  .follow-stat:hover{ border-color:var(--info); color:var(--ivory); }
+
+  .people-modal{ max-width:560px; }
+  .people-tabs{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px; }
+  .people-tab{ background:transparent; border:1px solid var(--rule); color:var(--dim); padding:7px 12px; border-radius:var(--radius-pill); font-size:0.8rem; font-family:'IBM Plex Mono',monospace; }
+  .people-tab:hover{ color:var(--ivory); }
+  .people-tab.active{ border-color:var(--mark); color:var(--mark); background:var(--mark-dim); }
+  .people-search{ width:100%; background:var(--ink); border:1px solid var(--rule); border-radius:var(--radius-input); color:var(--ivory); padding:10px; font-size:0.9rem; margin-bottom:12px; }
+  .people-list{ display:flex; flex-direction:column; gap:8px; max-height:52vh; overflow-y:auto; padding-right:2px; }
+  .person-row{ display:flex; align-items:center; gap:12px; background:var(--ink); border:1px solid var(--rule); border-radius:var(--radius-card); padding:10px 12px; }
+  .person-av{ background:none; border:none; padding:0; flex-shrink:0; }
+  .person-info{ flex:1; min-width:0; display:flex; flex-direction:column; gap:2px; }
+  .person-name{ background:none; border:none; padding:0; text-align:left; color:var(--ivory); font-weight:600; font-size:0.9rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .person-name:hover{ color:var(--info); }
+  .person-tags{ display:flex; gap:6px; flex-wrap:wrap; }
+  .person-tag{ font-size:0.66rem; font-family:'IBM Plex Mono',monospace; color:var(--dim); border:1px solid var(--rule); border-radius:4px; padding:1px 7px; }
+  .person-tag.friend{ color:var(--verified); border-color:var(--verified); }
+  .person-tag.admin{ color:var(--mark); border-color:var(--mark); }
+  .person-follow{ padding:7px 14px; font-size:0.8rem; flex-shrink:0; }
+  .lb-row{ display:flex; align-items:center; gap:12px; background:var(--ink); border:1px solid var(--rule); border-radius:var(--radius-card); padding:10px 12px; }
+  .lb-row.me{ border-color:var(--mark); }
+  .lb-rank{ width:26px; font-family:'IBM Plex Mono',monospace; font-weight:700; color:var(--mark); text-align:center; flex-shrink:0; }
+  .lb-main{ flex:1; min-width:0; }
+  .lb-name{ font-size:0.88rem; font-weight:600; margin-bottom:5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .lb-track{ height:7px; border-radius:4px; background:var(--paper-raised); overflow:hidden; }
+  .lb-fill{ height:100%; background:var(--mark); border-radius:4px; }
+  .lb-min{ font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; font-size:0.8rem; color:var(--dim); flex-shrink:0; min-width:56px; text-align:right; }
+  .people-note{ color:var(--dim); font-size:0.76rem; margin:0 0 12px; }
 </style>
 </head>
 <body>
@@ -876,7 +909,17 @@
       <div class="srow"><span class="snum" id="statC">–</span><span class="slabel">comments &amp; answers</span></div>
     </div>
 
+    <button class="btn-ghost btn-block" id="openPeopleBtn">👥 People &amp; Friends</button>
+
     <nav class="topicnav" id="topicTabs"></nav>
+
+    <div class="sortwrap">
+      <label>Show questions from</label>
+      <select id="feedScopeSel">
+        <option value="all">Everyone</option>
+        <option value="following">People I follow</option>
+      </select>
+    </div>
 
     <div class="sortwrap">
       <label>GATE year</label>
@@ -1027,6 +1070,22 @@
       <span class="form-error" id="bulkImportError"></span>
       <button class="btn-ghost" id="bulkImportCancelBtn">Cancel</button>
       <button class="btn-primary" id="bulkImportBtn">Import questions</button>
+    </div>
+  </div>
+</div>
+
+<!-- People & Friends modal. Sits BEFORE the profile modal in the DOM on
+     purpose: both share the same z-index, so a profile opened from a row
+     here stacks on top, and closing it drops you back to this list. -->
+<div class="overlay" id="peopleOverlay">
+  <div class="modal people-modal">
+    <h2 id="peopleTitle">People</h2>
+    <div class="people-tabs" id="peopleTabs"></div>
+    <div id="peopleSearchWrap"><input type="text" class="people-search" id="peopleSearch" placeholder="Search by name…"></div>
+    <div class="people-list" id="peopleList"></div>
+    <div class="modal-actions">
+      <span></span>
+      <button class="btn-ghost" id="peopleCloseBtn">Close</button>
     </div>
   </div>
 </div>
@@ -1299,6 +1358,17 @@
           uid + a completedAt >= (now minus 1 year) range with an orderBy,
           so Firestore will ask for a composite index the first time —
           open the console link and click "create index".
+        - follows/{followerUid_followeeUid}: READ is open to any signed-in
+          user (it powers follower/following counts and lists on every
+          profile). CREATE only when request.auth.uid ==
+          request.resource.data.followerId, the document ID equals
+          followerId + "_" + followeeId, and followerId != followeeId
+          (nobody can follow on someone else's behalf, or follow
+          themselves). DELETE only when resource.data.followerId ==
+          request.auth.uid (you can only unfollow as yourself). No updates.
+          Every follows query filters on a single field with no orderBy,
+          so no composite index is needed. "Friends" isn't stored anywhere
+          — it's simply two people who follow each other.
    ========================================================================= */
 const firebaseConfig = {
   apiKey: "AIzaSyDjJkoKx30k2ESQBjoXMjYlZTAGV_4RVd4",
@@ -1355,6 +1425,17 @@ let usersCache = {};
 let loadingUsers = new Set();
 let profileMenuOpen = false;
 
+// Follow graph. myFollowing / myFollowers are kept live by two listeners
+// (see startFollows). Maps of uid -> { name } so lists can render instantly
+// from the names stored on the follow docs, before profile photos load.
+let followsStarted = false;
+let followUnsubs = [];
+let myFollowing = new Map();
+let myFollowers = new Map();
+let feedScope = "all"; // "all" | "following"
+let followCache = {};  // other people's follower/following lists, fetched on demand
+let loadingFollowStats = new Set();
+
 // qid -> unsubscribe function for that question's comments listener.
 // Fixes the perf bug: without this map we'd register a brand new
 // onSnapshot listener on every question's comments subcollection every
@@ -1393,6 +1474,11 @@ onAuthStateChanged(auth, (user) => {
   if (!user){
     uid = null; isAdmin = false; isOwner = false; myRole = "user";
     if (userDocUnsub){ userDocUnsub(); userDocUnsub = null; }
+    // Tear down the follow listeners so the next person to log in on this
+    // browser never sees the previous person's follow graph.
+    followUnsubs.forEach(fn => fn());
+    followUnsubs = []; followsStarted = false;
+    myFollowing = new Map(); myFollowers = new Map(); followCache = {};
     document.getElementById("authGate").style.display = "grid";
     document.getElementById("appRoot").style.display = "none";
     return;
@@ -1415,6 +1501,7 @@ function subscribeUserDoc(){
     document.getElementById("appRoot").style.display = "block";
     if (!feedStarted){ feedStarted = true; startFeed(); }
     if (!notifStarted){ notifStarted = true; startNotifications(); }
+    if (!followsStarted) startFollows();
     updateAuthUI();
     render();
     maybeShowTrialModal();
@@ -1506,6 +1593,7 @@ TOPICS.forEach(t => {
   tabsEl.appendChild(b);
 });
 document.getElementById("sortSel").onchange = (e) => { sortMode = e.target.value; render(); };
+document.getElementById("feedScopeSel").onchange = (e) => { feedScope = e.target.value; render(); };
 
 const yearSel = document.getElementById("yearSel");
 GATE_YEARS.forEach(y => {
@@ -1601,6 +1689,7 @@ function updateAuthUI(){
       </div>
       <div class="pd-actions">
         <button class="pd-action" id="pdViewProfile"><span class="pd-icon">👤</span> View profile</button>
+        <button class="pd-action" id="pdPeople"><span class="pd-icon">👥</span> People &amp; Friends</button>
         <button class="pd-action" id="pdPlansPricing"><span class="pd-icon">💎</span> Plans &amp; Pricing</button>
         ${isAdmin ? `<button class="pd-action" id="pdAdminPanel"><span class="pd-icon">${isOwner?'👑':'🛠️'}</span> ${isOwner?'Group Admin console':'Admin panel'}</button>` : ""}
         ${isAdmin ? `<button class="pd-action" id="pdBulkImport"><span class="pd-icon">📥</span> Bulk import questions</button>` : ""}
@@ -1619,6 +1708,10 @@ function updateAuthUI(){
   document.getElementById("pdViewProfile").onclick = () => {
     closeProfileMenu();
     openProfile(uid);
+  };
+  document.getElementById("pdPeople").onclick = () => {
+    closeProfileMenu();
+    openPeopleModal(uid, "discover");
   };
   document.getElementById("pdPlansPricing").onclick = () => {
     closeProfileMenu();
@@ -1763,10 +1856,11 @@ function render(){
   const feed = document.getElementById("feed");
   let list = questions; // topic filtering now happens server-side in the query itself
 
-  // Year/branch filters run client-side on whatever page is loaded (same
-  // trade-off as sort — see the NOTE below). Older questions posted before
-  // this feature existed have no gateYear/branch and are hidden by an
-  // active filter rather than shown under a wrong label.
+  // "People I follow" scope, plus year/branch filters: all run client-side
+  // on whatever page is loaded (same trade-off as sort — see the NOTE
+  // below). Older questions posted before the year/branch fields existed
+  // are hidden by an active filter rather than shown under a wrong label.
+  if (feedScope === "following") list = list.filter(q => myFollowing.has(q.authorId));
   if (activeGateYear !== "All") list = list.filter(q => String(q.gateYear) === activeGateYear);
   if (activeBranch !== "All") list = list.filter(q => q.branch === activeBranch);
 
@@ -1787,7 +1881,17 @@ function render(){
   document.getElementById("gateStatC").textContent = totalComments || "–";
 
   if (!list.length){
-    feed.innerHTML = `<div class="empty">Nothing here yet — be the first to post one.</div>`;
+    const msg = feedScope === "following"
+      ? (myFollowing.size
+          ? "No recent questions from the people you follow."
+          : "You're not following anyone yet — open People &amp; Friends to find solvers.")
+      : "Nothing here yet — be the first to post one.";
+    // A filter can empty the loaded page while older questions still exist,
+    // so keep "Load more" available instead of dead-ending.
+    feed.innerHTML = `<div class="empty">${msg}</div>`
+      + (feedReachedEnd ? "" : `<button class="btn-ghost btn-block" id="loadMoreBtn">Load more questions</button>`);
+    const lm = document.getElementById("loadMoreBtn");
+    if (lm) lm.onclick = () => { feedLimit += 20; startFeed(); };
     return;
   }
   const tailHtml = feedReachedEnd
@@ -2394,14 +2498,28 @@ document.getElementById("bulkImportBtn").onclick = async () => {
 };
 
 /* ---------------- profile pages ---------------- */
+// Debounced UI refresh. Lots of small async loads (user docs, follower
+// lists, study stats) finish one after another, and each one used to
+// trigger its own full feed re-render. Batching them into a single pass
+// keeps the app snappy while a long list of people is still loading.
+let uiRefreshTimer = null;
+function scheduleUiRefresh(){
+  if (uiRefreshTimer) return;
+  uiRefreshTimer = setTimeout(() => {
+    uiRefreshTimer = null;
+    render();
+    if (document.getElementById("profileOverlay").classList.contains("open")) renderProfileModal();
+    if (document.getElementById("peopleOverlay").classList.contains("open")) renderPeopleModal();
+  }, 60);
+}
+
 function ensureUserLoaded(targetUid){
   if (!targetUid || usersCache[targetUid] || loadingUsers.has(targetUid)) return;
   loadingUsers.add(targetUid);
   getDoc(doc(db,"users",targetUid)).then(snap=>{
     usersCache[targetUid] = snap.exists() ? snap.data() : {name:"Unknown user"};
     loadingUsers.delete(targetUid);
-    render();
-    if (currentProfileUid === targetUid && document.getElementById("profileOverlay").classList.contains("open")) renderProfileModal();
+    scheduleUiRefresh();
   }).catch(err=>{
     loadingUsers.delete(targetUid);
     console.error("Couldn't load user:", err);
@@ -2510,6 +2628,7 @@ function openProfile(targetUid){
   if (!targetUid) return;
   currentProfileUid = targetUid;
   delete studyStatsCache[targetUid]; // always refetch on open so new sessions show up
+  delete followCache[targetUid];     // same for follower/following counts
   ensureUserLoaded(targetUid);
   renderProfileModal();
   document.getElementById("profileOverlay").classList.add("open");
@@ -2521,6 +2640,7 @@ function renderProfileModal(){
   const isOwn = targetUid === uid;
   const data = isOwn ? { name: myName, photoURL: myPhoto, role: myRole, createdAt: null } : usersCache[targetUid];
   ensureStudyStatsLoaded(targetUid);
+  if (!isOwn) ensureFollowStatsLoaded(targetUid);
   const study = studyStatsCache[targetUid];
 
   const stats = computeUserStats(targetUid);
@@ -2534,6 +2654,18 @@ function renderProfileModal(){
   const roleBadge = role === "owner" ? `<span class="profile-badge role-owner">👑 Group Admin</span>`
     : role === "admin" ? `<span class="profile-badge role-admin">🛠️ Admin</span>`
     : `<span class="profile-badge">Solver</span>`;
+
+  // Follow state relative to the person viewing this profile
+  const iFollow = !isOwn && myFollowing.has(targetUid);
+  const followsMe = !isOwn && myFollowers.has(targetUid);
+  const relBadge = isOwn ? ""
+    : (iFollow && followsMe) ? `<span class="profile-badge role-admin">🤝 Friends</span>`
+    : followsMe ? `<span class="profile-badge">Follows you</span>` : "";
+  const fstat = isOwn
+    ? { followers: myFollowers.size, following: myFollowing.size }
+    : (followCache[targetUid]
+        ? { followers: followCache[targetUid].followers.length, following: followCache[targetUid].following.length }
+        : null);
 
   let studySectionHtml;
   if (!study){
@@ -2565,6 +2697,7 @@ function renderProfileModal(){
             : `<h2>${escapeHtml(name)}</h2>`}
           <div class="profile-badges">
             ${roleBadge}
+            ${relBadge}
             ${joined ? `<span class="profile-badge">Joined ${joined}</span>` : ""}
           </div>
         </div>
@@ -2573,7 +2706,15 @@ function renderProfileModal(){
         <div class="profile-header-actions">
           <button class="btn-ghost profile-photo-btn" id="profileChangePhotoBtn">Change photo</button>
           <button class="btn-primary profile-photo-btn" id="profileSaveNameBtn">Save name</button>
-        </div>` : ""}
+        </div>` : `
+        <div class="profile-header-actions">
+          <button class="${iFollow ? 'btn-ghost' : 'btn-primary'} profile-photo-btn" id="profileFollowBtn" title="${iFollow ? 'Click to unfollow' : 'Follow this solver'}">${iFollow ? 'Following ✓' : 'Follow'}</button>
+        </div>`}
+    </div>
+
+    <div class="profile-follow-row">
+      <button class="follow-stat" id="profileFollowersBtn"><b>${fstat ? fstat.followers : '–'}</b> followers</button>
+      <button class="follow-stat" id="profileFollowingBtn"><b>${fstat ? fstat.following : '–'}</b> following</button>
     </div>
 
     <div class="profile-stats-grid">
@@ -2600,6 +2741,19 @@ function renderProfileModal(){
     document.getElementById("profileOverlay").classList.remove("open");
     goToQuestion(b.dataset.goq);
   });
+
+  // Follow controls (work for both your own profile and other people's)
+  document.getElementById("profileFollowersBtn").onclick = () => {
+    document.getElementById("profileOverlay").classList.remove("open");
+    openPeopleModal(targetUid, "followers");
+  };
+  document.getElementById("profileFollowingBtn").onclick = () => {
+    document.getElementById("profileOverlay").classList.remove("open");
+    openPeopleModal(targetUid, "following");
+  };
+  const followBtn = document.getElementById("profileFollowBtn");
+  if (followBtn) followBtn.onclick = () => toggleFollow(targetUid, data ? (data.name || "") : "");
+
   if (isOwn){
     document.getElementById("profileChangePhotoBtn").onclick = () => avatarFileInput.click();
     document.getElementById("profileSaveNameBtn").onclick = async () => {
@@ -2640,6 +2794,293 @@ function goToQuestion(qid, commentId){
     }
   });
 }
+
+/* =========================================================================
+   FOLLOWERS & FRIENDS
+   Data model: one doc per follow in "follows", with a deterministic ID of
+   "<followerUid>_<followeeUid>". That makes double-follows impossible, and
+   lets follow/unfollow be a plain setDoc/deleteDoc with no lookup first.
+   Names are copied onto the doc (followerName / followeeName) so lists can
+   render immediately without one extra user read per row.
+   "Friends" are not stored — they're just two people who follow each other,
+   worked out on the client from the two live sets below.
+   Follows are written through Firestore's local cache, so the listener
+   below fires instantly on your own click (before the server confirms) and
+   the button flips with no visible delay; if the write is rejected the
+   listener snaps it back automatically.
+   ========================================================================= */
+function followDocId(followerId, followeeId){ return followerId + "_" + followeeId; }
+
+function startFollows(){
+  followsStarted = true;
+  const mineRef = query(collection(db,"follows"), where("followerId","==",uid));
+  const toMeRef = query(collection(db,"follows"), where("followeeId","==",uid));
+  const u1 = onSnapshot(mineRef, (snap) => {
+    myFollowing = new Map(snap.docs.map(d => {
+      const x = d.data();
+      return [x.followeeId, { name: x.followeeName || "" }];
+    }));
+    onFollowsChanged();
+  }, (err) => { console.error("Following listener error:", err); if (isAdmin) showToast("Follows error: " + err.message, "error"); });
+  const u2 = onSnapshot(toMeRef, (snap) => {
+    myFollowers = new Map(snap.docs.map(d => {
+      const x = d.data();
+      return [x.followerId, { name: x.followerName || "" }];
+    }));
+    onFollowsChanged();
+  }, (err) => { console.error("Followers listener error:", err); if (isAdmin) showToast("Follows error: " + err.message, "error"); });
+  followUnsubs = [u1, u2];
+}
+
+// Keeps cached copies of OTHER people's follower lists in step with what
+// I've just done, so their count on a profile moves the moment I click.
+function patchFollowCache(){
+  Object.keys(followCache).forEach(t => {
+    if (t === uid) return;
+    const fc = followCache[t];
+    if (!fc || fc.error) return;
+    fc.followers = fc.followers.filter(x => x.followerId !== uid);
+    if (myFollowing.has(t)) fc.followers.push({ followerId: uid, followerName: myName, followeeId: t });
+  });
+}
+
+function onFollowsChanged(){
+  patchFollowCache();
+  const friendCount = [...myFollowing.keys()].filter(id => myFollowers.has(id)).length;
+  document.getElementById("openPeopleBtn").textContent =
+    `👥 People & Friends · ${myFollowing.size} following${friendCount ? " · " + friendCount + " friend" + (friendCount!==1?"s":"") : ""}`;
+  if (feedScope === "following") render();
+  if (document.getElementById("profileOverlay").classList.contains("open")) renderProfileModal();
+  if (document.getElementById("peopleOverlay").classList.contains("open")) renderPeopleModal();
+}
+
+async function toggleFollow(targetUid, targetName){
+  if (!uid || !targetUid || targetUid === uid) return;
+  const ref = doc(db, "follows", followDocId(uid, targetUid));
+  try {
+    if (myFollowing.has(targetUid)){
+      await deleteDoc(ref);
+    } else {
+      await setDoc(ref, {
+        followerId: uid, followeeId: targetUid,
+        followerName: myName || "", followeeName: targetName || (usersCache[targetUid] && usersCache[targetUid].name) || "",
+        createdAt: serverTimestamp()
+      });
+      notify(targetUid, "follow", `${myName} started following you`);
+    }
+  } catch (err) {
+    console.error("Follow toggle failed:", err);
+    showToast("Couldn't update follow: " + err.message, "error");
+  }
+}
+
+// Followers / following lists for someone other than me, fetched once when
+// their profile or list is opened (mine come from the live listeners).
+function ensureFollowStatsLoaded(targetUid){
+  if (!targetUid || targetUid === uid || followCache[targetUid] || loadingFollowStats.has(targetUid)) return;
+  loadingFollowStats.add(targetUid);
+  Promise.all([
+    getDocs(query(collection(db,"follows"), where("followeeId","==",targetUid), limit(500))),
+    getDocs(query(collection(db,"follows"), where("followerId","==",targetUid), limit(500)))
+  ]).then(([a, b]) => {
+    followCache[targetUid] = { followers: a.docs.map(d => d.data()), following: b.docs.map(d => d.data()) };
+    loadingFollowStats.delete(targetUid);
+    patchFollowCache();
+    scheduleUiRefresh();
+  }).catch(err => {
+    console.error("Couldn't load follow stats:", err);
+    loadingFollowStats.delete(targetUid);
+    followCache[targetUid] = { followers: [], following: [], error: true };
+    scheduleUiRefresh();
+  });
+}
+
+/* ---------------- People & Friends modal ---------------- */
+const peopleOverlay = document.getElementById("peopleOverlay");
+let peopleSubject = null;   // whose lists we're looking at (me by default)
+let peopleTab = "discover"; // discover | following | followers | friends | leaderboard
+let peopleQuery = "";
+let allUsersList = [];
+let allUsersLoaded = false;
+let loadingAllUsers = false;
+
+function openPeopleModal(subject, tab){
+  peopleSubject = subject || uid;
+  peopleTab = tab || (peopleSubject === uid ? "discover" : "followers");
+  peopleQuery = "";
+  document.getElementById("peopleSearch").value = "";
+  if (peopleSubject !== uid) ensureFollowStatsLoaded(peopleSubject);
+  if (peopleSubject === uid && peopleTab === "discover") ensureAllUsersLoaded();
+  renderPeopleModal();
+  peopleOverlay.classList.add("open");
+}
+
+// "Discover" reads up to 300 user docs once per session and also seeds
+// usersCache from them, so every row already has photo + role with no
+// per-person read.
+async function ensureAllUsersLoaded(){
+  if (allUsersLoaded || loadingAllUsers) return;
+  loadingAllUsers = true;
+  try {
+    const snap = await getDocs(query(collection(db,"users"), limit(300)));
+    allUsersList = snap.docs.map(d => { usersCache[d.id] = d.data(); return { uid: d.id, name: d.data().name || "" }; });
+    allUsersLoaded = true;
+  } catch (err) {
+    console.error("Couldn't load people:", err);
+    showToast("Couldn't load people: " + err.message, "error");
+  } finally {
+    loadingAllUsers = false;
+    if (peopleOverlay.classList.contains("open")) renderPeopleModal();
+  }
+}
+
+function peopleForTab(){
+  const asList = (m) => [...m.entries()].map(([id, v]) => ({ uid: id, name: v.name }));
+  if (peopleSubject === uid){
+    if (peopleTab === "following") return asList(myFollowing);
+    if (peopleTab === "followers") return asList(myFollowers);
+    if (peopleTab === "friends") return asList(myFollowing).filter(p => myFollowers.has(p.uid));
+    if (peopleTab === "discover"){
+      if (!allUsersLoaded) return null;
+      return allUsersList.filter(p => p.uid !== uid)
+        .sort((a,b) => (myFollowing.has(a.uid) - myFollowing.has(b.uid)) || (a.name||"").localeCompare(b.name||""));
+    }
+    return [];
+  }
+  const fc = followCache[peopleSubject];
+  if (!fc) return null;
+  if (peopleTab === "followers") return fc.followers.map(x => ({ uid: x.followerId, name: x.followerName }));
+  if (peopleTab === "following") return fc.following.map(x => ({ uid: x.followeeId, name: x.followeeName }));
+  return [];
+}
+
+function personRowHtml(p){
+  ensureUserLoaded(p.uid);
+  const cached = usersCache[p.uid];
+  const name = (cached && cached.name) || p.name || "Solver";
+  const photo = cached && cached.photoURL;
+  const initials = name.split(" ").map(w => w[0]).slice(0,2).join("").toUpperCase();
+  const roleCls = avatarRoleClass(cached && cached.role);
+  const iFollow = myFollowing.has(p.uid);
+  const followsMe = myFollowers.has(p.uid);
+  const isMe = p.uid === uid;
+  const tags = [
+    isMe ? `<span class="person-tag">You</span>` : "",
+    (!isMe && iFollow && followsMe) ? `<span class="person-tag friend">🤝 Friends</span>`
+      : (!isMe && followsMe) ? `<span class="person-tag">Follows you</span>` : "",
+    cached && cached.role === "owner" ? `<span class="person-tag admin">Group Admin</span>`
+      : cached && cached.role === "admin" ? `<span class="person-tag admin">Admin</span>` : ""
+  ].join("");
+  const action = isMe ? "" : `<button class="${iFollow ? 'btn-ghost' : 'btn-primary'} person-follow" data-follow="${p.uid}" data-fname="${escapeHtml(name)}">${iFollow ? 'Following' : 'Follow'}</button>`;
+  return `
+  <div class="person-row">
+    <button class="person-av" data-openprofile="${p.uid}"><div class="avatar ${roleCls}">${photo ? `<img src="${photo}" alt="">` : initials}</div></button>
+    <div class="person-info">
+      <button class="person-name" data-openprofile="${p.uid}">${escapeHtml(name)}</button>
+      <div class="person-tags">${tags}</div>
+    </div>
+    ${action}
+  </div>`;
+}
+
+// Focus minutes over the last 7 days for you + up to 19 people you follow.
+// Reuses the same pomodoroSessions data (and index) as profile stats.
+let lbCache = { key: "", ts: 0, rows: null };
+async function loadLeaderboard(){
+  const ids = [uid, ...[...myFollowing.keys()].slice(0, 19)];
+  const key = ids.join(",");
+  if (lbCache.rows && lbCache.key === key && Date.now() - lbCache.ts < 60000) return lbCache.rows;
+  const weekAgo = new Date(Date.now() - 7*24*60*60*1000);
+  const rows = await Promise.all(ids.map(async (id) => {
+    const snap = await getDocs(query(
+      collection(db,"pomodoroSessions"),
+      where("uid","==",id), where("completedAt",">=",weekAgo),
+      orderBy("completedAt","desc"), limit(300)
+    ));
+    return { uid: id, minutes: snap.docs.reduce((s,d) => s + (d.data().focusMinutes || 0), 0), sessions: snap.size };
+  }));
+  rows.sort((a,b) => b.minutes - a.minutes);
+  lbCache = { key, ts: Date.now(), rows };
+  return rows;
+}
+
+function renderPeopleModal(){
+  if (!peopleSubject) return;
+  const mine = peopleSubject === uid;
+  const listEl = document.getElementById("peopleList");
+  const friendCount = [...myFollowing.keys()].filter(id => myFollowers.has(id)).length;
+
+  const subjName = mine ? "" : ((usersCache[peopleSubject] && usersCache[peopleSubject].name) || "this solver");
+  document.getElementById("peopleTitle").textContent = mine ? "People & Friends" : subjName;
+
+  const tabs = mine
+    ? [["discover","Discover"],["following",`Following (${myFollowing.size})`],["followers",`Followers (${myFollowers.size})`],["friends",`Friends (${friendCount})`],["leaderboard","This week"]]
+    : [["followers","Followers"],["following","Following"]];
+  document.getElementById("peopleTabs").innerHTML = tabs.map(([k,label]) =>
+    `<button class="people-tab ${peopleTab===k?'active':''}" data-ptab="${k}">${label}</button>`).join("");
+  document.querySelectorAll("[data-ptab]").forEach(b => b.onclick = () => {
+    peopleTab = b.dataset.ptab;
+    if (peopleTab === "discover") ensureAllUsersLoaded();
+    renderPeopleModal();
+  });
+
+  const isLb = mine && peopleTab === "leaderboard";
+  document.getElementById("peopleSearchWrap").style.display = isLb ? "none" : "block";
+
+  if (isLb){
+    listEl.innerHTML = `<div class="profile-empty">Loading this week's focus time…</div>`;
+    loadLeaderboard().then(rows => {
+      if (!(peopleOverlay.classList.contains("open") && peopleSubject === uid && peopleTab === "leaderboard")) return;
+      const max = Math.max(1, ...rows.map(r => r.minutes));
+      const nameOf = (id) => id === uid ? (myName || "You") : ((usersCache[id] && usersCache[id].name) || (myFollowing.get(id) && myFollowing.get(id).name) || "Solver");
+      listEl.innerHTML = `<p class="people-note">Focus time over the last 7 days — you and the people you follow.</p>` +
+        rows.map((r, i) => `
+        <div class="lb-row ${r.uid===uid?'me':''}">
+          <span class="lb-rank">${i+1}</span>
+          <div class="lb-main">
+            <div class="lb-name">${escapeHtml(nameOf(r.uid))}${r.uid===uid?' (you)':''}</div>
+            <div class="lb-track"><div class="lb-fill" style="width:${r.minutes ? Math.max(4, Math.round(r.minutes/max*100)) : 0}%"></div></div>
+          </div>
+          <span class="lb-min">${formatMinutes(r.minutes)}</span>
+        </div>`).join("") +
+        (myFollowing.size ? "" : `<p class="people-note" style="margin-top:12px;">Follow a few people to compete with them here.</p>`);
+    }).catch(err => {
+      console.error("Leaderboard failed:", err);
+      listEl.innerHTML = `<div class="profile-empty">Couldn't load the leaderboard right now.</div>`;
+    });
+    return;
+  }
+
+  const people = peopleForTab();
+  if (people === null){
+    listEl.innerHTML = `<div class="profile-empty">Loading…</div>`;
+    return;
+  }
+  const needle = peopleQuery.trim().toLowerCase();
+  const shown = needle
+    ? people.filter(p => (((usersCache[p.uid] && usersCache[p.uid].name) || p.name || "").toLowerCase().includes(needle)))
+    : people;
+
+  if (!shown.length){
+    const empty = needle ? "Nobody matches that search."
+      : peopleTab === "discover" ? "No other solvers have signed up yet."
+      : peopleTab === "following" ? (mine ? "You're not following anyone yet — try the Discover tab." : "Not following anyone yet.")
+      : peopleTab === "followers" ? (mine ? "No followers yet. Post good questions and they'll come." : "No followers yet.")
+      : "No friends yet — a friend is someone you follow who follows you back.";
+    listEl.innerHTML = `<div class="profile-empty">${empty}</div>`;
+    return;
+  }
+  listEl.innerHTML = shown.slice(0, 100).map(personRowHtml).join("")
+    + (shown.length > 100 ? `<p class="people-note">Showing the first 100 — search to narrow it down.</p>` : "");
+}
+
+document.getElementById("peopleSearch").oninput = (e) => { peopleQuery = e.target.value; renderPeopleModal(); };
+document.getElementById("peopleCloseBtn").onclick = () => peopleOverlay.classList.remove("open");
+document.getElementById("openPeopleBtn").onclick = () => openPeopleModal(uid, "discover");
+document.getElementById("peopleList").addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-follow]");
+  if (btn) toggleFollow(btn.dataset.follow, btn.dataset.fname);
+});
 
 /* ---------------- notifications ---------------- */
 async function notify(recipientId, type, message, extra = {}){
@@ -2687,7 +3128,7 @@ function renderNotifications(){
     return;
   }
   list.innerHTML = notifications.map(n => `
-    <button class="notif-item ${n.read ? '' : 'unread'}" data-notif="${n.id}" data-q="${n.questionId||''}" data-c="${n.commentId||''}">
+    <button class="notif-item ${n.read ? '' : 'unread'}" data-notif="${n.id}" data-q="${n.questionId||''}" data-c="${n.commentId||''}" data-type="${n.type||''}" data-actor="${n.actorId||''}">
       <span class="notif-dot"></span>
       <span class="notif-text">${escapeHtml(n.message)}</span>
       <span class="notif-time" title="${timeAgo(n.createdAt)}">${formatModernDateTime(n.createdAt)}</span>
@@ -2698,6 +3139,7 @@ function renderNotifications(){
       if (n && !n.read) updateDoc(doc(db,"notifications", n.id), { read: true }).catch(()=>{});
       document.getElementById("notifPanel").classList.remove("open");
       if (btn.dataset.q) goToQuestion(btn.dataset.q, btn.dataset.c || null);
+      else if (btn.dataset.type === "follow" && btn.dataset.actor) openProfile(btn.dataset.actor);
     };
   });
 }
@@ -3446,6 +3888,7 @@ function logPomoSession(){
     uid, subject, focusMinutes: pomo.focusMin, completedAt: serverTimestamp()
   }).then(() => {
     delete studyStatsCache[uid];
+    lbCache = { key: "", ts: 0, rows: null }; // weekly leaderboard should pick up the new session
     if (pomodoroOverlay.classList.contains("open")) renderPomoTodayStats();
   }).catch(err => {
     console.error("Couldn't log focus session:", err);
