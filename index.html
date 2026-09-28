@@ -820,6 +820,26 @@
   .lb-fill{ height:100%; background:var(--mark); border-radius:4px; }
   .lb-min{ font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; font-size:0.8rem; color:var(--dim); flex-shrink:0; min-width:56px; text-align:right; }
   .people-note{ color:var(--dim); font-size:0.76rem; margin:0 0 12px; }
+  .msg-head{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .msg-head h2{margin:0;flex:1;font-size:1.1rem;}
+  .conv-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--ink);border:1px solid var(--rule);border-radius:var(--radius-card);padding:10px 12px;color:var(--ivory);margin-bottom:8px;}
+  .conv-row:hover{border-color:var(--info);}
+  .conv-row.unread{border-color:var(--mark);}
+  .conv-main{flex:1;min-width:0;}
+  .conv-name{font-weight:600;font-size:0.9rem;}
+  .conv-last{font-size:0.8rem;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .conv-dot{width:9px;height:9px;border-radius:50%;background:var(--mark);flex-shrink:0;}
+  .chat-thread{display:flex;flex-direction:column;gap:8px;height:46vh;overflow-y:auto;padding:4px 2px;}
+  .bubble{max-width:78%;padding:8px 12px;border-radius:12px;font-size:0.9rem;background:var(--paper-raised);border:1px solid var(--rule);align-self:flex-start;word-wrap:break-word;}
+  .bubble.me{align-self:flex-end;background:var(--mark-dim);border-color:var(--mark);}
+  .bubble .bt{display:block;font-size:0.66rem;color:var(--dim);margin-top:3px;font-family:'IBM Plex Mono',monospace;}
+  .chat-composer{display:flex;gap:8px;margin-top:12px;}
+  .chat-composer input{flex:1;background:var(--ink);border:1px solid var(--rule);border-radius:var(--radius-input);color:var(--ivory);padding:10px;font-size:0.9rem;}
+  .chat-locked{margin-top:12px;color:var(--dim);font-size:0.84rem;text-align:center;}
+  .tb-ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;pointer-events:none;}
+  .bell-btn{color:var(--ivory);}
+  .bell-btn:hover{color:var(--info);}
+  .bell-btn .tb-ic{width:18px;height:18px;}
 </style>
 </head>
 <body>
@@ -876,11 +896,12 @@
   <div class="topbar-inner">
     <div class="topbar-brand"><span class="mark">📝</span> Arena</div>
     <div class="topbar-right">
-      <button class="mocktest-btn" id="openMockSetupBtn" title="Take a timed mock test">⏱ <span class="mt-label">Mock Test</span></button>
-      <button class="pomo-btn" id="openPomodoroBtn" title="Start a focus timer">🍅 <span class="mt-label">Focus Timer</span></button>
+      <button class="mocktest-btn" id="openMockSetupBtn" title="Take a timed mock test"><svg class="tb-ic" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg> <span class="mt-label">Mock Test</span></button>
+      <button class="pomo-btn" id="openPomodoroBtn" title="Start a focus timer"><svg class="tb-ic" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M9 2h6"/><path d="M12 2v3"/></svg> <span class="mt-label">Focus Timer</span></button>
+      <button class="bell-btn" id="msgBtn" title="Messages"><svg class="tb-ic" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><span class="notif-badge" id="msgBadge">0</span></button>
       <div class="notif-wrap">
         <button class="bell-btn" id="bellBtn" title="Notifications">
-          🔔<span class="notif-badge" id="notifBadge">0</span>
+          <svg class="tb-ic" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg><span class="notif-badge" id="notifBadge">0</span>
         </button>
         <div class="notif-panel" id="notifPanel">
           <div class="notif-head">
@@ -1098,6 +1119,16 @@
       <span></span>
       <button class="btn-ghost" id="profileCloseBtn">Close</button>
     </div>
+  </div>
+</div>
+<div class="overlay" id="msgOverlay">
+  <div class="modal" style="max-width:520px;">
+    <div class="msg-head">
+      <button class="btn-ghost" id="msgBackBtn" style="display:none;">◀</button>
+      <h2 id="msgTitle">Messages</h2>
+      <button class="btn-ghost" id="msgCloseBtn">Close</button>
+    </div>
+    <div id="msgBody"></div>
   </div>
 </div>
 <!-- Mock test setup modal -->
@@ -1478,6 +1509,9 @@ onAuthStateChanged(auth, (user) => {
     // browser never sees the previous person's follow graph.
     followUnsubs.forEach(fn => fn());
     followUnsubs = []; followsStarted = false;
+    if (convUnsub){ convUnsub(); convUnsub = null; }
+    if (chatUnsub){ chatUnsub(); chatUnsub = null; }
+    conversations = []; activeChatUid = null; myIsPrivate = false;
     myFollowing = new Map(); myFollowers = new Map(); followCache = {};
     document.getElementById("authGate").style.display = "grid";
     document.getElementById("appRoot").style.display = "none";
@@ -1494,6 +1528,7 @@ function subscribeUserDoc(){
     const data = snap.data();
     myName = data.name || myEmail;
     myPhoto = data.photoURL || null;
+    myIsPrivate = data.isPrivate === true;
     isAdmin = data.role === "admin" || data.role === "owner";
     isOwner = data.role === "owner";
     myRole = data.role || "user";
@@ -1502,6 +1537,7 @@ function subscribeUserDoc(){
     if (!feedStarted){ feedStarted = true; startFeed(); }
     if (!notifStarted){ notifStarted = true; startNotifications(); }
     if (!followsStarted) startFollows();
+    if (!convUnsub) startConversations();
     updateAuthUI();
     render();
     maybeShowTrialModal();
@@ -2655,6 +2691,26 @@ function renderProfileModal(){
     : role === "admin" ? `<span class="profile-badge role-admin">🛠️ Admin</span>`
     : `<span class="profile-badge">Solver</span>`;
 
+  if (!isOwn && !data){
+    document.getElementById("profileContent").innerHTML = `<div class="profile-empty">Loading…</div>`;
+    return;
+  }
+  if (!isOwn && data.isPrivate === true && !isFriend(targetUid)){
+    const iF = myFollowing.has(targetUid);
+    document.getElementById("profileContent").innerHTML = `
+      <div class="profile-banner"></div>
+      <div class="profile-header-row">
+        <div class="profile-header-id">
+          <div class="avatar big ${roleCls}">${photo ? `<img src="${photo}" alt="">` : initials}</div>
+          <div style="min-width:0;"><h2>${escapeHtml(name)}</h2><div class="profile-badges">${roleBadge}<span class="profile-badge">🔒 Private</span></div></div>
+        </div>
+        <div class="profile-header-actions"><button class="${iF?'btn-ghost':'btn-primary'} profile-photo-btn" id="profileFollowBtn">${iF?'Following ✓':'Follow'}</button></div>
+      </div>
+      <div class="profile-empty" style="padding:18px 0 4px;">🔒 This profile is private. Become friends (follow each other) to see their activity.</div>`;
+    document.getElementById("profileFollowBtn").onclick = () => toggleFollow(targetUid, name);
+    return;
+  }
+
   // Follow state relative to the person viewing this profile
   const iFollow = !isOwn && myFollowing.has(targetUid);
   const followsMe = !isOwn && myFollowers.has(targetUid);
@@ -2709,6 +2765,7 @@ function renderProfileModal(){
         </div>` : `
         <div class="profile-header-actions">
           <button class="${iFollow ? 'btn-ghost' : 'btn-primary'} profile-photo-btn" id="profileFollowBtn" title="${iFollow ? 'Click to unfollow' : 'Follow this solver'}">${iFollow ? 'Following ✓' : 'Follow'}</button>
+          ${canMessageUser(targetUid) ? `<button class="btn-ghost profile-photo-btn" id="profileMsgBtn">💬 Message</button>` : ""}
         </div>`}
     </div>
 
@@ -2717,6 +2774,7 @@ function renderProfileModal(){
       <button class="follow-stat" id="profileFollowingBtn"><b>${fstat ? fstat.following : '–'}</b> following</button>
     </div>
 
+    ${isOwn ? `<label class="trial-remember" style="margin:-4px 0 16px;"><input type="checkbox" id="profilePrivateChk" ${myIsPrivate?'checked':''}> 🔒 Private profile — only friends can see it or message me</label>` : ""}
     <div class="profile-stats-grid">
       <div class="pstat"><span class="pnum">${stats.myQs.length}</span><span class="plabel">questions</span></div>
       <div class="pstat"><span class="pnum">${stats.comments.length}</span><span class="plabel">comments</span></div>
@@ -2753,9 +2811,16 @@ function renderProfileModal(){
   };
   const followBtn = document.getElementById("profileFollowBtn");
   if (followBtn) followBtn.onclick = () => toggleFollow(targetUid, data ? (data.name || "") : "");
+  const msgB = document.getElementById("profileMsgBtn");
+  if (msgB) msgB.onclick = () => openChat(targetUid);
 
   if (isOwn){
     document.getElementById("profileChangePhotoBtn").onclick = () => avatarFileInput.click();
+    document.getElementById("profilePrivateChk").onchange = async (e) => {
+      const on = e.target.checked;
+      try { await updateDoc(doc(db,"users",uid), { isPrivate: on }); showToast(on ? "Profile is now private" : "Profile is now public", "success"); }
+      catch (err) { e.target.checked = !on; showToast("Couldn't update: " + err.message, "error"); }
+    };
     document.getElementById("profileSaveNameBtn").onclick = async () => {
       const val = document.getElementById("profileNameInput").value.trim();
       if (!val){ showToast("Name can't be empty.", "error"); return; }
@@ -2971,7 +3036,8 @@ function personRowHtml(p){
     cached && cached.role === "owner" ? `<span class="person-tag admin">Group Admin</span>`
       : cached && cached.role === "admin" ? `<span class="person-tag admin">Admin</span>` : ""
   ].join("");
-  const action = isMe ? "" : `<button class="${iFollow ? 'btn-ghost' : 'btn-primary'} person-follow" data-follow="${p.uid}" data-fname="${escapeHtml(name)}">${iFollow ? 'Following' : 'Follow'}</button>`;
+  const msgBtn = (!isMe && canMessageUser(p.uid)) ? `<button class="btn-ghost person-follow" data-msg="${p.uid}" title="Message">💬</button>` : "";
+  const action = isMe ? "" : msgBtn + `<button class="${iFollow ? 'btn-ghost' : 'btn-primary'} person-follow" data-follow="${p.uid}" data-fname="${escapeHtml(name)}">${iFollow ? 'Following' : 'Follow'}</button>`;`<button class="${iFollow ? 'btn-ghost' : 'btn-primary'} person-follow" data-follow="${p.uid}" data-fname="${escapeHtml(name)}">${iFollow ? 'Following' : 'Follow'}</button>`;
   return `
   <div class="person-row">
     <button class="person-av" data-openprofile="${p.uid}"><div class="avatar ${roleCls}">${photo ? `<img src="${photo}" alt="">` : initials}</div></button>
@@ -3080,7 +3146,156 @@ document.getElementById("openPeopleBtn").onclick = () => openPeopleModal(uid, "d
 document.getElementById("peopleList").addEventListener("click", (e) => {
   const btn = e.target.closest("[data-follow]");
   if (btn) toggleFollow(btn.dataset.follow, btn.dataset.fname);
+  const m = e.target.closest("[data-msg]");
+  if (m) openChat(m.dataset.msg);
 });
+
+/* ---------------- private messaging ---------------- */
+let myIsPrivate = false;
+let convUnsub = null, chatUnsub = null;
+let conversations = [];
+let activeChatUid = null;
+let chatMessages = [];
+const msgOverlay = document.getElementById("msgOverlay");
+
+function convIdFor(a, b){ return [a, b].sort().join("_"); }
+function isFriend(otherUid){ return myFollowing.has(otherUid) && myFollowers.has(otherUid); }
+function canMessageUser(otherUid){
+  if (!otherUid || otherUid === uid) return false;
+  if (isFriend(otherUid)) return true;
+  const u = usersCache[otherUid];
+  return !!u && u.isPrivate !== true;
+}
+
+function startConversations(){
+  const ref = query(collection(db,"conversations"), where("participants","array-contains",uid));
+  convUnsub = onSnapshot(ref, (snap) => {
+    conversations = snap.docs.map(d => ({ id:d.id, ...d.data() }))
+      .sort((a,b) => (b.lastAt?.toMillis?.()||0) - (a.lastAt?.toMillis?.()||0));
+    const unread = conversations.filter(c => c.unreadFor === uid).length;
+    const badge = document.getElementById("msgBadge");
+    badge.classList.toggle("show", unread > 0);
+    badge.textContent = unread > 9 ? "9+" : String(unread);
+    if (msgOverlay.classList.contains("open")) renderMessages();
+  }, (err) => {
+    console.error("Conversations error:", err);
+    if (isAdmin) showToast("Messages error: " + err.message, "error");
+  });
+}
+
+function stopChat(){ if (chatUnsub){ chatUnsub(); chatUnsub = null; } chatMessages = []; }
+
+function startChat(otherUid){
+  stopChat();
+  const cid = convIdFor(uid, otherUid);
+  chatUnsub = onSnapshot(
+    query(collection(db,"conversations",cid,"messages"), orderBy("createdAt","asc"), limit(200)),
+    (snap) => {
+      chatMessages = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+      if (activeChatUid === otherUid) renderMessages();
+      const conv = conversations.find(c => c.id === cid);
+      if (conv && conv.unreadFor === uid) updateDoc(doc(db,"conversations",cid), { unreadFor:null }).catch(()=>{});
+    },
+    (err) => { console.error("Chat error:", err); showToast("Couldn't load messages: " + err.message, "error"); }
+  );
+}
+
+function openInbox(){
+  activeChatUid = null; stopChat();
+  renderMessages();
+  msgOverlay.classList.add("open");
+}
+function openChat(otherUid){
+  if (!otherUid || otherUid === uid) return;
+  ensureUserLoaded(otherUid);
+  document.getElementById("profileOverlay").classList.remove("open");
+  document.getElementById("peopleOverlay").classList.remove("open");
+  activeChatUid = otherUid;
+  startChat(otherUid);
+  renderMessages();
+  msgOverlay.classList.add("open");
+  setTimeout(() => { const i = document.getElementById("chatInput"); if (i) i.focus(); }, 60);
+}
+
+function renderMessages(){
+  const body = document.getElementById("msgBody");
+  const title = document.getElementById("msgTitle");
+  const backBtn = document.getElementById("msgBackBtn");
+
+  if (!activeChatUid){
+    title.textContent = "Messages"; backBtn.style.display = "none";
+    if (!conversations.length){
+      body.innerHTML = `<div class="profile-empty">No conversations yet. Open a friend's profile or the People list and tap 💬.</div>`;
+      return;
+    }
+    body.innerHTML = conversations.map(c => {
+      const other = (c.participants||[]).find(p => p !== uid);
+      ensureUserLoaded(other);
+      const u = usersCache[other];
+      const name = (u && u.name) || "Solver";
+      const initials = name.split(" ").map(w=>w[0]).slice(0,2).join("").toUpperCase();
+      return `<button class="conv-row ${c.unreadFor===uid?'unread':''}" data-openchat="${other}">
+        <div class="avatar ${avatarRoleClass(u && u.role)}">${u && u.photoURL ? `<img src="${u.photoURL}" alt="">` : initials}</div>
+        <div class="conv-main"><div class="conv-name">${escapeHtml(name)}</div><div class="conv-last">${c.lastSenderId===uid?'You: ':''}${escapeHtml(c.lastMessage||'')}</div></div>
+        ${c.unreadFor===uid ? '<span class="conv-dot"></span>' : ''}
+      </button>`;
+    }).join("");
+    body.querySelectorAll("[data-openchat]").forEach(b => b.onclick = () => openChat(b.dataset.openchat));
+    return;
+  }
+
+  const other = activeChatUid;
+  ensureUserLoaded(other);
+  const u = usersCache[other];
+  title.textContent = (u && u.name) || "Solver";
+  backBtn.style.display = "inline-block";
+  const draft = (document.getElementById("chatInput") || {}).value || "";
+  const bubbles = chatMessages.map(m =>
+    `<div class="bubble ${m.senderId===uid?'me':''}">${escapeHtml(m.text)}<span class="bt">${formatModernDateTime(m.createdAt)}</span></div>`
+  ).join("") || `<div class="profile-empty">Say hello 👋</div>`;
+  const composer = canMessageUser(other)
+    ? `<div class="chat-composer"><input type="text" id="chatInput" maxlength="1000" placeholder="Type a message…"><button class="btn-primary" id="chatSendBtn">Send</button></div>`
+    : `<div class="chat-locked">🔒 This person's profile is private, so only friends can message them.</div>`;
+  body.innerHTML = `<div class="chat-thread" id="chatThread">${bubbles}</div>${composer}`;
+  const th = document.getElementById("chatThread"); th.scrollTop = th.scrollHeight;
+  const inp = document.getElementById("chatInput");
+  if (inp){
+    inp.value = draft;
+    inp.onkeydown = (e) => { if (e.key === "Enter"){ e.preventDefault(); sendChatMessage(); } };
+    document.getElementById("chatSendBtn").onclick = sendChatMessage;
+  }
+}
+
+async function sendChatMessage(){
+  const input = document.getElementById("chatInput");
+  const text = input ? input.value.trim() : "";
+  if (!text || !activeChatUid) return;
+  const other = activeChatUid;
+  if (!canMessageUser(other)){ showToast("You can't message this person.", "error"); return; }
+  input.value = "";
+  const cid = convIdFor(uid, other);
+  try {
+    await setDoc(doc(db,"conversations",cid), {
+      participants: [uid, other], lastMessage: text.slice(0,80),
+      lastAt: serverTimestamp(), lastSenderId: uid, unreadFor: other
+    }, { merge:true });
+    await addDoc(collection(db,"conversations",cid,"messages"), {
+      senderId: uid, text, createdAt: serverTimestamp()
+    });
+  } catch (err) {
+    console.error("Send failed:", err);
+    input.value = text;
+    showToast("Couldn't send: " + err.message, "error");
+  }
+}
+
+document.getElementById("msgBtn").onclick = (e) => {
+  e.stopPropagation(); closeProfileMenu();
+  document.getElementById("notifPanel").classList.remove("open");
+  openInbox();
+};
+document.getElementById("msgBackBtn").onclick = openInbox;
+document.getElementById("msgCloseBtn").onclick = () => { msgOverlay.classList.remove("open"); activeChatUid = null; stopChat(); };
 
 /* ---------------- notifications ---------------- */
 async function notify(recipientId, type, message, extra = {}){
