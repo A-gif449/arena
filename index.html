@@ -225,6 +225,22 @@
   .stamp.show{animation:stamp-in .4s cubic-bezier(.2,1.3,.4,1) forwards;}
   @keyframes stamp-in{ from{opacity:0; transform:rotate(-14deg) scale(1.8);} to{opacity:0.92; transform:rotate(-14deg) scale(1);} }
 
+  .auth-link-btn{display:block;background:none;border:0;color:var(--info);font-size:.75rem;padding:3px 0;margin:-7px 0 7px;text-align:right;width:100%;cursor:pointer;}
+  .auth-link-btn:hover{text-decoration:underline;}
+  .google-auth-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:9px;background:var(--paper-raised);border:1px solid var(--rule);color:var(--ivory);font-weight:600;font-size:.88rem;padding:11px;border-radius:var(--radius-input);cursor:pointer;}
+  .google-auth-btn:hover{border-color:var(--info);background:var(--paper);}
+  .google-g{width:21px;height:21px;display:grid;place-items:center;border-radius:50%;background:#fff;color:#4285f4;font-family:Arial,sans-serif;font-weight:800;font-size:14px;}
+  .security-note{display:flex;gap:7px;align-items:flex-start;color:var(--dim);font-size:.69rem;line-height:1.45;margin-top:11px;padding:9px 10px;border:1px solid var(--rule);background:var(--ink);border-radius:6px;}
+  .field-help{font-size:.68rem;color:var(--dim);margin:-9px 0 11px;line-height:1.4;}
+  .mention{color:var(--info);font-weight:650;background:rgba(79,166,255,.08);border-radius:3px;padding:0 2px;}
+  .security-card{margin-top:18px;padding:16px;background:var(--paper-raised);border:1px solid var(--rule);border-radius:8px;}
+  .security-card h3{margin:0 0 5px;font-size:.9rem;}
+  .security-card p{margin:0 0 12px;color:var(--dim);font-size:.75rem;line-height:1.45;}
+  .security-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .security-grid input{width:100%;background:var(--ink);border:1px solid var(--rule);border-radius:var(--radius-input);color:var(--ivory);padding:9px 10px;font-size:.82rem;}
+  .security-grid button{grid-column:1/-1;justify-self:start;}
+  @media(max-width:620px){.security-grid{grid-template-columns:1fr;}.security-grid button{grid-column:auto;}}
+
   /* ================= TOP BAR ================= */
   .topbar{border-bottom:1px solid var(--rule); background:var(--paper); position:sticky; top:0; z-index:40;}
   .topbar::after{
@@ -296,39 +312,13 @@
   /* ================= APP SHELL ================= */
   #appRoot{display:none;}
   .shell{
-    max-width:1400px; margin:0 auto; padding:26px 24px 140px;
-    display:grid; grid-template-columns:250px minmax(0,1fr) 300px; gap:26px; align-items:start;
+    max-width:1180px; margin:0 auto; padding:26px 24px 140px;
+    display:grid; grid-template-columns:250px 1fr; gap:26px; align-items:start;
   }
-  @media(max-width:1120px){ .shell{grid-template-columns:230px minmax(0,1fr); max-width:1180px;} .ad-rail{display:none;} }
   @media(max-width:860px){ .shell{grid-template-columns:1fr; padding:16px 14px 120px;} }
 
   .sidebar{position:sticky; top:82px; display:flex; flex-direction:column; gap:18px;}
   @media(max-width:860px){ .sidebar{position:static;} }
-
-  /* ================= RIGHT-SIDE AD RAIL ================= */
-  .ad-rail{
-    position:sticky; top:82px; display:flex; flex-direction:column; gap:18px;
-    min-width:0;
-  }
-  .ad-slot{
-    position:relative; width:100%; min-height:250px; background:var(--paper);
-    border:1px solid var(--rule); border-radius:var(--radius-card); overflow:hidden;
-    display:flex; align-items:center; justify-content:center;
-  }
-  .ad-slot.tall{min-height:600px;}
-  .ad-label{
-    position:absolute; top:8px; left:0; right:0; text-align:center;
-    color:var(--dim); font:600 .58rem/1 'IBM Plex Mono',monospace;
-    letter-spacing:.12em; text-transform:uppercase;
-  }
-  .ad-placeholder{
-    color:var(--dim); font-size:.72rem; text-align:center; padding:24px;
-    max-width:230px; line-height:1.6;
-  }
-  .ad-placeholder strong{display:block; color:var(--ivory); font-size:.78rem; margin-bottom:5px;}
-  .ad-slot ins.adsbygoogle{display:block; width:100%; min-height:250px;}
-  .ad-slot.tall ins.adsbygoogle{min-height:600px;}
-  @media(max-width:1120px){.ad-rail{display:none;}}
 
   .logo h1{display:flex; align-items:center; gap:9px; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.35rem; margin:0; letter-spacing:-0.01em;}
   .logo .mark{color:var(--mark);}
@@ -907,7 +897,227 @@
   .bell-btn:hover{color:var(--info);}
   .bell-btn .tb-ic{width:18px;height:18px;}
 </style>
+
+<style id="arena-responsive-v2">
+/* ================= RESPONSIVE SYSTEM =================
+   Keeps Arena usable from 320px phones through large desktop screens.
+*/
+html{overflow-x:hidden;}
+body{min-width:0;overflow-x:hidden;}
+*,*::before,*::after{box-sizing:border-box;}
+img,svg,video,canvas{max-width:100%;height:auto;}
+button,input,select,textarea{max-width:100%;}
+pre,code{max-width:100%;overflow-x:auto;}
+
+/* Never let flex/grid children force horizontal scrolling. */
+.topbar-inner,.topbar-right,.shell,.main,.feed,.feedhead,.composer,
+.card,.qcard,.question-head,.question-actions,.answer-row,.comment-row,
+.profile-header-row,.profile-header-id,.exam-header,.exam-header-left,
+.exam-body,.exam-actionbar,.modal,.modal-actions,.plans-grid,.pricing-grid{
+  min-width:0;
+}
+
+/* Desktop content stays readable instead of stretching indefinitely. */
+.main{min-width:0;}
+
+/* Tablets */
+@media (max-width: 860px){
+  .topbar-inner{gap:10px;}
+  .topbar-brand{flex:0 0 auto;}
+  .topbar-right{min-width:0;gap:7px;}
+  .shell{width:100%;max-width:100%;grid-template-columns:1fr;}
+  .sidebar{width:100%;}
+  .topicnav{overflow-x:auto;flex-wrap:nowrap;padding-bottom:3px;scrollbar-width:thin;}
+  .topicbtn{flex:0 0 auto;white-space:nowrap;}
+  .main{width:100%;}
+  .feedhead{flex-wrap:wrap;gap:10px;}
+  .feedhead>*{min-width:0;}
+  .composer{width:100%;}
+  .card,.qcard{width:100%;}
+  .question-head{flex-wrap:wrap;}
+  .question-actions{flex-wrap:wrap;}
+}
+
+/* Phones */
+@media (max-width: 640px){
+  .topbar-inner{padding:9px 10px;}
+  .topbar-brand{font-size:.96rem;}
+  .topbar-right{gap:5px;}
+  .bell-btn{width:34px;height:34px;}
+  .shell{padding:12px 10px 110px;gap:14px;}
+  .sidebar{gap:12px;}
+  .logo h1{font-size:1.2rem;}
+  .logo p{font-size:.78rem;max-width:none;}
+  .statpanel{padding:11px 12px;}
+  .topicnav{gap:6px;}
+  .topicbtn{font-size:.78rem;padding:8px 10px;}
+
+  /* Question cards */
+  .qcard{padding:14px!important;border-radius:9px;}
+  .qtext{font-size:1rem;line-height:1.48;overflow-wrap:anywhere;}
+  .qmeta,.qfooter{flex-wrap:wrap;gap:7px;}
+  .qactions,.question-actions{width:100%;}
+  .qactions button,.question-actions button{min-height:36px;}
+  .voterail{width:34px!important;}
+  .voterail .vrbtn{width:28px!important;height:28px!important;}
+  .human-answer-inner{padding:12px 9px!important;}
+  .human-solution-text{overflow-wrap:anywhere;}
+
+  /* Forms */
+  .composer textarea,.composer input,
+  .field input,.field textarea,.field select,
+  input[type="text"],input[type="email"],input[type="password"],
+  input[type="number"],select,textarea{width:100%;min-width:0;}
+
+  /* Tables become horizontally scrollable rather than breaking the page. */
+  .table-wrap,.compare-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  table{min-width:520px;}
+
+  /* Modals */
+  .overlay{padding:10px;align-items:flex-start;overflow-y:auto;}
+  .modal{width:min(100%,680px)!important;max-width:100%!important;margin:8px auto;padding:16px!important;max-height:calc(100dvh - 20px);overflow-y:auto;overflow-x:hidden;}
+  .modal-actions{flex-wrap:wrap;gap:7px;}
+  .modal-actions button{flex:1 1 auto;min-width:110px;}
+  .people-modal{width:100%!important;}
+  .plans-modal{width:100%!important;}
+
+  /* Profile */
+  .profile-banner{margin:-16px -16px 0;height:52px;}
+  .profile-header-row{margin:-30px 0 16px;align-items:flex-start;}
+  .profile-header-id{align-items:flex-start;}
+  .profile-header-id h2{font-size:1.05rem;overflow-wrap:anywhere;}
+  .profile-header-actions{width:100%;}
+  .profile-header-actions button{flex:1 1 auto;}
+
+  /* Exam */
+  .exam-header{padding:8px 10px;}
+  .exam-header-left{gap:7px;}
+  .exam-meta{display:none;}
+  .exam-timer-wrap{padding:6px 9px;}
+  .exam-timer{font-size:1rem;}
+  .exam-body{display:flex;flex-direction:column;overflow-y:auto;}
+  .exam-qpane{padding:18px 12px 90px;overflow:visible;}
+  .exam-qtext{font-size:1.05rem;line-height:1.45;}
+  .exam-opt{gap:10px;padding:11px 10px;}
+  .exam-opt .exam-otext{font-size:.9rem;overflow-wrap:anywhere;}
+  .exam-sidepane{order:2;padding:12px;}
+  .exam-actionbar{padding:10px 12px;}
+  .exam-actionbar .spacer{display:none;}
+
+  /* Floating controls */
+  .pomo-mini{right:10px;bottom:82px;max-width:calc(100vw - 20px);}
+  #arenaBotRoot{right:10px!important;bottom:10px!important;}
+  #arenaBotPanel{width:min(420px,calc(100vw - 20px))!important;max-width:calc(100vw - 20px);}
+}
+
+/* Very small phones, including 320px screens */
+@media (max-width: 380px){
+  .topbar-right .pomo-btn{display:none;}
+  .profile-trigger .pt-id{display:none;}
+  .shell{padding-left:7px;padding-right:7px;}
+  .qcard{padding:11px!important;}
+  .modal{padding:12px!important;}
+  .modal-actions button{min-width:0;font-size:.78rem;padding:8px 9px;}
+  .rep-grid{grid-template-columns:1fr 1fr!important;}
+}
+
+/* Prevent fixed desktop widths from escaping on narrow screens. */
+@media (max-width: 700px){
+  [style*="width: 500px"],[style*="width:500px"],
+  [style*="width: 600px"],[style*="width:600px"],
+  [style*="width: 700px"],[style*="width:700px"]{max-width:100%!important;}
+}
+
+/* Landscape phones */
+@media (max-height: 520px) and (orientation:landscape){
+  .overlay{padding:6px;}
+  .modal{max-height:calc(100dvh - 12px);}
+  #arenaBotPanel{max-height:calc(100dvh - 70px)!important;}
+}
+</style>
+
+
+<style id="arena-study-room-style">
+/* ================= STUDY ROOM ================= */
+.study-room-page{display:none;min-height:calc(100vh - 64px);background:var(--ink);padding:28px 22px 50px;}
+.study-room-page.open{display:block;}
+.study-room-wrap{max-width:1180px;margin:0 auto;}
+.study-room-head{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:24px;}
+.study-room-title{display:flex;align-items:center;gap:14px;}
+.study-room-title-icon{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:rgba(255,157,28,.12);color:var(--mark);border:1px solid rgba(255,157,28,.2);}
+.study-room-title h1{margin:0;font-size:1.35rem;color:var(--ivory);}
+.study-room-title p{margin:4px 0 0;color:var(--dim);font-size:.82rem;}
+.study-back{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--rule);background:var(--paper);color:var(--ivory);border-radius:10px;padding:10px 14px;cursor:pointer;}
+.study-back:hover{border-color:var(--mark);}
+.study-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px;}
+.study-stat{background:var(--paper);border:1px solid var(--rule);border-radius:14px;padding:17px;}
+.study-stat-top{display:flex;align-items:center;justify-content:space-between;color:var(--dim);font-size:.8rem;}
+.study-stat-icon{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:rgba(79,166,255,.1);color:var(--info);}
+.study-stat strong{display:block;margin-top:10px;font-size:1.55rem;color:var(--ivory);}
+.study-stat small{display:block;margin-top:3px;color:var(--dim);}
+.study-grid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.8fr);gap:18px;align-items:start;}
+.study-card{background:var(--paper);border:1px solid var(--rule);border-radius:15px;overflow:hidden;}
+.study-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 18px;border-bottom:1px solid var(--rule);}
+.study-card-head h2{margin:0;font-size:.98rem;color:var(--ivory);}
+.study-live{display:inline-flex;align-items:center;gap:6px;color:var(--verified);font-size:.75rem;font-weight:650;}
+.study-dot{width:7px;height:7px;border-radius:50%;background:var(--verified);box-shadow:0 0 9px rgba(47,208,140,.65);}
+.study-users{padding:7px;}
+.study-user{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid rgba(38,43,58,.7);}
+.study-user:last-child{border-bottom:0;}
+.study-avatar{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;background:var(--paper-raised);border:1px solid var(--rule);color:var(--mark);font-weight:700;}
+.study-user-main{min-width:0;flex:1;}
+.study-user-name{font-size:.87rem;font-weight:650;color:var(--ivory);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.study-user-subject{margin-top:3px;color:var(--dim);font-size:.76rem;display:flex;align-items:center;gap:5px;}
+.study-user-time{font-family:'IBM Plex Mono',monospace;color:var(--verified);font-size:.82rem;white-space:nowrap;}
+.study-empty{padding:34px 18px;text-align:center;color:var(--dim);font-size:.82rem;}
+.study-empty svg{margin-bottom:9px;color:var(--info);}
+.study-leaderboard{padding:7px;}
+.study-rank{display:flex;align-items:center;gap:10px;padding:11px 12px;border-bottom:1px solid rgba(38,43,58,.7);}
+.study-rank:last-child{border-bottom:0;}
+.study-rank-no{width:22px;color:var(--dim);font-family:'IBM Plex Mono',monospace;font-size:.76rem;}
+.study-rank-avatar{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;background:var(--paper-raised);color:var(--orange);font-size:.75rem;font-weight:700;}
+.study-rank-name{flex:1;min-width:0;color:var(--ivory);font-size:.8rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.study-rank-time{font-family:'IBM Plex Mono',monospace;color:var(--mark);font-size:.75rem;}
+.study-start-card{margin-top:18px;padding:18px;}
+.study-start-card h2{margin:0;font-size:.98rem;color:var(--ivory);}
+.study-start-card p{margin:5px 0 15px;color:var(--dim);font-size:.78rem;}
+.study-controls{display:flex;gap:9px;flex-wrap:wrap;}
+.study-controls select{flex:1;min-width:190px;background:var(--ink);border:1px solid var(--rule);color:var(--ivory);border-radius:10px;padding:10px 11px;outline:none;}
+.study-controls button{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:10px;padding:10px 14px;border:1px solid var(--rule);cursor:pointer;}
+.study-start-btn{background:var(--mark);color:#111;border-color:var(--mark)!important;font-weight:700;}
+.study-stop-btn{background:rgba(255,92,114,.08);color:var(--alert);}
+.study-controls button:disabled{opacity:.45;cursor:not-allowed;}
+.study-my-timer{display:none;margin-top:15px;padding-top:15px;border-top:1px solid var(--rule);text-align:center;}
+.study-my-timer.show{display:block;}
+.study-clock{font-family:'IBM Plex Mono',monospace;font-size:2.15rem;font-weight:700;color:var(--verified);letter-spacing:.02em;}
+.study-clock-label{margin-top:4px;color:var(--dim);font-size:.74rem;}
+.study-room-nav-active{border-color:var(--mark)!important;color:var(--mark)!important;background:rgba(255,157,28,.08)!important;}
+@media(max-width:900px){.study-grid{grid-template-columns:1fr;}.study-stats{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:620px){.study-room-page{padding:18px 12px 35px;}.study-room-head{align-items:flex-start;}.study-room-title h1{font-size:1.12rem;}.study-room-title p{font-size:.75rem;}.study-back span{display:none;}.study-stats{grid-template-columns:1fr;gap:9px;}.study-stat{padding:14px;}.study-grid{gap:12px;}.study-controls{flex-direction:column;}.study-controls select,.study-controls button{width:100%;}.study-user-time{font-size:.72rem;}.study-clock{font-size:1.8rem;}}
+
+
+<style id="arena-mention-autocomplete">
+.mention-menu{
+  position:fixed; z-index:10050; width:min(330px,calc(100vw - 24px));
+  background:var(--paper-raised); border:1px solid var(--rule-strong);
+  border-radius:10px; box-shadow:0 18px 45px rgba(0,0,0,.55);
+  overflow:hidden; display:none; padding:5px;
+}
+.mention-menu.open{display:block;}
+.mention-menu-head{padding:7px 9px 6px;color:var(--dim);font-size:.68rem;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.05em;}
+.mention-option{width:100%;display:flex;align-items:center;gap:10px;background:transparent;border:0;border-radius:7px;padding:8px 9px;color:var(--ivory);text-align:left;cursor:pointer;}
+.mention-option:hover,.mention-option.active{background:var(--ink);}
+.mention-option-avatar{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;background:var(--paper);border:1px solid var(--rule);color:var(--mark);font-size:.72rem;font-weight:700;}
+.mention-option-main{min-width:0;flex:1;}
+.mention-option-name{font-size:.82rem;font-weight:650;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mention-option-username{margin-top:2px;color:var(--info);font-size:.7rem;font-family:'IBM Plex Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mention-menu-empty{padding:12px 10px;color:var(--dim);font-size:.76rem;text-align:center;}
+@media(max-width:640px){.mention-menu{width:min(320px,calc(100vw - 20px));}}
+</style>
+
 </head>
+</style>
+
 <body>
 
 <!-- ================= AUTH GATE ================= -->
@@ -939,15 +1149,21 @@
       </div>
       <div class="ticket-body">
         <div id="loginFields">
-          <div class="field"><label>Email</label><input type="email" id="loginEmail"></div>
-          <div class="field"><label>Password</label><input type="password" id="loginPassword"></div>
+          <div class="field"><label>Email</label><input type="email" id="loginEmail" autocomplete="email"></div>
+          <div class="field"><label>Password</label><input type="password" id="loginPassword" autocomplete="current-password"></div>
+          <button type="button" class="auth-link-btn" id="forgotPasswordBtn">Forgot password?</button>
         </div>
         <div id="signupFields" style="display:none;">
-          <div class="field"><label>Full name</label><input type="text" id="signupName"></div>
-          <div class="field"><label>Email</label><input type="email" id="signupEmail"></div>
-          <div class="field"><label>Password</label><input type="password" id="signupPassword" placeholder="At least 6 characters"></div>
+          <div class="field"><label>Full name</label><input type="text" id="signupName" autocomplete="name"></div>
+          <div class="field"><label>Unique username</label><input type="text" id="signupUsername" placeholder="e.g. abhishek_g27" autocomplete="username" maxlength="24"></div>
+          <div class="field-help">Your username is unique on Arena and is used for @mentions.</div>
+          <div class="field"><label>Email</label><input type="email" id="signupEmail" autocomplete="email"></div>
+          <div class="field"><label>Password</label><input type="password" id="signupPassword" placeholder="At least 8 characters" autocomplete="new-password"></div>
+          <div class="field-help">We'll also send a verification email to help protect your account.</div>
         </div>
         <button class="gate-submit" id="gateSubmitBtn">Log in</button>
+        <button type="button" class="google-auth-btn" id="googleSignInBtn"><span class="google-g">G</span><span>Continue with Google</span></button>
+        <div class="security-note"><span>🔐</span><span>Password changes require account re-authentication. Forgot-password links go only to your email.</span></div>
         <div class="gate-error" id="gateError"></div>
         <div class="gate-switch" id="gateSwitch">New here? <button type="button" data-gateswitch="signup">Create an account</button></div>
       </div>
@@ -998,6 +1214,11 @@
 
     <button class="btn-ghost btn-block" id="openPeopleBtn">👥 People &amp; Friends</button>
 
+    <button class="btn-ghost btn-block" id="openStudyRoomBtn" title="Study together with the Arena community">
+      <svg class="tb-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Study Room
+    </button>
+
     <nav class="topicnav" id="topicTabs"></nav>
 
     <div class="sortwrap">
@@ -1037,40 +1258,6 @@
     </div>
     <div id="feed"><div class="empty">Connecting…</div></div>
   </main>
-
-  <!-- Stack Overflow-style right rail for display ads.
-       Replace the placeholders with your approved AdSense code when ready. -->
-  <aside class="ad-rail" aria-label="Advertisements">
-    <div class="ad-slot">
-      <span class="ad-label">Advertisement</span>
-      <div class="ad-placeholder">
-        <strong>Ad space</strong>
-        Your display ad will appear here.
-      </div>
-      <!-- Example AdSense slot:
-      <ins class="adsbygoogle"
-           data-ad-client="YOUR_PUBLISHER_ID"
-           data-ad-slot="YOUR_AD_SLOT_ID"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      -->
-    </div>
-
-    <div class="ad-slot tall">
-      <span class="ad-label">Advertisement</span>
-      <div class="ad-placeholder">
-        <strong>More ad space</strong>
-        A larger responsive ad can appear here.
-      </div>
-      <!-- Example AdSense slot:
-      <ins class="adsbygoogle"
-           data-ad-client="YOUR_PUBLISHER_ID"
-           data-ad-slot="YOUR_AD_SLOT_ID"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-      -->
-    </div>
-  </aside>
 </div>
 
 <button class="fab" id="openModalBtn" title="Ask a question">+</button>
@@ -1520,17 +1707,185 @@ const OWNER_ADMIN_EMAILS = ["basuabhishek748@gmail.com"]; // <-- your email(s), 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile,
-  signOut, onAuthStateChanged
+  signOut, onAuthStateChanged, GoogleAuthProvider, signInWithPopup,
+  sendPasswordResetEmail, reauthenticateWithCredential, EmailAuthProvider,
+  updatePassword, deleteUser, sendEmailVerification
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, addDoc, doc, setDoc, getDoc, deleteDoc, updateDoc, onSnapshot,
-  query, where, orderBy, limit, startAfter, serverTimestamp, arrayUnion, arrayRemove, getDocs, increment,
+  query, where, orderBy, limit, startAfter, startAt, endAt, serverTimestamp, arrayUnion, arrayRemove, getDocs, increment,
   getCountFromServer, writeBatch, runTransaction, enableIndexedDbPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+
+
+/* ================= SAME-FILE STUDY ROOM ================= */
+let studyRoomOpen = false;
+let studySessionId = null;
+let studySessionStartedMs = 0;
+let studyTimerInterval = null;
+let studyActiveUnsub = null;
+let studyTodayUnsub = null;
+let studyActiveSessions = [];
+
+const studyRoomPage = document.getElementById("studyRoomPage");
+const appRootEl = document.getElementById("appRoot");
+const openStudyRoomBtn = document.getElementById("openStudyRoomBtn");
+const closeStudyRoomBtn = document.getElementById("closeStudyRoomBtn");
+
+function studyEscape(v){
+  return String(v ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
+}
+function studyFmt(ms){
+  const sec = Math.max(0, Math.floor(ms/1000));
+  const h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  return [h,m,s].map(x=>String(x).padStart(2,"0")).join(":");
+}
+function studyFmtMinutes(min){
+  min = Math.max(0, Math.round(min||0));
+  if(min < 60) return `${min}m`;
+  return `${Math.floor(min/60)}h ${min%60}m`;
+}
+function studyInitial(name){ return (String(name||"U").trim()[0]||"U").toUpperCase(); }
+function studyOpen(){
+  if(!uid) return showToast("Sign in to enter the Study Room.", "error");
+  studyRoomOpen = true;
+  appRootEl.style.display = "none";
+  studyRoomPage.classList.add("open");
+  history.pushState({studyRoom:true}, "", "#study-room");
+  studyStartListeners();
+  studyRenderMine();
+}
+function studyClose(){
+  studyRoomOpen = false;
+  studyRoomPage.classList.remove("open");
+  // Authenticated Arena is explicitly visible again. Do not rely on an empty
+  // inline style because auth/profile listeners may have hidden the shell.
+  appRootEl.style.display = "block";
+  studyStopListeners();
+  if(location.hash === "#study-room") history.replaceState({studyRoom:false}, "", location.pathname + location.search);
+  window.scrollTo({top:0, behavior:"smooth"});
+  if(typeof render === "function" && uid) render();
+}
+function studyStartListeners(){
+  if(studyActiveUnsub) studyActiveUnsub();
+  if(studyTodayUnsub) studyTodayUnsub();
+  const activeQ = query(collection(db,"studySessions"), where("active","==",true));
+  studyActiveUnsub = onSnapshot(activeQ, snap => {
+    studyActiveSessions = snap.docs.map(d=>({id:d.id,...d.data()}));
+    studyRenderActive();
+    document.getElementById("studyOnlineCount").textContent = studyActiveSessions.length;
+    studyRenderMine();
+  }, err => {
+    console.error("Study Room active listener:", err);
+    document.getElementById("studyUsersList").innerHTML = `<div class="study-empty">Study Room needs Firestore permission for <b>studySessions</b>.</div>`;
+  });
+  const start = new Date(); start.setHours(0,0,0,0);
+  const todayQ = query(collection(db,"studySessions"), where("startedAtMs", ">=", start.getTime()));
+  studyTodayUnsub = onSnapshot(todayQ, snap => {
+    const rows = snap.docs.map(d=>({id:d.id,...d.data()}));
+    const completed = rows.filter(x=>x.active === false);
+    const total = completed.reduce((sum,x)=>sum+(Number(x.durationMinutes)||0),0);
+    document.getElementById("studyFocusToday").textContent = studyFmtMinutes(total);
+    document.getElementById("studySessionsToday").textContent = completed.length;
+    studyRenderLeaderboard(completed);
+  }, err => console.error("Study Room today listener:", err));
+}
+function studyStopListeners(){
+  if(studyActiveUnsub){studyActiveUnsub();studyActiveUnsub=null;}
+  if(studyTodayUnsub){studyTodayUnsub();studyTodayUnsub=null;}
+}
+function studyRenderActive(){
+  const el = document.getElementById("studyUsersList");
+  if(!studyActiveSessions.length){
+    el.innerHTML = `<div class="study-empty"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3"/><path d="M5 20a7 7 0 0 1 14 0"/></svg><br>No one is studying right now.<br>Be the first to start.</div>`;
+    return;
+  }
+  el.innerHTML = studyActiveSessions.sort((a,b)=>(a.startedAtMs||0)-(b.startedAtMs||0)).map(x=>{
+    const name=x.name||"Arena user";
+    const elapsed=Date.now()-(Number(x.startedAtMs)||Date.now());
+    return `<div class="study-user"><div class="study-avatar">${studyEscape(studyInitial(name))}</div><div class="study-user-main"><div class="study-user-name">${studyEscape(name)}</div><div class="study-user-subject"><i class="study-dot"></i>${studyEscape(x.subject||"General Revision")}</div></div><div class="study-user-time">${studyFmt(elapsed)}</div></div>`;
+  }).join("");
+}
+function studyRenderLeaderboard(rows){
+  const el=document.getElementById("studyLeaderboard");
+  const totals={};
+  rows.forEach(x=>{ const key=x.uid||x.name||x.id; if(!totals[key]) totals[key]={name:x.name||"Arena user",minutes:0}; totals[key].minutes += Number(x.durationMinutes)||0; });
+  const top=Object.values(totals).sort((a,b)=>b.minutes-a.minutes).slice(0,8);
+  if(!top.length){el.innerHTML=`<div class="study-empty">No completed sessions yet today.</div>`;return;}
+  el.innerHTML=top.map((x,i)=>`<div class="study-rank"><div class="study-rank-no">${String(i+1).padStart(2,"0")}</div><div class="study-rank-avatar">${studyEscape(studyInitial(x.name))}</div><div class="study-rank-name">${studyEscape(x.name)}</div><div class="study-rank-time">${studyFmtMinutes(x.minutes)}</div></div>`).join("");
+}
+function studyRenderMine(){
+  const mine = uid ? studyActiveSessions.find(x=>x.uid===uid) : null;
+  if(mine){
+    studySessionId=mine.id;
+    studySessionStartedMs=Number(mine.startedAtMs)||Date.now();
+    document.getElementById("studyStartBtn").disabled=true;
+    document.getElementById("studyStopBtn").disabled=false;
+    document.getElementById("studySubjectSel").disabled=true;
+    document.getElementById("studySubjectSel").value=mine.subject||"General Revision";
+    document.getElementById("studyMyTimer").classList.add("show");
+    clearInterval(studyTimerInterval);
+    studyTimerInterval=setInterval(()=>{ document.getElementById("studyMyClock").textContent=studyFmt(Date.now()-studySessionStartedMs); },1000);
+    document.getElementById("studyMyClock").textContent=studyFmt(Date.now()-studySessionStartedMs);
+  }else{
+    studySessionId=null; studySessionStartedMs=0;
+    document.getElementById("studyStartBtn").disabled=false;
+    document.getElementById("studyStopBtn").disabled=true;
+    document.getElementById("studySubjectSel").disabled=false;
+    document.getElementById("studyMyTimer").classList.remove("show");
+    clearInterval(studyTimerInterval);
+  }
+}
+async function studyStart(){
+  if(!uid) return showToast("Sign in to start a study session.","error");
+  if(studySessionId) return;
+  const btn=document.getElementById("studyStartBtn");
+  const subject=document.getElementById("studySubjectSel").value;
+  const started=Date.now();
+  btn.disabled=true;
+  btn.dataset.originalText=btn.textContent;
+  btn.textContent="Starting…";
+  try {
+    const ref=await addDoc(collection(db,"studySessions"),{
+      uid, name:myName||myEmail?.split("@")[0]||"Arena user", username:usersCache[uid]?.username||null,
+      subject, startedAtMs:started, startedAt:serverTimestamp(), active:true, durationMinutes:0
+    });
+    studySessionId=ref.id;
+    studySessionStartedMs=started;
+    studyRenderMine();
+    showToast(`Study session started: ${subject}`,"success");
+  } catch(err){
+    console.error("Study session start failed:",err);
+    btn.disabled=false;
+    btn.textContent=btn.dataset.originalText||"Start studying";
+    showToast("Couldn't start the study session: " + (err.message || "Firebase rejected the write."),"error");
+  }
+}
+async function studyStop(){
+  if(!studySessionId) return;
+  const btn=document.getElementById("studyStopBtn");
+  const minutes=Math.max(1,Math.floor((Date.now()-studySessionStartedMs)/60000));
+  btn.disabled=true;
+  try {
+    await setDoc(doc(db,"studySessions",studySessionId),{active:false,endedAt:serverTimestamp(),durationMinutes:minutes},{merge:true});
+    studySessionId=null; studySessionStartedMs=0; studyRenderMine();
+    showToast(`Session finished: ${minutes} minute${minutes===1?"":"s"}.`,"success");
+  } catch(err){
+    console.error("Study session finish failed:",err);
+    btn.disabled=false;
+    showToast("Couldn't finish the study session: " + (err.message || "Firebase rejected the write."),"error");
+  }
+}
+openStudyRoomBtn?.addEventListener("click",studyOpen);
+closeStudyRoomBtn?.addEventListener("click",studyClose);
+document.getElementById("studyStartBtn")?.addEventListener("click",studyStart);
+document.getElementById("studyStopBtn")?.addEventListener("click",studyStop);
+window.addEventListener("popstate",()=>{ if(location.hash==="#study-room" && uid) studyOpen(); else if(studyRoomOpen) studyClose(); });
+window.addEventListener("hashchange",()=>{ if(location.hash==="#study-room" && uid) studyOpen(); else if(studyRoomOpen) studyClose(); });
 // Bridge the modular Firebase auth instance to the non-module solution UI.
 window.ARENA_GET_ID_TOKEN = async () => auth.currentUser ? auth.currentUser.getIdToken() : "";
 
@@ -1849,6 +2204,7 @@ onAuthStateChanged(auth, (user) => {
   }
   uid = user.uid; myEmail = user.email;
   subscribeUserDoc();
+  if (location.hash === "#study-room") setTimeout(studyOpen, 0);
 });
 
 function subscribeUserDoc(){
@@ -1859,6 +2215,7 @@ function subscribeUserDoc(){
     const previousRep = myReputation;
     myName = data.name || myEmail;
     myPhoto = data.photoURL || null;
+    if (!data.username) ensureUsernameForUser(uid, data).catch(err => console.warn("Username setup failed:", err));
     myIsPrivate = data.isPrivate === true;
     isAdmin = data.role === "admin" || data.role === "owner";
     isOwner = data.role === "owner";
@@ -1924,26 +2281,44 @@ document.getElementById("gateSubmitBtn").onclick = async () => {
   btn.disabled = true;
   try {
     if (gateMode === "login"){
-      const email = document.getElementById("loginEmail").value.trim();
+      const email = document.getElementById("loginEmail").value.trim().toLowerCase();
       const pass = document.getElementById("loginPassword").value;
-      if (!email || !pass){ errEl.textContent = "Enter your email and password."; return; }
+      if (!email || !pass) throw new Error("Enter your email and password.");
       await signInWithEmailAndPassword(auth, email, pass);
     } else {
       const name = document.getElementById("signupName").value.trim();
-      const email = document.getElementById("signupEmail").value.trim();
+      const rawUsername = document.getElementById("signupUsername").value.trim();
+      const username = normalizeUsername(rawUsername);
+      const email = document.getElementById("signupEmail").value.trim().toLowerCase();
       const pass = document.getElementById("signupPassword").value;
-      if (!name || !email || !pass){ errEl.textContent = "Fill in every field."; return; }
-      if (pass.length < 6){ errEl.textContent = "Password needs at least 6 characters."; return; }
+      if (!name || !username || !email || !pass) throw new Error("Fill in every field.");
+      if (!USERNAME_RE.test(username)) throw new Error("Username must be 3–24 characters using only letters, numbers, and underscores.");
+      if (pass.length < 8) throw new Error("Password needs at least 8 characters.");
+
+      // Check the reservation before creating the Auth account, then reserve it
+      // immediately after account creation. The reservation collection is the
+      // authoritative uniqueness lock for @mentions.
+      const usernameSnap = await getDoc(doc(db,"usernames",username));
+      if (usernameSnap.exists()) throw new Error("That username is already taken. Try another one.");
+
       const cred = await createUserWithEmailAndPassword(auth, email, pass);
-      await updateProfile(cred.user, { displayName: name });
-      await setDoc(doc(db,"users",cred.user.uid), {
-        name, email,
-        role: OWNER_ADMIN_EMAILS.includes(email.toLowerCase()) ? "owner" : "user",
-        ...repStatsDefaults(),
-        createdAt: serverTimestamp()
-      });
-      const stamp = document.getElementById("gateStamp");
-      stamp.classList.add("show");
+      try {
+        await reserveUsername(username, cred.user.uid);
+        await updateProfile(cred.user, { displayName: name });
+        await setDoc(doc(db,"users",cred.user.uid), {
+          name, username, email,
+          role: OWNER_ADMIN_EMAILS.includes(email) ? "owner" : "user",
+          ...repStatsDefaults(),
+          createdAt: serverTimestamp(),
+          emailVerified: false
+        });
+        await sendEmailVerification(cred.user).catch(()=>{});
+      } catch (setupErr) {
+        await deleteUser(cred.user).catch(()=>{});
+        throw setupErr;
+      }
+      showToast("Account created. Check your email to verify it.", "success");
+      document.getElementById("gateStamp").classList.add("show");
     }
   } catch (err) {
     console.error("Auth failed:", err);
@@ -1952,12 +2327,66 @@ document.getElementById("gateSubmitBtn").onclick = async () => {
     btn.disabled = false;
   }
 };
+
+// Google OAuth. Firebase handles the provider handshake; no Arena password is
+// stored for Google users. The provider must be enabled in Firebase Console.
+document.getElementById("googleSignInBtn").onclick = async () => {
+  const errEl = document.getElementById("gateError");
+  errEl.textContent = "";
+  const btn = document.getElementById("googleSignInBtn");
+  btn.disabled = true;
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    const existing = await getDoc(doc(db,"users",user.uid));
+    if (!existing.exists()) {
+      const username = await generateUniqueUsername(user.displayName || "arena_user", user.uid);
+      await setDoc(doc(db,"users",user.uid), {
+        name: user.displayName || "Arena user",
+        username,
+        email: user.email || "",
+        photoURL: user.photoURL || null,
+        role: OWNER_ADMIN_EMAILS.includes((user.email||"").toLowerCase()) ? "owner" : "user",
+        ...repStatsDefaults(),
+        createdAt: serverTimestamp(),
+        emailVerified: true
+      });
+    }
+  } catch (err) {
+    console.error("Google sign-in failed:", err);
+    errEl.textContent = friendlyAuthError(err.code) || err.message;
+  } finally {
+    btn.disabled = false;
+  }
+};
+
+document.getElementById("forgotPasswordBtn").onclick = async () => {
+  const email = document.getElementById("loginEmail").value.trim().toLowerCase();
+  const errEl = document.getElementById("gateError");
+  if (!email) { errEl.textContent = "Enter your email first, then click Forgot password."; return; }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    errEl.textContent = "If that account exists, a password-reset email has been sent. Check your inbox and spam folder.";
+    errEl.style.color = "var(--verified)";
+  } catch(err){
+    console.error("Password reset failed:", err);
+    errEl.style.color = "var(--alert)";
+    errEl.textContent = friendlyAuthError(err.code) || err.message;
+  }
+};
+
 function friendlyAuthError(code){
   const map = {
     "auth/invalid-credential":"Wrong email or password.",
     "auth/email-already-in-use":"That email already has an account — log in instead.",
-    "auth/weak-password":"Password needs at least 6 characters.",
-    "auth/invalid-email":"That email doesn't look right."
+    "auth/weak-password":"Password needs at least 8 characters.",
+    "auth/invalid-email":"That email doesn't look right.",
+    "auth/popup-closed-by-user":"Google sign-in was closed before it finished.",
+    "auth/popup-blocked":"Your browser blocked the Google sign-in popup. Allow popups for Arena and try again.",
+    "auth/operation-not-allowed":"Google sign-in is not enabled in Firebase Authentication yet.",
+    "auth/requires-recent-login":"For security, sign in again before changing your password."
   };
   return map[code];
 }
@@ -2930,7 +3359,7 @@ function renderComment(qid, c){
       <button class="vbtn down ${myVote==='down'?'active':''}" data-vote-c="${qid}|${c.id}" data-dir="down" title="Downvote">${repIcon("arrowUp",13).replace("M12 5v14","M12 19V5").replace("m6 11 6-6 6 6","m6 13 6 6 6-6")}</button>
     </div>
     <div style="flex:1">
-      <div class="ctext">${escapeHtml(c.text)}</div>
+      <div class="ctext">${renderMentionText(c.text)}</div>
       <div class="cmeta">
         <span class="cbadge ${CTYPES[type].cls}">${CTYPES[type].label}</span>
         <span class="cauthor-line">
@@ -3114,6 +3543,7 @@ function wireCard(q){
         const snippet = q.text.length > 40 ? q.text.slice(0,40) + "…" : q.text;
         notify(q.authorId, "comment", `${myName} commented on your question "${snippet}"`, {questionId:q.id});
       }
+      notifyMentions(text, {questionId:q.id, commentId:commentRef.id, context:"a comment"}).catch(err => console.warn("Mention notifications failed:", err));
     } catch (err) {
       console.error("Posting comment failed:", err);
       drafts[q.id] = text;
@@ -3287,6 +3717,308 @@ function escapeHtml(s){
   return d.innerHTML;
 }
 
+const USERNAME_RE = /^[a-z0-9_]{3,24}$/;
+function normalizeUsername(v){
+  return String(v||"").trim().toLowerCase().replace(/^@+/,"").replace(/[^a-z0-9_]/g, "").slice(0,24);
+}
+function usernameFromName(name, email=""){
+  let base = normalizeUsername(name) || normalizeUsername(String(email).split("@")[0]) || "arena_user";
+  if(base.length < 3) base = (base + "user").slice(0,24);
+  return base;
+}
+async function reserveUsername(username, ownerUid){
+  const key = normalizeUsername(username);
+  if(!USERNAME_RE.test(key)) throw new Error("Username must be 3–24 characters using only letters, numbers, and underscores.");
+  const ref = doc(db,"usernames",key);
+  const snap = await getDoc(ref);
+  if(snap.exists() && snap.data().uid !== ownerUid) throw new Error("That username is already taken.");
+  if(!snap.exists()) await setDoc(ref,{uid:ownerUid,username:key,createdAt:serverTimestamp()});
+  return key;
+}
+async function generateUniqueUsername(base, ownerUid){
+  const clean = usernameFromName(base);
+  const candidates = [clean, `${clean}_${Math.floor(10+Math.random()*90)}`, `${clean}_${Math.floor(100+Math.random()*900)}`, `${clean}_${ownerUid.slice(0,5).toLowerCase()}`];
+  for(const candidate of candidates){
+    const key = normalizeUsername(candidate);
+    const snap = await getDoc(doc(db,"usernames",key));
+    if(!snap.exists() || snap.data().uid === ownerUid){
+      await reserveUsername(key, ownerUid);
+      return key;
+    }
+  }
+  for(let i=1;i<1000;i++){
+    const key = `${clean.slice(0,Math.max(3,24-String(i).length-1))}_${i}`;
+    const snap = await getDoc(doc(db,"usernames",key));
+    if(!snap.exists()){ await reserveUsername(key, ownerUid); return key; }
+  }
+  throw new Error("Couldn't create a unique username. Please try again.");
+}
+async function ensureUsernameForUser(userId, currentData){
+  if(currentData?.username) return currentData.username;
+  const generated = await generateUniqueUsername(currentData?.name || myName || "arena_user", userId);
+  await updateDoc(doc(db,"users",userId), {username:generated});
+  return generated;
+}
+async function findUsersByMention(text){
+  const found = new Set();
+  const names = [...String(text||"").matchAll(/(^|\s)@([a-zA-Z0-9_]{3,24})\b/g)]
+    .map(m => m[2].toLowerCase());
+
+  for (const username of [...new Set(names)]) {
+    try {
+      // First use the authoritative username reservation document.
+      const snap = await getDoc(doc(db,"usernames",username));
+      if (snap.exists()) {
+        const targetUid = snap.data().uid;
+        if (targetUid && targetUid !== uid) found.add(targetUid);
+        continue;
+      }
+
+      // Backward-compatible fallback for older accounts that predate the
+      // usernames collection. Match their generated/display username.
+      const users = await loadMentionUsers();
+      const target = users.find(x => String(x.username || "").toLowerCase() === username);
+      if (target?.uid && target.uid !== uid) found.add(target.uid);
+    } catch(err) {
+      console.warn("Mention lookup failed", username, err);
+    }
+  }
+  return [...found];
+}
+
+async function notifyMentions(text, extra={}){
+  const targets = await findUsersByMention(text);
+  await Promise.all(targets.map(targetUid => notify(targetUid,"mention",`${myName || "Someone"} mentioned you${extra.context ? ` in ${extra.context}` : ""}.`, extra)));
+}
+function renderMentionText(text){
+  const safe=escapeHtml(text);
+  return safe.replace(/(^|\s)@([a-zA-Z0-9_]{3,24})\b/g,(m,space,user)=>`${space}<span class="mention">@${escapeHtml(user)}</span>`);
+}
+
+
+/* ================= @MENTION AUTOCOMPLETE =================
+   The previous build had the mention menu CSS but no event/query logic.
+   This is deliberately delegated because comment boxes are created dynamically.
+*/
+let mentionMenuEl = null;
+let mentionState = { input:null, start:0, end:0, items:[], index:0, token:"" };
+let mentionSearchTimer = null;
+let mentionSearchSeq = 0;
+
+function ensureMentionMenu(){
+  if (mentionMenuEl) return mentionMenuEl;
+  mentionMenuEl = document.createElement("div");
+  mentionMenuEl.className = "mention-menu";
+  mentionMenuEl.setAttribute("role","listbox");
+  mentionMenuEl.innerHTML = '<div class="mention-menu-head">Mention an Arena user</div><div class="mention-menu-body"></div>';
+  document.body.appendChild(mentionMenuEl);
+  return mentionMenuEl;
+}
+
+function mentionInputAllowed(el){
+  if (!el) return false;
+  if (!(el.matches("textarea") || el.matches('input[type="text"]'))) return false;
+  if (el.matches('[data-no-mentions="true"]')) return false;
+  return !!(el.matches('[data-comment-input]') || el.id === "fText" || el.id === "chatInput");
+}
+
+function mentionFragment(el){
+  const pos = typeof el.selectionStart === "number" ? el.selectionStart : el.value.length;
+  const before = el.value.slice(0,pos);
+  const m = before.match(/(?:^|\s)@([a-zA-Z0-9_]*)$/);
+  if (!m) return null;
+  const token = m[1].toLowerCase();
+  return { token, start: pos - token.length - 1, end: pos };
+}
+
+function positionMentionMenu(el){
+  const menu = ensureMentionMenu();
+  const r = el.getBoundingClientRect();
+  const menuW = Math.min(330, window.innerWidth - 24);
+  let left = r.left;
+  let top = r.bottom + 6;
+  if (left + menuW > window.innerWidth - 12) left = window.innerWidth - menuW - 12;
+  const maxTop = window.innerHeight - 260;
+  if (top > maxTop) top = Math.max(12, r.top - 220);
+  menu.style.left = `${Math.max(12,left)}px`;
+  menu.style.top = `${Math.max(12,top)}px`;
+}
+
+function closeMentionMenu(){
+  if (!mentionMenuEl) return;
+  mentionMenuEl.classList.remove("open");
+  mentionState = { input:null, start:0, end:0, items:[], index:0, token:"" };
+}
+
+function mentionOptionHtml(item, i, activeIndex=0){
+  const name = escapeHtml(item.name || item.username || "Arena user");
+  const username = escapeHtml(item.username || "");
+  const initial = escapeHtml((item.name || item.username || "A").trim().charAt(0).toUpperCase());
+  return `<button type="button" class="mention-option${i===activeIndex?' active':''}" data-mention-index="${i}" role="option">
+    <span class="mention-option-avatar">${initial}</span>
+    <span class="mention-option-main">
+      <span class="mention-option-name">${name}</span>
+      <span class="mention-option-username">@${username}</span>
+    </span>
+  </button>`;
+}
+
+function renderMentionMenu(items, token, activeIndex=0){
+  const menu = ensureMentionMenu();
+  const body = menu.querySelector(".mention-menu-body");
+  mentionState.items = items;
+  mentionState.index = Math.max(0, Math.min(activeIndex, Math.max(0, items.length - 1)));
+  mentionState.token = token;
+  if (!items.length){
+    body.innerHTML = `<div class="mention-menu-empty">No Arena users found for <b>@${escapeHtml(token)}</b></div>`;
+  } else {
+    body.innerHTML = items.map((item,i) => mentionOptionHtml(item,i,mentionState.index)).join("");
+  }
+  menu.classList.add("open");
+  positionMentionMenu(mentionState.input);
+}
+
+let mentionUsersCache = null;
+let mentionUsersCachePromise = null;
+
+async function loadMentionUsers(){
+  if (mentionUsersCache) return mentionUsersCache;
+  if (mentionUsersCachePromise) return mentionUsersCachePromise;
+
+  mentionUsersCachePromise = (async () => {
+    try {
+      // Read the existing user directory for autocomplete. This also works
+      // for older Arena accounts that do not yet have a usernames document.
+      const snap = await getDocs(collection(db,"users"));
+      mentionUsersCache = snap.docs.map(d => {
+        const data = d.data() || {};
+        const name = data.name || data.displayName || "Arena user";
+        const username = normalizeUsername(
+          data.username || usernameFromName(name, data.email || "")
+        );
+        return { uid:d.id, name, username };
+      }).filter(x => x.uid && x.uid !== uid && x.username);
+      return mentionUsersCache;
+    } catch(err){
+      console.error("Could not load Arena users for mentions:", err);
+      mentionUsersCache = [];
+      return mentionUsersCache;
+    } finally {
+      mentionUsersCachePromise = null;
+    }
+  })();
+
+  return mentionUsersCachePromise;
+}
+
+async function searchMentionUsers(token){
+  if (!uid) return [];
+  const needle = String(token || "").toLowerCase();
+  const users = await loadMentionUsers();
+
+  return users
+    .filter(x => {
+      const username = String(x.username || "").toLowerCase();
+      const name = String(x.name || "").toLowerCase();
+      return !needle || username.startsWith(needle) || name.includes(needle);
+    })
+    .sort((a,b) => {
+      const au = String(a.username || "").toLowerCase();
+      const bu = String(b.username || "").toLowerCase();
+      const an = String(a.name || "").toLowerCase();
+      const bn = String(b.name || "").toLowerCase();
+      const as = au.startsWith(needle) ? 0 : (an.startsWith(needle) ? 1 : 2);
+      const bs = bu.startsWith(needle) ? 0 : (bn.startsWith(needle) ? 1 : 2);
+      return as - bs || au.localeCompare(bu);
+    })
+    .slice(0, 8);
+}
+
+function refreshMentionSuggestions(el){
+  if (!mentionInputAllowed(el)) return;
+  const frag = mentionFragment(el);
+  if (!frag){ closeMentionMenu(); return; }
+  mentionState.input = el;
+  mentionState.start = frag.start;
+  mentionState.end = frag.end;
+  positionMentionMenu(el);
+  const seq = ++mentionSearchSeq;
+  clearTimeout(mentionSearchTimer);
+  mentionSearchTimer = setTimeout(async () => {
+    try {
+      const items = await searchMentionUsers(frag.token);
+      if (seq !== mentionSearchSeq || mentionState.input !== el) return;
+      renderMentionMenu(items, frag.token);
+    } catch(err) {
+      console.warn("Mention autocomplete failed:", err);
+      if (seq !== mentionSearchSeq || mentionState.input !== el) return;
+      renderMentionMenu([], frag.token);
+    }
+  }, 100);
+}
+
+function chooseMention(index){
+  const el = mentionState.input;
+  const item = mentionState.items[index];
+  if (!el || !item) return;
+  const value = el.value;
+  const username = item.username;
+  const replacement = `@${username} `;
+  el.value = value.slice(0, mentionState.start) + replacement + value.slice(mentionState.end);
+  const caret = mentionState.start + replacement.length;
+  el.focus();
+  el.setSelectionRange(caret, caret);
+  el.dispatchEvent(new Event("input", {bubbles:true}));
+  closeMentionMenu();
+}
+
+document.addEventListener("input", e => {
+  if (mentionInputAllowed(e.target)) refreshMentionSuggestions(e.target);
+});
+
+document.addEventListener("keydown", e => {
+  if (!mentionMenuEl || !mentionMenuEl.classList.contains("open")) return;
+  if (e.target !== mentionState.input) return;
+  if (e.key === "ArrowDown") {
+    e.preventDefault();
+    if (mentionState.items.length) {
+      mentionState.index = (mentionState.index + 1) % mentionState.items.length;
+      renderMentionMenu(mentionState.items, mentionState.token, mentionState.index);
+    }
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    if (mentionState.items.length) {
+      mentionState.index = (mentionState.index - 1 + mentionState.items.length) % mentionState.items.length;
+      renderMentionMenu(mentionState.items, mentionState.token, mentionState.index);
+    }
+  } else if (e.key === "Enter" || e.key === "Tab") {
+    if (mentionState.items.length) {
+      e.preventDefault();
+      chooseMention(mentionState.index);
+    }
+  } else if (e.key === "Escape") {
+    e.preventDefault();
+    closeMentionMenu();
+  }
+});
+
+document.addEventListener("click", e => {
+  const option = e.target.closest?.("[data-mention-index]");
+  if (option && mentionMenuEl?.contains(option)) {
+    e.preventDefault();
+    chooseMention(Number(option.dataset.mentionIndex));
+    return;
+  }
+  if (mentionMenuEl && !mentionMenuEl.contains(e.target) && e.target !== mentionState.input) closeMentionMenu();
+});
+
+window.addEventListener("scroll", () => {
+  if (mentionMenuEl?.classList.contains("open") && mentionState.input) positionMentionMenu(mentionState.input);
+}, true);
+window.addEventListener("resize", () => {
+  if (mentionMenuEl?.classList.contains("open") && mentionState.input) positionMentionMenu(mentionState.input);
+});
+
 function showToast(msg, kind="info"){
   const wrap = document.getElementById("toastWrap");
   const el = document.createElement("div");
@@ -3420,6 +4152,7 @@ submitBtn.onclick = async () => {
       if (postType === "mcq") payload.responses = {};
       const createdRef = await addDoc(collection(db,"questions"), payload);
       awardReputation(uid, REP_RULES.question_post, "Posted a question", {icon:"spark", questionId:createdRef.id, topic}, `question_post_${createdRef.id}`, {questionsPosted:1}).catch(()=>{});
+      notifyMentions(text, {questionId:createdRef.id, context:"a question"}).catch(err => console.warn("Mention notifications failed:", err));
       showToast("Question posted · +5 reputation", "success");
     }
     overlay.classList.remove("open");
@@ -3780,6 +4513,7 @@ function renderProfileModal(){
           <div class="profile-badges">
             ${roleBadge}
             ${relBadge}
+            ${data?.username ? `<span class="profile-badge" style="color:var(--info);border-color:var(--info);">@${escapeHtml(data.username)}</span>` : ""}
             ${joined ? `<span class="profile-badge">Joined ${joined}</span>` : ""}
           </div>
         </div>
@@ -3800,7 +4534,12 @@ function renderProfileModal(){
       <button class="follow-stat" id="profileFollowingBtn"><b>${fstat ? fstat.following : '–'}</b> following</button>
     </div>
 
-    ${isOwn ? `<label class="trial-remember" style="margin:-4px 0 16px;"><input type="checkbox" id="profilePrivateChk" ${myIsPrivate?'checked':''}> 🔒 Private profile — only friends can see it or message me</label>` : ""}
+    ${isOwn ? `<label class="trial-remember" style="margin:-4px 0 16px;"><input type="checkbox" id="profilePrivateChk" ${myIsPrivate?'checked':''}> 🔒 Private profile — only friends can see it or message me</label>
+      <div class="security-card">
+        <h3>🔐 Account security</h3>
+        <p>Changing your password requires your current password first. This protects your account if someone gets access to an already-open browser session.</p>
+        ${auth.currentUser?.providerData?.some(p=>p.providerId==='google.com') && !auth.currentUser?.providerData?.some(p=>p.providerId==='password') ? `<div class="profile-empty">This account uses Google sign-in. Manage its password through Google.</div>` : `<div class="security-grid"><input type="password" id="securityCurrentPassword" placeholder="Current password" autocomplete="current-password"><input type="password" id="securityNewPassword" placeholder="New password (8+ chars)" autocomplete="new-password"><button class="btn-ghost" id="changePasswordBtn" type="button">Change password</button></div>`}
+      </div>` : ""}
     ${(() => {
       const rs = isOwn ? {...repStatsDefaults(), ...myRepStats, reputation:myReputation} : {...repStatsDefaults(), ...(data||{})};
       const points = Number(rs.reputation || 0);
@@ -3881,6 +4620,25 @@ function renderProfileModal(){
       if (!val){ showToast("Name can't be empty.", "error"); return; }
       try { await updateDoc(doc(db,"users",uid), { name: val }); showToast("Name updated", "success"); }
       catch(err){ console.error(err); showToast("Couldn't update name: " + err.message, "error"); }
+    };
+    const changePasswordBtn = document.getElementById("changePasswordBtn");
+    if (changePasswordBtn) changePasswordBtn.onclick = async () => {
+      const current = document.getElementById("securityCurrentPassword").value;
+      const next = document.getElementById("securityNewPassword").value;
+      if (!current || !next) return showToast("Enter your current and new password.", "error");
+      if (next.length < 8) return showToast("New password must be at least 8 characters.", "error");
+      try {
+        changePasswordBtn.disabled = true;
+        const credential = EmailAuthProvider.credential(auth.currentUser.email, current);
+        await reauthenticateWithCredential(auth.currentUser, credential);
+        await updatePassword(auth.currentUser, next);
+        document.getElementById("securityCurrentPassword").value = "";
+        document.getElementById("securityNewPassword").value = "";
+        showToast("Password changed securely.", "success");
+      } catch(err){
+        console.error("Password change failed:", err);
+        showToast(friendlyAuthError(err.code) || "Password change failed. Check your current password.", "error");
+      } finally { changePasswordBtn.disabled = false; }
     };
     const startFocusBtn = document.getElementById("profileStartFocusBtn");
     if (startFocusBtn) startFocusBtn.onclick = () => {
@@ -5476,5 +6234,56 @@ window.ARENA_BOT_CONTEXT = function(){
   quick.addEventListener('click',e=>{const b=e.target.closest('[data-abq]');if(!b)return;const a=b.dataset.abq;if(a==='solve')ask('Write the complete solution for the current question.','full');else if(a==='short')ask('Give me the shortest clear explanation that still teaches me why the answer is correct.','short');else if(a==='answer')ask('What is the correct answer?','answer');else ask('Show me the current question.','current')});
 })();
 </script>
+
+
+<!-- ================= STUDY ROOM: SAME-FILE PAGE ================= -->
+<section id="studyRoomPage" class="study-room-page" aria-label="Arena Study Room">
+  <div class="study-room-wrap">
+    <div class="study-room-head">
+      <div class="study-room-title">
+        <div class="study-room-title-icon">
+          <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </div>
+        <div><h1>Study Room</h1><p>Study together. Stay visible. Keep the streak alive.</p></div>
+      </div>
+      <button id="closeStudyRoomBtn" class="study-back" type="button">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg><span>Back to Arena</span>
+      </button>
+    </div>
+
+    <div class="study-stats">
+      <div class="study-stat"><div class="study-stat-top"><span>Studying now</span><div class="study-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div></div><strong id="studyOnlineCount">0</strong><small>people studying right now</small></div>
+      <div class="study-stat"><div class="study-stat-top"><span>Community focus</span><div class="study-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg></div></div><strong id="studyFocusToday">0m</strong><small>total completed today</small></div>
+      <div class="study-stat"><div class="study-stat-top"><span>Sessions</span><div class="study-stat-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div></div><strong id="studySessionsToday">0</strong><small>completed today</small></div>
+    </div>
+
+    <div class="study-grid">
+      <section class="study-card">
+        <div class="study-card-head"><h2>People studying now</h2><span class="study-live"><i class="study-dot"></i> Live</span></div>
+        <div id="studyUsersList" class="study-users"><div class="study-empty">Loading the study room…</div></div>
+      </section>
+
+      <section class="study-card">
+        <div class="study-card-head"><h2>Today's leaderboard</h2><span>Top focus</span></div>
+        <div id="studyLeaderboard" class="study-leaderboard"><div class="study-empty">Loading…</div></div>
+      </section>
+    </div>
+
+    <section class="study-card study-start-card">
+      <h2>Start a study session</h2>
+      <p>Choose what you're studying. Other Arena users will see you here in real time.</p>
+      <div class="study-controls">
+        <select id="studySubjectSel">
+          <option>Algorithms</option><option>Data Structures</option><option>DBMS</option><option>Operating Systems</option><option>Computer Networks</option><option>Theory of Computation</option><option>Compiler Design</option><option>Digital Logic</option><option>Computer Organization</option><option>Engineering Mathematics</option><option>Discrete Mathematics</option><option>Aptitude</option><option>General Revision</option>
+        </select>
+        <button id="studyStartBtn" class="study-start-btn" type="button"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="6 3 20 12 6 21 6 3"/></svg> Start studying</button>
+        <button id="studyStopBtn" class="study-stop-btn" type="button" disabled><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="1"/></svg> Finish session</button>
+      </div>
+      <div id="studyMyTimer" class="study-my-timer"><div id="studyMyClock" class="study-clock">00:00:00</div><div id="studyMyLabel" class="study-clock-label">Currently studying</div></div>
+    </section>
+  </div>
+</section>
+
+
 </body>
 </html>
