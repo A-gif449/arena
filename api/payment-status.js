@@ -1,6 +1,6 @@
-const { db, verifyBearer, getSuccessfulPayments, activateSubscription, json } = require("./_lib/arena");
+﻿import { db, verifyBearer, getSuccessfulPayments, activateSubscription, json } from "./_lib/arena.js";
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "GET") return json(res, 405, { error: "Method not allowed." });
 
   try {
@@ -33,3 +33,4 @@ module.exports = async function handler(req, res) {
     return json(res, err.statusCode || 500, { error: err.message || "Could not verify payment." });
   }
 };
+

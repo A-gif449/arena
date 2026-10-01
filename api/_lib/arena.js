@@ -1,6 +1,6 @@
-const { getApps, initializeApp, cert } = require("firebase-admin/app");
-const { getAuth } = require("firebase-admin/auth");
-const { getFirestore, Timestamp, FieldValue } = require("firebase-admin/firestore");
+﻿import { getApps, initializeApp, cert } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
+import { getFirestore, Timestamp, FieldValue } from "firebase-admin/firestore";
 
 function adminApp() {
   if (getApps().length) return getApps()[0];
@@ -156,7 +156,7 @@ async function activateSubscription(orderId) {
   return { ...result, uid: order.uid };
 }
 
-module.exports = {
+export {
   adminApp,
   db,
   auth,
@@ -167,3 +167,4 @@ module.exports = {
   getSuccessfulPayments,
   activateSubscription
 };
+

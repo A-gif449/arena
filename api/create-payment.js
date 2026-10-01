@@ -1,7 +1,7 @@
-const { db, verifyBearer, cashfreeRequest, normalizePhone, json } = require("./_lib/arena");
-const crypto = require("crypto");
+﻿import { db, verifyBearer, cashfreeRequest, normalizePhone, json } from "./_lib/arena.js";
+import { randomBytes } from "node:crypto";
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "POST") return json(res, 405, { error: "Method not allowed." });
 
   try {
@@ -13,7 +13,7 @@ module.exports = async function handler(req, res) {
     // Cashfree order_id is limited to 50 characters. Firebase UIDs are
     // already long, so do not embed the UID here. Keep the order ID short
     // and unique, while storing the Firebase UID separately in Firestore.
-    const orderId = `arena_pro_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`;
+    const orderId = `arena_pro_${Date.now()}_${randomBytes(4).toString("hex")}`;
     const origin = `${req.headers["x-forwarded-proto"] || "https"}://${req.headers.host}`;
     const returnUrl = `${origin}/?payment=return&order_id={order_id}`;
     const notifyUrl = `${origin}/api/cashfree-webhook`;
@@ -58,3 +58,4 @@ module.exports = async function handler(req, res) {
     return json(res, err.statusCode || 500, { error: err.message || "Could not create payment order." });
   }
 };
+

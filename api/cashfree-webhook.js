@@ -1,19 +1,19 @@
-const crypto = require("crypto");
-const getRawBody = require("raw-body");
-const { getSuccessfulPayments, activateSubscription, json } = require("./_lib/arena");
+﻿import { createHmac, timingSafeEqual } from "node:crypto";
+import getRawBody from "raw-body";
+import { getSuccessfulPayments, activateSubscription, json } from "./_lib/arena.js";
 
-module.exports.config = { api: { bodyParser: false } };
+export const config = { api: { bodyParser: false } };
 
 function validSignature(rawBody, signature, timestamp) {
   if (!signature || !timestamp || !process.env.CASHFREE_CLIENT_SECRET) return false;
-  const expected = crypto.createHmac("sha256", process.env.CASHFREE_CLIENT_SECRET)
+  const expected = createHmac("sha256", process.env.CASHFREE_CLIENT_SECRET)
     .update(String(timestamp) + rawBody)
     .digest("base64");
-  try { return crypto.timingSafeEqual(Buffer.from(expected), Buffer.from(String(signature))); }
+  try { return timingSafeEqual(Buffer.from(expected), Buffer.from(String(signature))); }
   catch (_) { return false; }
 }
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   if (req.method !== "POST") return json(res, 405, { error: "Method not allowed." });
 
   try {
@@ -40,3 +40,4 @@ module.exports = async function handler(req, res) {
     return json(res, err.statusCode || 500, { error: err.message || "Webhook processing failed." });
   }
 };
+
