@@ -8379,3 +8379,243 @@ window.ARENA_BOT_CONTEXT = function(){
   .shell > main{margin-left:0 !important;width:100% !important;}
 }
 </style>
+
+
+<!-- ARENA_TRUE_RESPONSIVE_SYSTEM -->
+<style id="arena-true-responsive-system">
+/* ================================================================
+   ARENA TRUE RESPONSIVE SYSTEM
+   One visual language, adapted cleanly from desktop -> tablet -> phone.
+   This block intentionally comes last so older layout overrides cannot
+   reintroduce fixed widths or horizontal overflow.
+   ================================================================ */
+html,body{width:100%;max-width:100%;overflow-x:hidden!important;}
+body{min-width:0!important;}
+*,*::before,*::after{box-sizing:border-box!important;}
+
+img,video,canvas,svg{max-width:100%;}
+button,input,select,textarea{max-width:100%;}
+
+/* ---------------- LARGE DESKTOP ---------------- */
+@media (min-width:1201px){
+  .shell{
+    display:block!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:22px 28px 140px 20px!important;
+  }
+  .shell > .sidebar{
+    position:fixed!important;
+    left:20px!important;
+    top:92px!important;
+    width:250px!important;
+    height:calc(100dvh - 108px)!important;
+    max-height:calc(100dvh - 108px)!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    margin:0!important;
+    z-index:30!important;
+  }
+  .shell > main{
+    width:calc(100% - 278px)!important;
+    max-width:none!important;
+    margin-left:278px!important;
+    min-width:0!important;
+  }
+}
+
+/* ---------------- LAPTOP / SMALL DESKTOP ---------------- */
+@media (min-width:861px) and (max-width:1200px){
+  .shell{
+    display:block!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:20px 18px 120px 16px!important;
+  }
+  .shell > .sidebar{
+    position:fixed!important;
+    left:16px!important;
+    top:88px!important;
+    width:220px!important;
+    height:calc(100dvh - 104px)!important;
+    max-height:calc(100dvh - 104px)!important;
+    overflow-y:auto!important;
+    overflow-x:hidden!important;
+    margin:0!important;
+    z-index:30!important;
+  }
+  .shell > main{
+    width:calc(100% - 242px)!important;
+    max-width:none!important;
+    margin-left:242px!important;
+    min-width:0!important;
+  }
+  .logo p{max-width:25ch;}
+  .qcard{padding:18px 20px!important;}
+  .qtop{gap:6px;}
+  .pill{font-size:.68rem;padding:3px 8px;}
+}
+
+/* ---------------- TABLET ---------------- */
+@media (min-width:601px) and (max-width:860px){
+  .shell{
+    display:flex!important;
+    flex-direction:column!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:16px 18px 110px!important;
+    gap:18px!important;
+  }
+  .shell > .sidebar{
+    position:static!important;
+    order:1!important;
+    width:100%!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .shell > main{
+    order:2!important;
+    position:static!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    min-width:0!important;
+  }
+  .logo{display:flex;align-items:center;justify-content:space-between;gap:20px;}
+  .logo p{margin:0;max-width:42ch;text-align:right;}
+  .statpanel{width:100%;}
+  .topicnav{display:flex!important;overflow-x:auto!important;flex-wrap:nowrap!important;gap:7px!important;padding-bottom:4px!important;}
+  .topicbtn{flex:0 0 auto!important;white-space:nowrap!important;}
+  .sortwrap{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end;}
+  .feedhead,.arena-feed-head{width:100%!important;min-width:0!important;}
+  .qcard{width:100%!important;padding:18px!important;}
+}
+
+/* ---------------- PHONE ---------------- */
+@media (max-width:600px){
+  .shell{
+    display:flex!important;
+    flex-direction:column!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:12px 10px 105px!important;
+    gap:14px!important;
+  }
+  .shell > .sidebar{
+    position:static!important;
+    order:1!important;
+    width:100%!important;
+    height:auto!important;
+    max-height:none!important;
+    overflow:visible!important;
+    margin:0!important;
+    padding:0!important;
+  }
+  .shell > main{
+    order:2!important;
+    position:static!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    min-width:0!important;
+  }
+
+  /* Compact but recognisably the same Arena header. */
+  .topbar{min-height:54px!important;}
+  .topbar-inner{width:100%!important;max-width:none!important;padding:8px 10px!important;gap:7px!important;}
+  .topbar-brand{min-width:0!important;flex:0 1 auto!important;}
+  .topbar-right{min-width:0!important;flex:0 0 auto!important;gap:4px!important;}
+  .topbar-right>*{flex:0 0 auto!important;}
+  .profile-trigger .pt-id{display:none!important;}
+
+  .arena-whats-new{top:54px!important;}
+  #appRoot{padding-top:54px!important;}
+
+  .logo h1{font-size:1.18rem!important;}
+  .logo p{font-size:.76rem!important;line-height:1.4!important;max-width:none!important;}
+  .statpanel{padding:10px 12px!important;}
+
+  .topicnav{display:flex!important;overflow-x:auto!important;flex-wrap:nowrap!important;gap:6px!important;padding-bottom:4px!important;scrollbar-width:thin;}
+  .topicbtn{flex:0 0 auto!important;white-space:nowrap!important;font-size:.76rem!important;padding:8px 10px!important;}
+
+  /* Filters remain usable without creating a giant desktop-style column. */
+  .sortwrap{display:grid!important;grid-template-columns:1fr!important;gap:9px!important;}
+
+  /* Feed header becomes a proper two-level mobile header. */
+  .feedhead,.arena-feed-head{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    flex-wrap:wrap!important;
+    gap:9px!important;
+    width:100%!important;
+    padding:0 0 11px!important;
+  }
+  .arena-feed-title{min-width:0!important;flex:1 1 auto!important;}
+  .feedhead h2{font-size:1.18rem!important;}
+  .feedhead .tagline{font-size:.62rem!important;}
+  .arena-ask-btn{height:34px!important;padding:0 11px!important;font-size:.67rem!important;flex:0 0 auto!important;}
+
+  #feed{width:100%!important;min-width:0!important;}
+  .qcard{
+    display:flex!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    padding:13px!important;
+    gap:9px!important;
+    border-radius:9px!important;
+    margin:9px 0!important;
+    overflow:hidden!important;
+  }
+  .voterail{width:32px!important;flex:0 0 32px!important;}
+  .voterail .vrbtn{width:28px!important;height:28px!important;}
+  .qbody{min-width:0!important;width:calc(100% - 41px)!important;}
+  .qtop{gap:5px!important;margin-bottom:9px!important;}
+  .pill{font-size:.61rem!important;padding:3px 7px!important;max-width:100%;}
+  .qtime{width:100%!important;margin-left:0!important;font-size:.61rem!important;}
+  .qtext{font-size:.96rem!important;line-height:1.48!important;overflow-wrap:anywhere!important;word-break:normal!important;}
+  .qshare,.q-share-btn{max-width:100%;}
+  .question-image-wrap{max-width:100%!important;}
+  .question-image{max-height:360px!important;}
+
+  /* Answers/options never escape the card. */
+  .answer-row,.option-row,.qoption,.mcq-option{width:100%!important;max-width:100%!important;min-width:0!important;}
+  .answer-row *,.option-row *,.qoption *,.mcq-option *{min-width:0!important;overflow-wrap:anywhere!important;}
+
+  /* Composer / dialogs */
+  .composer{width:100%!important;min-width:0!important;}
+  .composer textarea{min-height:100px!important;}
+  .overlay{padding:8px!important;}
+  .modal{width:min(100%,680px)!important;max-width:100%!important;padding:14px!important;}
+  .row2{grid-template-columns:1fr!important;}
+  .modal-actions{display:flex!important;flex-wrap:wrap!important;gap:7px!important;}
+  .modal-actions button{flex:1 1 130px!important;min-width:0!important;}
+}
+
+/* ---------------- VERY SMALL PHONES ---------------- */
+@media (max-width:380px){
+  .shell{padding-left:7px!important;padding-right:7px!important;}
+  .topbar-inner{padding-left:7px!important;padding-right:7px!important;}
+  .arena-ask-btn{padding:0 9px!important;}
+  .arena-ask-btn .arena-ask-plus{font-size:15px!important;}
+  .feedhead h2{font-size:1.08rem!important;}
+  .qcard{padding:11px!important;gap:7px!important;}
+  .voterail{width:29px!important;flex-basis:29px!important;}
+  .qbody{width:calc(100% - 36px)!important;}
+  .qtext{font-size:.91rem!important;}
+}
+
+/* ---------------- TOUCH DEVICES ---------------- */
+@media (hover:none) and (pointer:coarse){
+  button,.topicbtn,.arena-ask-btn,.arena-image-btn,.q-share-btn{touch-action:manipulation;}
+  .vrbtn{min-width:34px;min-height:34px;}
+}
+</style>
