@@ -573,6 +573,21 @@
 
   @media(max-width:520px){ .qtext{font-size:1.06rem;} .qcard{padding:16px;} .notif-panel{width:280px; right:-8px;} .profile-dropdown{width:220px; right:-8px;} }
 
+  /* ================= ARENA PRO CHECKOUT ================= */
+  .arena-pro-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 8px;border:1px solid var(--mark);border-radius:999px;color:var(--mark);background:var(--mark-dim);font:700 .68rem/1 'IBM Plex Mono',monospace;letter-spacing:.04em;text-transform:uppercase;}
+  .arena-pro-card{border:1px solid var(--mark)!important;background:linear-gradient(145deg,rgba(255,157,28,.10),rgba(255,157,28,.025))!important;}
+  .arena-pro-card .price-amount{color:var(--mark);font-size:2rem;}
+  .arena-pro-card .price-note{display:block;color:var(--dim);font-size:.72rem;margin-top:5px;}
+  .arena-pro-buy-btn{width:100%;margin-top:12px;}
+  .pro-payment-modal{max-width:430px;}
+  .pro-payment-hero{padding:18px;background:linear-gradient(145deg,rgba(255,157,28,.10),rgba(79,166,255,.035));border:1px solid var(--rule);border-radius:8px;margin-bottom:18px;}
+  .pro-payment-hero h3{font-family:'Space Grotesk',sans-serif;margin:8px 0 5px;font-size:1.15rem;}
+  .pro-payment-hero p{margin:0;color:var(--dim);font-size:.8rem;line-height:1.5;}
+  .pro-payment-price{font-family:'IBM Plex Mono',monospace;color:var(--mark);font-size:1.65rem;font-weight:800;margin-top:10px;}
+  .pro-payment-status{min-height:1.2em;color:var(--dim);font-size:.76rem;margin-top:10px;}
+  .pro-status-inline{display:inline-flex;align-items:center;gap:6px;margin-left:7px;color:var(--mark);font:700 .66rem/1 'IBM Plex Mono',monospace;}
+  .pro-status-dot{width:6px;height:6px;border-radius:50%;background:var(--verified);box-shadow:0 0 8px rgba(47,208,140,.55);}
+
   /* ================= MOCK TEST ================= */
   .mocktest-btn{
     display:flex; align-items:center; gap:7px; background:var(--mark-dim); border:1px solid var(--mark);
@@ -1645,6 +1660,28 @@ pre,code{max-width:100%;overflow-x:auto;}
   </div>
 </div>
 
+<!-- Arena Pro checkout -->
+<div class="overlay" id="proPaymentOverlay">
+  <div class="modal pro-payment-modal">
+    <div class="pro-payment-hero">
+      <span class="arena-pro-badge">ARENA PRO</span>
+      <h3>Unlock Arena Pro</h3>
+      <p>30 days of Pro access. Payment is processed by Cashfree. Your Arena account is activated only after the payment is verified.</p>
+      <div class="pro-payment-price">₹149 <span style="font-size:.72rem;font-weight:500;color:var(--dim);">/ 30 days</span></div>
+    </div>
+    <div class="field">
+      <label for="proPhoneInput">Mobile number</label>
+      <input type="tel" id="proPhoneInput" inputmode="numeric" autocomplete="tel" maxlength="15" placeholder="10-digit mobile number">
+      <div class="field-help">Cashfree requires a customer phone number to create the payment order.</div>
+    </div>
+    <div class="pro-payment-status" id="proPaymentStatus"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="proPaymentCloseBtn">Cancel</button>
+      <button class="btn-primary" id="proPaymentStartBtn">Continue to payment · ₹149</button>
+    </div>
+  </div>
+</div>
+
 <!-- Plans & Pricing (persistent, reachable any time — not just the popup) -->
 <div class="overlay" id="plansOverlay">
   <div class="modal plans-modal" id="plansModalInner">
@@ -1712,6 +1749,7 @@ pre,code{max-width:100%;overflow-x:auto;}
 </div>
 </div><!-- /#appRoot -->
 
+<script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
 <script type="module">
 /* =========================================================================
    SETUP
@@ -2365,6 +2403,11 @@ function subscribeUserDoc(){
     if (!followsStarted) startFollows();
     if (!convUnsub) startConversations();
     updateAuthUI();
+    loadArenaProStatus();
+    const returnedOrderId = new URLSearchParams(window.location.search).get("order_id");
+    if (returnedOrderId) {
+      setTimeout(() => refreshArenaProPaymentStatus(returnedOrderId, true), 1200);
+    }
     // When a shared question URL is active, handleQuestionRoute() owns the
     // feed area. Calling the normal renderer here would immediately replace
     // the question detail with the regular feed, making deep links appear
@@ -5769,23 +5812,15 @@ function trialDaysLeft(){
 
 function pricingGridHtml(){
   return `
-    <div class="pricing-title">Pricing after the trial</div>
+    <div class="pricing-title">Arena Pro</div>
     <div class="pricing-grid">
-      <div class="price-card">
-        <span class="price-plan">Monthly</span>
-        <span class="price-amount"><sup>₹</sup>25</span>
-        <span class="price-permo">per month</span>
-      </div>
-      <div class="price-card">
-        <span class="price-plan">3 months</span>
-        <span class="price-amount"><sup>₹</sup>59</span>
-        <span class="price-permo">≈ ₹19.7 / month</span>
-      </div>
-      <div class="price-card best">
-        <span class="price-badge">Best value</span>
-        <span class="price-plan">1 year</span>
-        <span class="price-amount"><sup>₹</sup>199</span>
-        <span class="price-permo">≈ ₹16.6 / month</span>
+      <div class="price-card arena-pro-card">
+        <span class="arena-pro-badge">PRO · 30 DAYS</span>
+        <span class="price-plan">Full Arena Pro access</span>
+        <span class="price-amount"><sup>₹</sup>149</span>
+        <span class="price-permo">one-time payment · 30 days</span>
+        <span class="price-note">Secure checkout powered by Cashfree</span>
+        <button class="btn-primary arena-pro-buy-btn" type="button">Unlock Arena Pro · ₹149</button>
       </div>
     </div>`;
 }
@@ -5814,7 +5849,7 @@ function renderTrialModal(){
           <li><span class="ti ok">✓</span> Anything you've posted, answered or saved stays on your account either way.</li>
         </ul>
         ${pricingGridHtml()}
-        <p style="font-size:0.76rem; color:var(--dim); margin:12px 0 0;">Lock in the yearly rate any time — you won't be charged until the trial ends.</p>
+        <p style="font-size:0.76rem; color:var(--dim); margin:12px 0 0;">Arena Pro is a one-time ₹149 purchase for 30 days. You will only be charged when you choose to pay.</p>
       </div>
       <div class="trial-foot">
         <label class="trial-remember">
@@ -5827,7 +5862,7 @@ function renderTrialModal(){
       <div class="trial-banner">
         <span class="trial-badge">Trial ended</span>
         <h2>The free trial closed on ${endDateLabel}.</h2>
-        <p>Thanks for putting Arena through its paces. Paid plans are rolling out now — pricing details will appear here shortly.</p>
+        <p>Thanks for putting Arena through its paces. Arena Pro is now available for ₹149 for 30 days.</p>
       </div>
       <div class="trial-body">
         <ul class="trial-list">
@@ -5844,11 +5879,16 @@ function renderTrialModal(){
       </div>`;
   }
 
+  wireArenaProButtons();
+  renderProStatus();
+
   document.getElementById("trialCtaBtn").onclick = () => {
     if (document.getElementById("trialDismissForeverChk").checked){
       try { localStorage.setItem(TRIAL_DISMISS_KEY, "1"); } catch(e){}
     }
+    const choosePlan = !document.getElementById("trialCtaBtn").textContent.toLowerCase().includes("continue");
     document.getElementById("trialOverlay").classList.remove("open");
+    if (choosePlan) openPlansModal();
   };
 }
 
@@ -5914,7 +5954,7 @@ function renderPlansModal(){
         <tbody>${rows}</tbody>
       </table>
       ${pricingGridHtml()}
-      <p style="font-size:0.76rem; color:var(--dim); margin:14px 0 0;">All three paid tiers unlock the same features above — they only differ in billing period and price per month.</p>
+      <p style="font-size:0.76rem; color:var(--dim); margin:14px 0 0;">Arena Pro is currently offered as a one-time ₹149 purchase for 30 days.</p>
     </div>
     <div class="modal-actions">
       <span></span>
@@ -5930,6 +5970,140 @@ function openPlansModal(){
 }
 
 document.getElementById("openPlansBtn").onclick = openPlansModal;
+
+/* ================= ARENA PRO PAYMENT FLOW ================= */
+let arenaProActive = false;
+let arenaProExpiresAt = null;
+let arenaProOrderId = null;
+let arenaProStatusTimer = null;
+
+function proStatusText(){
+  if (!arenaProActive || !arenaProExpiresAt) return "";
+  const d = new Date(arenaProExpiresAt);
+  return ` <span class="pro-status-inline"><span class="pro-status-dot"></span> PRO until ${d.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"})}</span>`;
+}
+
+function renderProStatus(){
+  const mini = document.getElementById("myRepMini");
+  if (mini){
+    const host = mini.parentElement;
+    if (host){
+      const old = host.querySelector(".pro-status-inline");
+      if (old) old.remove();
+      if (arenaProActive) host.insertAdjacentHTML("beforeend", proStatusText());
+    }
+  }
+  document.querySelectorAll(".arena-pro-buy-btn").forEach(btn=>{
+    btn.textContent = arenaProActive ? "Arena Pro is active ✓" : "Unlock Arena Pro · ₹149";
+    btn.disabled = arenaProActive;
+  });
+}
+
+async function arenaGetIdToken(){
+  if (!auth.currentUser) throw new Error("Please log in to continue.");
+  return auth.currentUser.getIdToken(true);
+}
+
+function normalizeArenaPhone(raw){
+  const digits=String(raw||"").replace(/\D/g,"");
+  if (digits.length===10) return "+91"+digits;
+  if (digits.length===12 && digits.startsWith("91")) return "+"+digits;
+  if (digits.length===13 && digits.startsWith("091")) return "+91"+digits.slice(3);
+  return "";
+}
+
+function openProPayment(){
+  if (arenaProActive){ showToast("Arena Pro is already active.","success"); return; }
+  const overlay=document.getElementById("proPaymentOverlay");
+  const status=document.getElementById("proPaymentStatus");
+  const input=document.getElementById("proPhoneInput");
+  status.textContent="";
+  if (auth.currentUser?.phoneNumber && !input.value) input.value=auth.currentUser.phoneNumber;
+  overlay.classList.add("open");
+  setTimeout(()=>input.focus(),30);
+}
+function closeProPayment(){ document.getElementById("proPaymentOverlay")?.classList.remove("open"); }
+
+async function createArenaProOrder(){
+  const btn=document.getElementById("proPaymentStartBtn");
+  const status=document.getElementById("proPaymentStatus");
+  const phone=normalizeArenaPhone(document.getElementById("proPhoneInput").value);
+  if (!phone){ status.textContent="Enter a valid 10-digit Indian mobile number."; return; }
+  btn.disabled=true;
+  status.textContent="Creating secure payment session…";
+  try{
+    const token=await arenaGetIdToken();
+    const response=await fetch("/api/create-payment",{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify({phone})});
+    const data=await response.json().catch(()=>({}));
+    if (!response.ok) throw new Error(data.error || "Could not create the payment order.");
+    if (!data.payment_session_id || !data.order_id) throw new Error("Payment session was not returned by the server.");
+    arenaProOrderId=data.order_id;
+    status.textContent="Opening Cashfree checkout…";
+    if (typeof Cashfree !== "function") throw new Error("Cashfree checkout failed to load. Refresh the page and try again.");
+    const cashfree=Cashfree({mode:"sandbox"});
+    const result=await cashfree.checkout({paymentSessionId:data.payment_session_id,redirectTarget:"_modal"});
+    const activated=await refreshArenaProPaymentStatus(arenaProOrderId,true);
+    if (!activated && !result?.error){
+      let tries=0;
+      if (arenaProStatusTimer) clearInterval(arenaProStatusTimer);
+      arenaProStatusTimer=setInterval(async()=>{
+        tries++;
+        const done=await refreshArenaProPaymentStatus(arenaProOrderId,true);
+        if(done || tries>=12){ clearInterval(arenaProStatusTimer); arenaProStatusTimer=null; }
+      },5000);
+    }
+    if (result?.error) status.textContent=result.error.message || "Payment was not completed.";
+  }catch(err){
+    console.error("Arena Pro payment failed:",err);
+    status.textContent=err.message || "Payment could not be started.";
+    showToast(status.textContent,"error");
+  }finally{ btn.disabled=false; }
+}
+
+async function refreshArenaProPaymentStatus(orderId,closeAfterSuccess=false){
+  if (!orderId) return false;
+  try{
+    const token=await arenaGetIdToken();
+    const response=await fetch("/api/payment-status?order_id="+encodeURIComponent(orderId),{headers:{Authorization:"Bearer "+token}});
+    const data=await response.json().catch(()=>({}));
+    if (!response.ok) throw new Error(data.error || "Could not verify payment.");
+    if (data.active){
+      arenaProActive=true; arenaProExpiresAt=data.expiresAt || null; renderProStatus();
+      document.getElementById("proPaymentStatus").textContent="Payment verified. Arena Pro is active for 30 days. 🎉";
+      showToast("Arena Pro activated successfully.","success");
+      if (closeAfterSuccess) setTimeout(closeProPayment,700);
+      if (arenaProStatusTimer){clearInterval(arenaProStatusTimer);arenaProStatusTimer=null;}
+      return true;
+    }
+    document.getElementById("proPaymentStatus").textContent=data.status === "PAID" ? "Payment received. Activating Pro…" : `Payment status: ${data.status || "PENDING"}.`;
+    return false;
+  }catch(err){
+    console.warn("Arena Pro status check failed:",err);
+    document.getElementById("proPaymentStatus").textContent=err.message || "Payment status could not be checked yet.";
+    return false;
+  }
+}
+
+async function loadArenaProStatus(){
+  if (!auth.currentUser) return;
+  try{
+    const token=await arenaGetIdToken();
+    const response=await fetch("/api/subscription-status",{headers:{Authorization:"Bearer "+token}});
+    if (!response.ok) return;
+    const data=await response.json();
+    arenaProActive=!!data.active; arenaProExpiresAt=data.expiresAt || null; renderProStatus();
+  }catch(err){ console.warn("Arena Pro status load failed:",err); }
+}
+
+function wireArenaProButtons(){ document.querySelectorAll(".arena-pro-buy-btn").forEach(btn=>{btn.onclick=openProPayment;}); }
+document.getElementById("proPaymentCloseBtn")?.addEventListener("click",closeProPayment);
+document.getElementById("proPaymentStartBtn")?.addEventListener("click",createArenaProOrder);
+document.getElementById("proPhoneInput")?.addEventListener("keydown",e=>{if(e.key==="Enter")createArenaProOrder();});
+document.getElementById("plansOverlay")?.addEventListener("click",e=>{if(e.target.closest(".arena-pro-buy-btn"))openProPayment();});
+document.getElementById("trialOverlay")?.addEventListener("click",e=>{if(e.target.closest(".arena-pro-buy-btn"))openProPayment();});
+const _arenaOriginalOpenPlansModal = openPlansModal;
+openPlansModal = function(){ _arenaOriginalOpenPlansModal(); wireArenaProButtons(); renderProStatus(); };
+
 
 /* =========================================================================
    POMODORO FOCUS TIMER
