@@ -4,7 +4,7 @@
     "node": "24.x"
   },
   "dependencies": {
-    "firebase-admin": "14.5.0",
+    "firebase-admin": "13.10.0",
     "raw-body": "3.0.0"
   },
   "type": "module"
