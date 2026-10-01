@@ -588,6 +588,250 @@
   .pro-status-inline{display:inline-flex;align-items:center;gap:6px;margin-left:7px;color:var(--mark);font:700 .66rem/1 'IBM Plex Mono',monospace;}
   .pro-status-dot{width:6px;height:6px;border-radius:50%;background:var(--verified);box-shadow:0 0 8px rgba(47,208,140,.55);}
 
+
+  /* ================= ARENA PRO — PROFESSIONAL CHECKOUT REDESIGN ================= */
+  /* The payment overlay must sit above the trial/plans overlays. Previously it
+     opened underneath #trialOverlay, making the phone field appear only after
+     the first modal was closed. */
+  #proPaymentOverlay{z-index:120 !important;}
+  #proPaymentOverlay.open{display:flex !important;}
+
+  /* Keep telephone inputs consistent with the rest of Arena. */
+  .field input[type=tel]{
+    width:100%;
+    box-sizing:border-box;
+    background:var(--ink);
+    border:1px solid var(--rule);
+    border-radius:var(--radius-input);
+    color:var(--ivory);
+    padding:11px 12px;
+    font-size:.9rem;
+    font-family:inherit;
+    outline:none;
+    transition:border-color .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  .field input[type=tel]::placeholder{color:#667085;}
+  .field input[type=tel]:focus{
+    border-color:rgba(255,157,28,.72);
+    box-shadow:0 0 0 3px rgba(255,157,28,.10);
+    background:#0d1118;
+  }
+
+  /* Pricing card: restrained SaaS-style treatment rather than a decorative card. */
+  .arena-pro-card{
+    position:relative;
+    overflow:hidden;
+    border:1px solid #303746 !important;
+    border-radius:12px !important;
+    background:#151922 !important;
+    box-shadow:0 10px 28px rgba(0,0,0,.18);
+    padding:18px 16px 16px !important;
+    gap:7px !important;
+    text-align:left !important;
+    transition:border-color .16s ease, transform .16s ease, box-shadow .16s ease;
+  }
+  .arena-pro-card::before{
+    content:"";
+    position:absolute;
+    inset:0 0 auto 0;
+    height:2px;
+    background:linear-gradient(90deg, #d98318, #ffb34d);
+    opacity:.9;
+  }
+  .arena-pro-card:hover{
+    border-color:#465062 !important;
+    transform:translateY(-1px);
+    box-shadow:0 14px 34px rgba(0,0,0,.24);
+  }
+  .arena-pro-card .arena-pro-badge{
+    align-self:flex-start;
+    padding:5px 9px;
+    border:1px solid #4a3a25;
+    border-radius:6px;
+    background:#211c16;
+    color:#ffad3d;
+    font:700 .67rem/1 'Space Grotesk',sans-serif;
+    letter-spacing:.08em;
+  }
+  .arena-pro-card .price-plan{
+    color:#d5dae3;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:.82rem;
+    font-weight:600;
+    margin-top:4px;
+  }
+  .arena-pro-card .price-amount{
+    color:#f3f5f8;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:2.05rem;
+    font-weight:700;
+    letter-spacing:-.04em;
+    line-height:1.05;
+    margin:3px 0 0;
+  }
+  .arena-pro-card .price-amount sup{
+    color:#ffad3d;
+    font-size:.9rem;
+    top:-.65em;
+  }
+  .arena-pro-card .price-permo{
+    color:#7f899b;
+    font-family:inherit;
+    font-size:.73rem;
+    margin-top:0;
+  }
+  .arena-pro-card .price-note{
+    color:#697386;
+    font-size:.72rem;
+    line-height:1.4;
+    margin-top:3px;
+  }
+  .arena-pro-card .arena-pro-buy-btn{
+    width:100%;
+    min-height:44px;
+    margin-top:9px;
+    border-radius:9px;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:.86rem;
+    font-weight:700;
+    letter-spacing:0;
+    box-shadow:none;
+  }
+
+  /* Checkout modal: clean, product-company style. */
+  #proPaymentOverlay{
+    background:rgba(4,7,12,.78);
+    backdrop-filter:blur(7px);
+    -webkit-backdrop-filter:blur(7px);
+    padding:28px 16px;
+  }
+  #proPaymentOverlay .pro-payment-modal{
+    max-width:500px;
+    padding:24px;
+    border:1px solid #2d3442;
+    border-radius:16px;
+    background:#11151d;
+    box-shadow:0 28px 90px rgba(0,0,0,.52), 0 4px 18px rgba(0,0,0,.22);
+  }
+  #proPaymentOverlay .pro-payment-hero{
+    position:relative;
+    padding:0 0 20px;
+    margin:0 0 22px;
+    background:none;
+    border:0;
+    border-bottom:1px solid #262d3a;
+    border-radius:0;
+  }
+  #proPaymentOverlay .pro-payment-hero::after{
+    content:"";
+    position:absolute;
+    left:0;
+    bottom:-1px;
+    width:72px;
+    height:2px;
+    background:#e28a1a;
+  }
+  #proPaymentOverlay .pro-payment-hero .arena-pro-badge{
+    padding:5px 8px;
+    border:1px solid #493a26;
+    border-radius:6px;
+    background:#1d1a16;
+    color:#f0a33a;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:.65rem;
+    letter-spacing:.08em;
+  }
+  #proPaymentOverlay .pro-payment-hero h3{
+    margin:15px 0 7px;
+    color:#f2f4f7;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:1.45rem;
+    line-height:1.2;
+    letter-spacing:-.025em;
+  }
+  #proPaymentOverlay .pro-payment-hero p{
+    max-width:56ch;
+    color:#8a94a7;
+    font-size:.83rem;
+    line-height:1.6;
+  }
+  #proPaymentOverlay .pro-payment-price{
+    margin-top:17px;
+    color:#f2f4f7;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:2rem;
+    font-weight:700;
+    letter-spacing:-.04em;
+  }
+  #proPaymentOverlay .pro-payment-price span{
+    color:#7f899b !important;
+    font-family:inherit !important;
+    font-size:.8rem !important;
+    letter-spacing:0 !important;
+  }
+  #proPaymentOverlay .field{margin-bottom:8px;}
+  #proPaymentOverlay .field label{
+    color:#c3c9d4;
+    font-size:.78rem;
+    font-weight:600;
+    margin-bottom:7px;
+  }
+  #proPaymentOverlay .field-help{
+    color:#687386;
+    font-size:.69rem;
+    line-height:1.45;
+    margin-top:7px;
+  }
+  #proPaymentOverlay .pro-payment-status{
+    color:#8993a5;
+    font-size:.75rem;
+    line-height:1.45;
+    min-height:1.2em;
+    margin-top:12px;
+  }
+  #proPaymentOverlay .modal-actions{
+    justify-content:stretch;
+    gap:10px;
+    margin-top:22px;
+    padding-top:18px;
+    border-top:1px solid #262d3a;
+  }
+  #proPaymentOverlay .modal-actions button{
+    min-height:45px;
+    border-radius:9px;
+    font-family:'Space Grotesk',sans-serif;
+    font-size:.84rem;
+    font-weight:700;
+  }
+  #proPaymentOverlay #proPaymentCloseBtn{
+    flex:0 0 100px;
+    background:#151922;
+    border:1px solid #303746;
+    color:#aab2c0;
+  }
+  #proPaymentOverlay #proPaymentCloseBtn:hover{
+    border-color:#485264;
+    color:#e1e5eb;
+    background:#191e28;
+  }
+  #proPaymentOverlay #proPaymentStartBtn{
+    flex:1;
+    background:#e9921d;
+    border:1px solid #e9921d;
+    color:#17120b;
+    box-shadow:none;
+  }
+  #proPaymentOverlay #proPaymentStartBtn:hover{background:#f0a02c;filter:none;}
+  #proPaymentOverlay #proPaymentStartBtn:disabled{opacity:.58;cursor:wait;}
+
+  @media(max-width:520px){
+    #proPaymentOverlay{padding:14px 10px;}
+    #proPaymentOverlay .pro-payment-modal{padding:20px;border-radius:14px;}
+    #proPaymentOverlay .modal-actions{flex-direction:column-reverse;}
+    #proPaymentOverlay #proPaymentCloseBtn,
+    #proPaymentOverlay #proPaymentStartBtn{width:100%;flex:1 1 auto;}
+  }
+
   /* ================= MOCK TEST ================= */
   .mocktest-btn{
     display:flex; align-items:center; gap:7px; background:var(--mark-dim); border:1px solid var(--mark);
