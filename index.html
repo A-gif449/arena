@@ -2346,9 +2346,14 @@ body::before{display:none!important}
   </aside>
 
   <main>
-    <div class="feedhead">
-      <h2>The feed</h2>
-      <span class="tagline mono" id="statLine">connecting…</span>
+    <div class="feedhead arena-feed-head">
+      <div class="arena-feed-title">
+        <h2>The feed</h2>
+        <span class="tagline mono" id="statLine">connecting…</span>
+      </div>
+      <button class="arena-ask-btn" id="arenaAskBtn" type="button" title="Ask the Arena community a question">
+        <span class="arena-ask-plus">+</span> Ask a question
+      </button>
     </div>
     <div id="feed"><div class="empty">Connecting…</div></div>
   </main>
@@ -2406,6 +2411,23 @@ body::before{display:none!important}
     <div class="field">
       <label>Question</label>
       <textarea id="fText" placeholder="Type the question exactly as it should appear…"></textarea>
+    </div>
+    <div class="arena-image-field">
+      <div class="arena-image-field-head">
+        <div>
+          <strong>Add an image</strong>
+          <span>Optional · diagrams, screenshots, handwritten work, or question figures</span>
+        </div>
+        <label class="arena-image-btn" for="questionImageInput">
+          <span>＋</span> Attach image
+        </label>
+        <input id="questionImageInput" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+      </div>
+      <div id="questionImagePreview" class="arena-image-preview" hidden>
+        <img id="questionImagePreviewImg" alt="Question image preview">
+        <button id="removeQuestionImage" type="button" class="arena-image-remove">Remove</button>
+      </div>
+      <div id="questionImageHint" class="arena-image-hint">Images are compressed automatically before upload.</div>
     </div>
     <div id="mcqFields">
       <div class="field">
@@ -4333,6 +4355,7 @@ function renderCard(q){
         <span class="qtime" title="${timeAgo(q.createdAt)}">${formatModernDateTime(q.createdAt)}</span>
       </div>
       <p class="qtext">${escapeHtml(q.text)}</p>
+      ${q.imageData ? `<div class="question-image-wrap"><img class="question-image" src="${escapeHtml(q.imageData)}" alt="Image attached to this question" loading="lazy"></div>` : ""}
       ${body}
       ${renderQuestionSolution(q)}
       <div class="qfooter">
@@ -5284,9 +5307,65 @@ const formError = document.getElementById("formError");
 const submitBtn = document.getElementById("submitBtn");
 let postType = "mcq";
 let newTags = [];
+let questionImageData = "";
 
-document.getElementById("openModalBtn").onclick = () => { editingId = null; resetForm(); document.getElementById("postModalTitle").textContent = "Post a question"; submitBtn.textContent = "Post question"; overlay.classList.add("open"); };
+function openQuestionComposer(){ editingId = null; resetForm(); document.getElementById("postModalTitle").textContent = "Ask a question"; submitBtn.textContent = "Post question"; overlay.classList.add("open"); setTimeout(()=>document.getElementById("fText")?.focus(),80); }
+document.getElementById("openModalBtn").onclick = openQuestionComposer;
+document.getElementById("arenaAskBtn")?.addEventListener("click", openQuestionComposer);
 document.getElementById("cancelBtn").onclick = () => { overlay.classList.remove("open"); resetForm(); };
+
+const questionImageInput = document.getElementById("questionImageInput");
+const questionImagePreview = document.getElementById("questionImagePreview");
+const questionImagePreviewImg = document.getElementById("questionImagePreviewImg");
+const questionImageHint = document.getElementById("questionImageHint");
+function setQuestionImage(data){
+  questionImageData = data || "";
+  if(questionImageData){
+    questionImagePreviewImg.src = questionImageData;
+    questionImagePreview.hidden = false;
+    questionImageHint.textContent = "Image attached. It will be stored with this question.";
+  }else{
+    questionImagePreview.hidden = true;
+    questionImagePreviewImg.removeAttribute("src");
+    questionImageHint.textContent = "Images are compressed automatically before upload.";
+  }
+}
+function compressQuestionImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error("Couldn't read that image."));
+    reader.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error("Couldn't decode that image."));
+      img.onload=()=>{
+        const max=1400, scale=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+        const canvas=document.createElement("canvas");
+        canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));
+        canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+        const ctx=canvas.getContext("2d");
+        ctx.fillStyle="#ffffff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.drawImage(img,0,0,canvas.width,canvas.height);
+        const out=canvas.toDataURL("image/jpeg",.78);
+        if(out.length>850000) return reject(new Error("That image is still too large after compression. Please choose a smaller image."));
+        resolve(out);
+      };
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+questionImageInput?.addEventListener("change", async e=>{
+  const file=e.target.files?.[0]; e.target.value="";
+  if(!file) return;
+  if(!file.type.startsWith("image/")){ showToast("Please choose an image file.","error"); return; }
+  try{
+    questionImageHint.textContent="Optimizing image…";
+    setQuestionImage(await compressQuestionImage(file));
+  }catch(err){
+    setQuestionImage(""); showToast(err.message,"error");
+  }
+});
+document.getElementById("removeQuestionImage")?.addEventListener("click",()=>setQuestionImage(""));
 
 document.querySelectorAll(".type-toggle button").forEach(b=>{
   b.onclick = () => {
@@ -5337,6 +5416,7 @@ function openEditModal(q){
   document.getElementById("fMarks").value = String(q.marks || 1);
   document.getElementById("fText").value = q.text;
   document.getElementById("fSolution").value = solutionTextOf(q);
+  setQuestionImage(q.imageData || "");
   newTags = [...(q.tags||[])];
   renderChips();
   if (postType === "mcq") buildOptionRows(q.options, q.correctIndex);
@@ -5357,6 +5437,7 @@ submitBtn.onclick = async () => {
   const payload = {
     text, topic, difficulty, type: postType, tags: newTags,
     solution,
+    ...(questionImageData ? { imageData: questionImageData } : {}),
     gateYear: parseInt(document.getElementById("fGateYear").value),
     branch: document.getElementById("fBranch").value,
     marks: parseInt(document.getElementById("fMarks").value)
@@ -5399,6 +5480,7 @@ function resetForm(){
   editingId = null;
   document.getElementById("fText").value = "";
   document.getElementById("fSolution").value = "";
+  setQuestionImage("");
   document.getElementById("fTopic").selectedIndex = 0;
   document.getElementById("fDifficulty").value = "medium";
   document.getElementById("fGateYear").selectedIndex = 0;
@@ -8016,20 +8098,20 @@ window.ARENA_BOT_CONTEXT = function(){
     max-width:none !important;
     box-sizing:border-box !important;
     display:block !important;
-    padding:24px 28px 140px 28px !important;
+    padding:18px 20px 140px 20px !important;
     margin:0 !important;
   }
   .shell > main{
-    width:calc(100vw - 326px) !important;
+    width:calc(100vw - 300px) !important;
     max-width:none !important;
-    margin-left:298px !important;
+    margin-left:280px !important;
     min-width:0 !important;
   }
   /* The navigation stays in the viewport while only the feed scrolls. */
   .shell > .sidebar{
     position:fixed !important;
     top:80px !important;
-    left:28px !important;
+    left:20px !important;
     width:250px !important;
     height:calc(100vh - 96px) !important;
     max-height:calc(100vh - 96px) !important;
@@ -8090,5 +8172,210 @@ window.ARENA_BOT_CONTEXT = function(){
   window.addEventListener('scroll',hide,{passive:true});
 })();
 </script>
+
+<style id="arena-ask-question-aurora">
+.arena-feed-head{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:16px!important;}
+.arena-feed-title{display:flex;align-items:center;gap:12px;min-width:0;}
+.arena-ask-btn{display:inline-flex;align-items:center;gap:8px;height:34px;padding:0 13px;border-radius:7px;border:1px solid rgba(129,140,248,.34);background:linear-gradient(180deg,rgba(129,140,248,.18),rgba(94,106,210,.10));color:#eef0ff;font:600 .72rem/1 Inter,Arial,sans-serif;cursor:pointer;box-shadow:0 0 0 1px rgba(129,140,248,.05),0 7px 22px rgba(0,0,0,.22);transition:.18s ease;}
+.arena-ask-btn:hover{background:linear-gradient(180deg,rgba(129,140,248,.27),rgba(94,106,210,.15));border-color:rgba(129,140,248,.55);transform:translateY(-1px);box-shadow:0 8px 28px rgba(80,70,180,.20);}
+.arena-ask-plus{font-size:17px;line-height:0;color:#a5b4fc;font-weight:400;}
+.arena-image-field{margin-top:14px;padding:13px 14px;border:1px solid rgba(148,163,184,.12);border-radius:8px;background:rgba(255,255,255,.018);}
+.arena-image-field-head{display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.arena-image-field-head strong{display:block;color:#e7e9ee;font-size:.78rem;font-weight:600;}
+.arena-image-field-head span:not(.arena-image-btn span){display:block;margin-top:3px;color:#697180;font-size:.66rem;line-height:1.4;}
+.arena-image-btn{display:inline-flex;align-items:center;gap:6px;flex:0 0 auto;height:30px;padding:0 10px;border:1px solid rgba(129,140,248,.28);border-radius:6px;background:rgba(129,140,248,.07);color:#aeb7ff;font-size:.68rem;font-weight:600;cursor:pointer;}
+.arena-image-btn:hover{background:rgba(129,140,248,.13);border-color:rgba(129,140,248,.48);}
+.arena-image-preview{position:relative;margin-top:11px;padding:8px;border:1px solid rgba(148,163,184,.12);border-radius:7px;background:#090b10;}
+.arena-image-preview img{display:block;width:100%;max-height:300px;object-fit:contain;border-radius:5px;background:#05070d;}
+.arena-image-remove{position:absolute;right:14px;top:14px;border:1px solid rgba(255,113,140,.28);background:rgba(10,12,18,.88);color:#ff9caf;border-radius:6px;padding:6px 9px;font-size:.65rem;cursor:pointer;}
+.arena-image-hint{margin-top:7px;color:#555d6b;font-size:.62rem;}
+.question-image-wrap{margin:0 0 17px;border:1px solid rgba(148,163,184,.12);border-radius:8px;background:#080a0f;padding:7px;overflow:hidden;}
+.question-image{display:block;width:100%;max-height:520px;object-fit:contain;border-radius:5px;background:#05070d;}
+@media(max-width:700px){.arena-feed-head{align-items:flex-start!important}.arena-ask-btn{height:32px;padding:0 10px}.arena-ask-btn{font-size:.66rem}.arena-image-field-head{align-items:flex-start;flex-direction:column}.arena-image-btn{width:100%;justify-content:center}.question-image{max-height:360px}}
+</style>
 </body>
+
+<style id="arena-professional-feed-final">
+/* Final desktop composition: sidebar + comfortable feed workspace. */
+@media (min-width:861px){
+  html,body{overflow-x:hidden!important;}
+  .shell{
+    display:block!important;
+    width:100%!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:18px 24px 140px 20px!important;
+    box-sizing:border-box!important;
+  }
+  .shell > .sidebar{
+    position:fixed!important;
+    left:20px!important;
+    top:100px!important;
+    width:250px!important;
+    height:calc(100vh - 116px)!important;
+    max-height:calc(100vh - 116px)!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+    z-index:30!important;
+  }
+  .shell > main{
+    position:relative!important;
+    left:auto!important;
+    margin-left:330px!important;
+    width:calc(100% - 330px)!important;
+    max-width:none!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+    gap:18px!important;
+  }
+  .feedhead{
+    min-height:58px!important;
+    height:auto!important;
+    padding:0 4px 14px!important;
+    margin:0!important;
+    box-sizing:border-box!important;
+    align-items:flex-end!important;
+    border-bottom:1px solid rgba(148,163,184,.14)!important;
+  }
+  .arena-feed-title{
+    display:flex!important;
+    align-items:baseline!important;
+    gap:10px!important;
+    min-width:0!important;
+  }
+  .feedhead h2{
+    font-family:Inter,Arial,sans-serif!important;
+    font-size:1.18rem!important;
+    line-height:1.2!important;
+    font-weight:650!important;
+    letter-spacing:-.025em!important;
+    color:#f3f4f6!important;
+  }
+  .feedhead .tagline{
+    font-family:'IBM Plex Mono',monospace!important;
+    font-size:.66rem!important;
+    color:#737b89!important;
+  }
+  .arena-ask-btn{
+    height:36px!important;
+    padding:0 15px!important;
+    flex:0 0 auto!important;
+    white-space:nowrap!important;
+  }
+  #feed{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+  }
+  .qcard{
+    width:100%!important;
+    max-width:none!important;
+    min-width:0!important;
+    box-sizing:border-box!important;
+    margin:10px 0!important;
+    padding:22px 24px!important;
+    border-radius:9px!important;
+  }
+  .qbody{min-width:0!important;}
+  .qtop{min-width:0!important;}
+  .qtime{max-width:100%;}
+}
+</style>
 </html>
+
+<!-- ARENA_FEED_LEFT_ALIGNMENT_FIX_V2 -->
+<style id="arena-feed-left-alignment-v2">
+@media (min-width:861px){
+  /* Keep the fixed sidebar, but pull the feed into the actual workspace. */
+  .shell{
+    display:block !important;
+    width:100vw !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding:18px 20px 140px 20px !important;
+    box-sizing:border-box !important;
+  }
+  .shell > .sidebar{
+    position:fixed !important;
+    left:20px !important;
+    top:80px !important;
+    width:250px !important;
+    height:calc(100vh - 96px) !important;
+    max-height:calc(100vh - 96px) !important;
+    margin:0 !important;
+    z-index:30 !important;
+  }
+  .shell > main{
+    position:relative !important;
+    left:0 !important;
+    margin-left:270px !important;
+    width:calc(100vw - 290px) !important;
+    max-width:none !important;
+    min-width:0 !important;
+  }
+  #feed,.feedhead,.qcard{
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+  }
+}
+</style>
+
+<!-- ARENA_FINAL_FIT_LAYOUT -->
+<style id="arena-final-fit-layout">
+@media (min-width:861px){
+  .shell{
+    display:block !important;
+    width:100% !important;
+    max-width:none !important;
+    margin:0 !important;
+    padding:18px 16px 140px 16px !important;
+    box-sizing:border-box !important;
+    overflow:visible !important;
+  }
+  .shell > .sidebar{
+    position:fixed !important;
+    left:16px !important;
+    top:80px !important;
+    width:250px !important;
+    height:calc(100vh - 96px) !important;
+    max-height:calc(100vh - 96px) !important;
+    margin:0 !important;
+    padding-right:4px !important;
+    box-sizing:border-box !important;
+    z-index:30 !important;
+  }
+  .shell > main{
+    position:relative !important;
+    left:auto !important;
+    margin-left:250px !important;
+    width:calc(100% - 250px) !important;
+    max-width:none !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+    padding:0 !important;
+  }
+  #feed,.feedhead,.qcard{
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+  }
+  .feedhead{
+    padding-right:0 !important;
+  }
+  .arena-feed-head{
+    width:100% !important;
+    box-sizing:border-box !important;
+  }
+  .arena-ask-btn{
+    flex:0 0 auto !important;
+    white-space:nowrap !important;
+  }
+}
+
+@media (max-width:860px){
+  .shell > main{margin-left:0 !important;width:100% !important;}
+}
+</style>
