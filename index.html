@@ -1303,8 +1303,87 @@ pre,code{max-width:100%;overflow-x:auto;}
   .modal{max-height:calc(100dvh - 12px);}
   #arenaBotPanel{max-height:calc(100dvh - 70px)!important;}
 }
-</style>
+<style id="arena-pro-premium-style">
+  /* ================= ARENA PRO INTELLIGENCE HUB ================= */
+  #premiumHubOverlay{z-index:110;align-items:flex-start;padding:24px;overflow-y:auto;}
+  .premium-hub{width:min(1120px,100%);margin:0 auto;background:var(--paper);border:1px solid var(--rule);border-radius:16px;box-shadow:0 28px 90px rgba(0,0,0,.55);overflow:hidden;}
+  .premium-hub-head{padding:24px 28px 20px;border-bottom:1px solid var(--rule);display:flex;align-items:flex-start;justify-content:space-between;gap:20px;background:linear-gradient(135deg,rgba(255,157,28,.07),rgba(79,166,255,.035) 55%,transparent);}
+  .premium-hub-eyebrow{font:700 .68rem 'IBM Plex Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:var(--mark);}
+  .premium-hub-title{margin:7px 0 5px;font:700 1.65rem 'Space Grotesk',sans-serif;letter-spacing:-.02em;}
+  .premium-hub-sub{margin:0;color:var(--dim);font-size:.86rem;max-width:68ch;}
+  .premium-hub-status{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;border:1px solid var(--rule);background:var(--ink);border-radius:999px;padding:7px 11px;color:var(--dim);font:600 .7rem 'IBM Plex Mono',monospace;}
+  .premium-hub-status.active{color:var(--verified);border-color:rgba(47,208,140,.35);background:var(--verified-dim);}
+  .premium-hub-status .dot{width:7px;height:7px;border-radius:50%;background:currentColor;}
+  .premium-hub-nav{display:flex;gap:5px;padding:10px 16px;border-bottom:1px solid var(--rule);overflow-x:auto;background:var(--paper-raised);}
+  .premium-hub-tab{border:1px solid transparent;background:transparent;color:var(--dim);padding:8px 12px;border-radius:7px;white-space:nowrap;font:600 .72rem 'IBM Plex Mono',monospace;}
+  .premium-hub-tab:hover{color:var(--ivory);background:var(--ink);}
+  .premium-hub-tab.active{color:var(--mark);border-color:rgba(255,157,28,.28);background:var(--mark-dim);}
+  .premium-hub-body{padding:22px 24px 24px;}
+  .pro-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px;}
+  .pro-kpi{background:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:14px;}
+  .pro-kpi-label{color:var(--dim);font-size:.68rem;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.04em;}
+  .pro-kpi-value{display:block;margin-top:7px;font:700 1.35rem 'Space Grotesk',sans-serif;color:var(--ivory);}
+  .pro-kpi-note{display:block;margin-top:3px;color:var(--dim);font-size:.7rem;}
+  .pro-grid-2{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;}
+  .pro-panel{background:var(--ink);border:1px solid var(--rule);border-radius:11px;overflow:hidden;}
+  .pro-panel-head{padding:14px 16px;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .pro-panel-head h3{margin:0;font:700 .9rem 'Space Grotesk',sans-serif;}
+  .pro-panel-head span{color:var(--dim);font-size:.68rem;}
+  .pro-panel-body{padding:14px 16px;}
+  .pro-topic-row{display:grid;grid-template-columns:minmax(120px,1fr) 1.8fr 54px 54px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid rgba(38,43,58,.72);font-size:.77rem;}
+  .pro-topic-row:last-child{border-bottom:0;}
+  .pro-topic-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pro-track{height:7px;background:var(--paper-raised);border-radius:5px;overflow:hidden;}
+  .pro-fill{height:100%;border-radius:5px;}
+  .pro-pct,.pro-count{font:700 .7rem 'IBM Plex Mono',monospace;text-align:right;color:var(--dim);}
+  .pro-empty{padding:26px 10px;text-align:center;color:var(--dim);font-size:.8rem;line-height:1.55;}
+  .pro-recommend{display:flex;align-items:flex-start;gap:11px;padding:11px 0;border-bottom:1px solid rgba(38,43,58,.72);}
+  .pro-recommend:last-child{border-bottom:0;}
+  .pro-rec-index{width:25px;height:25px;border:1px solid var(--mark);color:var(--mark);border-radius:7px;display:grid;place-items:center;font:700 .68rem 'IBM Plex Mono',monospace;flex:0 0 auto;}
+  .pro-rec-main{min-width:0;flex:1;}
+  .pro-rec-title{font-size:.8rem;font-weight:650;}
+  .pro-rec-note{margin-top:2px;color:var(--dim);font-size:.7rem;line-height:1.4;}
+  .pro-action-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+  .pro-action{border:1px solid var(--rule);background:var(--paper-raised);color:var(--ivory);border-radius:7px;padding:8px 11px;font-size:.72rem;font-weight:650;}
+  .pro-action:hover{border-color:var(--info);}
+  .pro-action.primary{background:var(--mark);border-color:var(--mark);color:#1c1206;}
+  .pro-mock-row{display:grid;grid-template-columns:1fr 72px 72px 82px;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(38,43,58,.72);font-size:.75rem;}
+  .pro-mock-row:last-child{border-bottom:0;}
+  .pro-mock-date{color:var(--dim);font:600 .67rem 'IBM Plex Mono',monospace;}
+  .pro-mock-score{font:700 .8rem 'IBM Plex Mono',monospace;text-align:right;}
+  .pro-mock-meta{text-align:right;color:var(--dim);font-size:.68rem;}
+  .pro-trend{height:90px;display:flex;align-items:flex-end;gap:7px;padding:12px 2px 0;}
+  .pro-trend-bar{flex:1;min-width:5px;background:var(--mark);border-radius:4px 4px 0 0;opacity:.8;position:relative;}
+  .pro-trend-bar span{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);font:600 .58rem 'IBM Plex Mono',monospace;color:var(--dim);padding-bottom:3px;}
+  .pro-dna-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .pro-dna-item{border:1px solid var(--rule);border-radius:8px;padding:11px;background:var(--paper);}
+  .pro-dna-label{font-size:.72rem;font-weight:650;}
+  .pro-dna-note{color:var(--dim);font-size:.64rem;margin-top:3px;}
+  .pro-dna-meter{height:5px;background:var(--paper-raised);border-radius:4px;margin-top:8px;overflow:hidden;}
+  .pro-dna-meter i{display:block;height:100%;background:var(--info);border-radius:4px;}
+  .pro-mistake-classifier{margin-top:13px;padding-top:11px;border-top:1px dashed var(--rule-strong);}
+  .pro-mistake-classifier>span{display:block;color:var(--dim);font:600 .65rem 'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.03em;margin-bottom:7px;}
+  .pro-mistake-actions{display:flex;gap:6px;flex-wrap:wrap;}
+  .pro-mistake-btn{background:var(--paper-raised);border:1px solid var(--rule);color:var(--dim);border-radius:6px;padding:6px 8px;font-size:.65rem;}
+  .pro-mistake-btn:hover,.pro-mistake-btn.active{border-color:var(--mark);color:var(--mark);background:var(--mark-dim);}
 
+  .pro-lock{padding:36px 24px;text-align:center;max-width:620px;margin:auto;}
+  .pro-lock-icon{width:48px;height:48px;border:1px solid var(--mark);color:var(--mark);border-radius:12px;display:grid;place-items:center;margin:0 auto 15px;font-size:1.2rem;}
+  .pro-lock h3{margin:0 0 7px;font:700 1.1rem 'Space Grotesk',sans-serif;}
+  .pro-lock p{margin:0;color:var(--dim);font-size:.82rem;line-height:1.55;}
+  .pro-profile-card{display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:center;background:linear-gradient(135deg,var(--paper-raised),var(--ink));border:1px solid var(--rule);border-radius:12px;padding:18px;}
+  .pro-profile-avatar{width:68px;height:68px;border-radius:50%;display:grid;place-items:center;background:var(--paper);border:2px solid var(--mark);color:var(--mark);font:700 1.2rem 'Space Grotesk',sans-serif;overflow:hidden;}
+  .pro-profile-avatar img{width:100%;height:100%;object-fit:cover;}
+  .pro-profile-name{font:700 1.05rem 'Space Grotesk',sans-serif;}
+  .pro-profile-handle{color:var(--dim);font:600 .7rem 'IBM Plex Mono',monospace;margin-top:3px;}
+  .pro-badge{display:inline-flex;align-items:center;margin-top:9px;border:1px solid var(--mark);background:var(--mark-dim);color:var(--mark);border-radius:999px;padding:4px 9px;font:700 .62rem 'IBM Plex Mono',monospace;}
+  .pro-feature-list{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px;}
+  .pro-feature-item{border:1px solid var(--rule);background:var(--ink);border-radius:8px;padding:11px;color:var(--dim);font-size:.73rem;}
+  .pro-feature-item b{display:block;color:var(--ivory);font-size:.76rem;margin-bottom:3px;}
+  .pro-hub-close{border-top:1px solid var(--rule);padding:12px 18px;display:flex;justify-content:flex-end;background:var(--paper-raised);}
+  @media(max-width:900px){.pro-kpi-grid{grid-template-columns:repeat(2,1fr)}.pro-grid-2{grid-template-columns:1fr}}
+  @media(max-width:620px){#premiumHubOverlay{padding:8px}.premium-hub-head{padding:18px;flex-direction:column}.premium-hub-title{font-size:1.35rem}.premium-hub-body{padding:14px}.pro-kpi-grid{grid-template-columns:1fr 1fr}.pro-topic-row{grid-template-columns:minmax(90px,1fr) 1.3fr 48px}.pro-topic-row .pro-count{display:none}.pro-mock-row{grid-template-columns:1fr 58px 58px}.pro-mock-row .pro-mock-meta{display:none}.pro-dna-grid,.pro-feature-list{grid-template-columns:1fr}.pro-profile-card{grid-template-columns:1fr;text-align:center}.pro-profile-avatar{margin:auto}}
+</style>
 
 <style id="arena-study-room-style">
 /* ================= STUDY ROOM ================= */
@@ -1437,6 +1516,65 @@ pre,code{max-width:100%;overflow-x:auto;}
     .arena-whats-new-sub{font-size:10px}
   }
   @media(prefers-reduced-motion:reduce){.arena-whats-new::before,.arena-whats-new-badge i{animation:none!important}}
+</style>
+
+<style id="arena-pro-modern-v3">
+/* Arena Pro v3: modern product UI, restrained glass surfaces, no cartoon styling */
+#premiumHubOverlay{background:rgba(4,7,12,.86);backdrop-filter:blur(18px);}
+#premiumHubOverlay .premium-hub{border:1px solid rgba(148,163,184,.16);border-radius:20px;background:linear-gradient(180deg,#10151f 0%,#0d1118 100%);box-shadow:0 40px 120px rgba(0,0,0,.62),0 0 0 1px rgba(255,255,255,.02) inset;}
+#premiumHubOverlay .premium-hub-head{padding:30px 32px 26px;background:radial-gradient(700px 260px at 0% 0%,rgba(79,166,255,.10),transparent 62%),radial-gradient(600px 260px at 100% 0%,rgba(255,157,28,.08),transparent 62%),#10151f;border-bottom:1px solid rgba(148,163,184,.12);}
+#premiumHubOverlay .premium-hub-eyebrow{color:#8ab8ff;letter-spacing:.14em;font-size:.66rem;}
+#premiumHubOverlay .premium-hub-title{font-size:clamp(1.55rem,3vw,2.15rem);letter-spacing:-.035em;}
+#premiumHubOverlay .premium-hub-status{border-color:rgba(148,163,184,.16);background:#0b0f16;padding:8px 12px;}
+#premiumHubOverlay .premium-hub-nav{padding:10px 14px;background:#0b0f16;border-bottom:1px solid rgba(148,163,184,.12);gap:4px;}
+#premiumHubOverlay .premium-hub-tab{border-radius:8px;padding:9px 12px;font-size:.7rem;}
+#premiumHubOverlay .premium-hub-tab.active{background:rgba(79,166,255,.09);border-color:rgba(79,166,255,.28);color:#8ab8ff;}
+#premiumHubOverlay .premium-hub-body{padding:24px 28px 28px;}
+.pro-modern-card{background:rgba(18,23,33,.82)!important;border:1px solid rgba(148,163,184,.13)!important;border-radius:13px!important;box-shadow:0 10px 32px rgba(0,0,0,.16);}
+.pro-modern-accent{color:#8ab8ff!important;}
+.pro-modern-number{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;}
+#proPaymentOverlay{background:rgba(4,7,12,.82);backdrop-filter:blur(16px);}
+#proPaymentOverlay .pro-payment-modal{background:linear-gradient(180deg,#111722,#0d1118);border:1px solid rgba(148,163,184,.16);border-radius:18px;box-shadow:0 35px 100px rgba(0,0,0,.62);padding:0;overflow:hidden;}
+#proPaymentOverlay .pro-payment-hero{padding:28px 28px 24px;background:radial-gradient(520px 180px at 0% 0%,rgba(79,166,255,.10),transparent 65%),linear-gradient(135deg,#121925,#0e131c);border-bottom:1px solid rgba(148,163,184,.12);}
+#proPaymentOverlay .arena-pro-badge{background:rgba(79,166,255,.08);border-color:rgba(79,166,255,.28);color:#8ab8ff;letter-spacing:.12em;}
+#proPaymentOverlay .pro-payment-price{font-size:2rem;letter-spacing:-.03em;}
+#proPaymentOverlay .field,#proPaymentOverlay .pro-payment-status,#proPaymentOverlay .modal-actions{margin-left:28px;margin-right:28px;}
+#proPaymentOverlay .field{margin-top:20px;}
+#proPaymentOverlay input[type="tel"]{background:#090d14;border:1px solid rgba(148,163,184,.18);border-radius:9px;padding:12px 13px;}
+#proPaymentOverlay .modal-actions{padding:20px 0 28px;margin-top:6px;}
+#proPaymentOverlay #proPaymentStartBtn{background:#f2f5f9;color:#0b0f16;border-radius:9px;box-shadow:0 8px 24px rgba(255,255,255,.08);}
+#proPaymentOverlay #proPaymentStartBtn:hover{background:#fff;}
+#proCodeOverlay{z-index:130;background:rgba(4,7,12,.84);backdrop-filter:blur(16px);}
+.pro-code-modal{width:min(520px,100%);background:linear-gradient(180deg,#111722,#0d1118);border:1px solid rgba(148,163,184,.16);border-radius:18px;box-shadow:0 35px 100px rgba(0,0,0,.65);overflow:hidden;}
+.pro-code-head{padding:25px 26px 20px;border-bottom:1px solid rgba(148,163,184,.12);background:radial-gradient(500px 160px at 0 0,rgba(79,166,255,.10),transparent 65%);}
+.pro-code-head .eyebrow{font:700 .66rem 'IBM Plex Mono',monospace;color:#8ab8ff;letter-spacing:.13em;text-transform:uppercase;}
+.pro-code-head h2{margin:7px 0 5px;font:700 1.45rem 'Space Grotesk',sans-serif;letter-spacing:-.025em;}
+.pro-code-head p{margin:0;color:var(--dim);font-size:.84rem;}
+.pro-code-body{padding:22px 26px 10px;}
+.pro-code-input{width:100%;background:#090d14;border:1px solid rgba(148,163,184,.18);border-radius:10px;color:var(--ivory);padding:13px 14px;font:600 .95rem 'IBM Plex Mono',monospace;letter-spacing:.06em;text-transform:uppercase;}
+.pro-code-help{font-size:.72rem;color:var(--dim);margin-top:8px;}
+.pro-code-status{min-height:20px;margin-top:12px;font-size:.82rem;color:var(--dim);}
+.pro-code-actions{display:flex;justify-content:flex-end;gap:9px;padding:16px 26px 24px;}
+.pro-code-result{margin-top:16px;padding:14px;border:1px solid rgba(47,208,140,.25);background:rgba(47,208,140,.05);border-radius:11px;display:none;}
+.pro-code-result.show{display:block;}
+.pro-code-result-code{font:700 1.05rem 'IBM Plex Mono',monospace;letter-spacing:.08em;color:#e8edf6;word-break:break-all;}
+.pro-code-result-meta{margin-top:5px;color:var(--dim);font-size:.74rem;}
+.admin-pro-tools{margin-top:16px;padding:16px;border:1px solid rgba(148,163,184,.13);background:#0b0f16;border-radius:12px;}
+.admin-pro-tools h3{margin:0 0 5px;font:700 .94rem 'Space Grotesk',sans-serif;}
+.admin-pro-tools p{margin:0 0 14px;color:var(--dim);font-size:.75rem;line-height:1.45;}
+.admin-duration-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;}
+.admin-duration-grid button{background:#111722;border:1px solid rgba(148,163,184,.14);color:var(--dim);border-radius:8px;padding:9px 5px;font:600 .7rem 'IBM Plex Mono',monospace;}
+.admin-duration-grid button.active{border-color:rgba(79,166,255,.4);background:rgba(79,166,255,.08);color:#8ab8ff;}
+@media(max-width:520px){.admin-duration-grid{grid-template-columns:1fr 1fr}.pro-code-actions{flex-direction:column}.pro-code-actions button{width:100%}}
+</style>
+
+<style id="arena-admin-pro-access">
+.admin-pro-access-banner{display:flex;align-items:center;justify-content:space-between;gap:18px;margin:0 0 18px;padding:16px 18px;border:1px solid rgba(45,212,191,.24);border-radius:14px;background:linear-gradient(135deg,rgba(45,212,191,.09),rgba(124,92,255,.06));box-shadow:0 12px 34px rgba(0,0,0,.18)}
+.admin-pro-access-kicker{display:block;font-size:.66rem;letter-spacing:.14em;font-weight:800;color:var(--verified);margin-bottom:4px}
+.admin-pro-access-banner strong{display:block;font-size:1rem;color:var(--ivory)}
+.admin-pro-access-banner p{margin:4px 0 0;color:var(--dim);font-size:.78rem;line-height:1.45}
+.admin-pro-access-pill{flex:none;padding:7px 10px;border:1px solid rgba(45,212,191,.3);border-radius:999px;color:var(--verified);font-size:.68rem;font-weight:800;letter-spacing:.08em;background:rgba(45,212,191,.08)}
+@media(max-width:620px){.admin-pro-access-banner{align-items:flex-start;flex-direction:column}.admin-pro-access-pill{align-self:flex-start}}
 </style>
 </head>
 
@@ -1591,6 +1729,7 @@ pre,code{max-width:100%;overflow-x:auto;}
       </select>
     </div>
 
+    <button class="btn-ghost btn-block" id="openPremiumHubBtn">✦ Arena Pro Dashboard</button>
     <button class="btn-ghost btn-block" id="openPlansBtn">💎 Plans &amp; Pricing</button>
   </aside>
 
@@ -1687,6 +1826,18 @@ pre,code{max-width:100%;overflow-x:auto;}
     <div class="field">
       <label>Their email</label>
       <input type="email" id="promoteEmail" placeholder="name@example.com">
+    </div>
+    <div class="admin-pro-tools">
+      <h3>Pro access codes</h3>
+      <p>Generate a single-use Pro code for a user. The recipient can redeem it from the Arena Pro checkout.</p>
+      <div class="admin-duration-grid" id="adminDurationGrid">
+        <button type="button" data-pro-months="1" class="active">1 month</button>
+        <button type="button" data-pro-months="3">3 months</button>
+        <button type="button" data-pro-months="6">6 months</button>
+        <button type="button" data-pro-months="12">1 year</button>
+      </div>
+      <div class="pro-code-result" id="adminCodeResult"><div class="pro-code-result-code" id="adminGeneratedCode"></div><div class="pro-code-result-meta" id="adminGeneratedMeta"></div></div>
+      <button class="btn-primary" id="adminGenerateProCodeBtn" style="width:100%;margin-top:10px;">Generate secure code</button>
     </div>
     <div class="modal-actions">
       <span class="form-error" id="promoteError"></span>
@@ -1919,6 +2070,7 @@ pre,code{max-width:100%;overflow-x:auto;}
       <div class="field-help">Cashfree requires a customer phone number to create the payment order.</div>
     </div>
     <div class="pro-payment-status" id="proPaymentStatus"></div>
+    <button class="link-btn" id="openProCodeBtn" style="display:block;margin:4px 28px 0;text-align:left;">Have an admin access code?</button>
     <div class="modal-actions">
       <button class="btn-ghost" id="proPaymentCloseBtn">Cancel</button>
       <button class="btn-primary" id="proPaymentStartBtn">Continue to payment · ₹149</button>
@@ -1926,9 +2078,25 @@ pre,code{max-width:100%;overflow-x:auto;}
   </div>
 </div>
 
+<!-- Arena Pro admin access code -->
+<div class="overlay" id="proCodeOverlay">
+  <div class="pro-code-modal">
+    <div class="pro-code-head"><div class="eyebrow">Arena Pro access</div><h2>Redeem an admin code</h2><p>Enter a code supplied by an Arena administrator. Each code grants the duration encoded by the administrator.</p></div>
+    <div class="pro-code-body"><input class="pro-code-input" id="proCodeInput" maxlength="19" placeholder="ARENA-XXXXXX-XXXXXX" autocomplete="off" spellcheck="false"><div class="pro-code-help">Codes are single-use and are verified securely on the server.</div><div class="pro-code-status" id="proCodeStatus"></div></div>
+    <div class="pro-code-actions"><button class="btn-ghost" id="proCodeCloseBtn">Cancel</button><button class="btn-primary" id="proCodeRedeemBtn">Activate Pro</button></div>
+  </div>
+</div>
+
 <!-- Plans & Pricing (persistent, reachable any time — not just the popup) -->
 <div class="overlay" id="plansOverlay">
   <div class="modal plans-modal" id="plansModalInner">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<!-- Arena Pro intelligence dashboard -->
+<div class="overlay" id="premiumHubOverlay">
+  <div class="premium-hub" id="premiumHubInner">
     <!-- filled by JS -->
   </div>
 </div>
@@ -2573,6 +2741,8 @@ document.getElementById("gateSerial").textContent = "seat no. arena-" + Math.flo
 onAuthStateChanged(auth, (user) => {
   if (!user){
     uid = null; isAdmin = false; isOwner = false; myRole = "user";
+    arenaProActive = false;
+    arenaProExpiresAt = null;
     if (userDocUnsub){ userDocUnsub(); userDocUnsub = null; }
     // Tear down the follow listeners so the next person to log in on this
     // browser never sees the previous person's follow graph.
@@ -2626,6 +2796,10 @@ function subscribeUserDoc(){
     isAdmin = data.role === "admin" || data.role === "owner";
     isOwner = data.role === "owner";
     myRole = data.role || "user";
+    // Admin/owner Pro is permanent and does not depend on a subscription.
+    // Reset these values immediately when switching accounts in the same tab.
+    arenaProActive = isAdmin;
+    arenaProExpiresAt = null;
     myReputation = Number(data.reputation || 0);
     myRepStats = {...repStatsDefaults(), ...data};
     if (previousRep > 0 && myReputation > previousRep) announceRepMilestone(myReputation);
@@ -5718,6 +5892,18 @@ document.getElementById("mtBeginBtn").onclick = async () => {
   const errEl = document.getElementById("mtSetupError");
   errEl.textContent = "";
   if (!mtSelectedTopics.size){ errEl.textContent = "Pick at least one topic."; return; }
+  if (!arenaProActive && trialDaysLeft() <= 0){
+    try {
+      const weekStart=new Date(); weekStart.setHours(0,0,0,0); weekStart.setDate(weekStart.getDate()-weekStart.getDay());
+      const hist=await getDocs(query(collection(db,"mockAttempts"),where("uid","==",uid),limit(50)));
+      const used=hist.docs.filter(d=>{const t=d.data().createdAt;const ms=t?.toMillis?t.toMillis():new Date(t||0).getTime();return ms>=weekStart.getTime();}).length;
+      if(used>=3){
+        errEl.innerHTML=`Free accounts can complete <b>3 mock tests per week</b>. Arena Pro removes this limit. <button type="button" class="link-btn" id="mtUnlockProBtn">Unlock Pro</button>`;
+        setTimeout(()=>document.getElementById("mtUnlockProBtn")?.addEventListener("click",()=>{mockSetupOverlay.classList.remove("open");openProPayment();}),0);
+        return;
+      }
+    } catch(err){ console.warn("Mock access check failed:",err); }
+  }
   const btn = document.getElementById("mtBeginBtn");
   btn.disabled = true;
   const originalLabel = btn.textContent;
@@ -5996,6 +6182,7 @@ function renderResults(r){
       </div>
       <p class="review-qtext">${escapeHtml(row.q.text)}</p>
       ${optsHtml}
+      ${row.isCorrect ? "" : `<div class="pro-mistake-classifier"><span>Why did this happen?</span><div class="pro-mistake-actions">${PRO_MISTAKE_TYPES.map(([k,label])=>`<button type="button" class="pro-mistake-btn" data-mistake-q="${escapeHtml(row.q.id)}" data-mistake-type="${k}">${escapeHtml(label)}</button>`).join("")}</div></div>`}
     </div>`;
   }).join("");
 
@@ -6027,6 +6214,16 @@ function renderResults(r){
     document.getElementById("resultOverlay").classList.remove("open");
     document.getElementById("openMockSetupBtn").click();
   };
+  document.querySelectorAll("[data-mistake-q]").forEach(btn=>{
+    btn.onclick=()=>{
+      proMistakeTag(btn.dataset.mistakeQ,btn.dataset.mistakeType);
+      const row=btn.parentElement;
+      row.querySelectorAll(".pro-mistake-btn").forEach(x=>x.classList.remove("active"));
+      btn.classList.add("active");
+      premiumAnalyticsCache=null;
+      showToast(`Tagged as ${proMistakeLabel(btn.dataset.mistakeType)}.`,"success");
+    };
+  });
 }
 
 // Warn before leaving/refreshing mid-exam so an accidental reload doesn't
@@ -6158,11 +6355,16 @@ const COMPARE_FEATURES = [
   { label: "Full question bank & discussion threads", free: true,  paid: true },
   { label: "Post questions & answer MCQs",             free: true,  paid: true },
   { label: "Timed mock tests",                         free: "limited", paid: true, freeNote: "Up to 3 / week", paidNote: "Unlimited" },
-  { label: "Topic-wise accuracy & progress analytics", free: false, paid: true },
-  { label: "Full mock test attempt history",           free: false, paid: true },
-  { label: "Leaderboard & rankings",                   free: false, paid: true },
-  { label: "Priority doubt support from admins",       free: false, paid: true },
-  { label: "Access continues after the free trial",    free: false, paid: true },
+  { label: "Personal Weakness Engine",                 free: false, paid: true },
+  { label: "Advanced Mock Analytics",                  free: false, paid: true },
+  { label: "Smart Revision planner",                   free: false, paid: true },
+  { label: "Mistake DNA & execution tracking",         free: false, paid: true },
+  { label: "Personal GATE dashboard",                  free: false, paid: true },
+  { label: "Premium profile & Pro badge",              free: false, paid: true },
+  { label: "Full mock test attempt history",            free: false, paid: true },
+  { label: "Leaderboard & rankings",                    free: false, paid: true },
+  { label: "Priority doubt support from admins",        free: false, paid: true },
+  { label: "Access continues after the free trial",     free: false, paid: true },
 ];
 
 function compareCell(val, note){
@@ -6180,12 +6382,19 @@ function renderPlansModal(){
       <td>${compareCell(f.paid, f.paidNote)}</td>
     </tr>`).join("");
 
+  const adminProBanner = isAdmin ? `
+    <div class="admin-pro-access-banner">
+      <div><span class="admin-pro-access-kicker">ADMIN ACCESS</span><strong>Permanent Arena Pro included</strong><p>Your ${isOwner ? "owner" : "admin"} role includes full Pro access. No payment or access code is required.</p></div>
+      <span class="admin-pro-access-pill">PRO · LIFETIME</span>
+    </div>` : "";
+
   document.getElementById("plansModalInner").innerHTML = `
     <div class="plans-head">
       <span class="eyebrow">Plans &amp; pricing</span>
       <h2>Everything Arena offers, free vs paid.</h2>
       <p>The free trial runs through <b>${endDateLabel}</b> with generous limits. A paid plan removes those limits and unlocks the tools built for serious, sustained GATE prep.</p>
     </div>
+    ${adminProBanner}
     <div class="plans-body">
       <table class="compare-table">
         <thead>
@@ -6222,7 +6431,9 @@ let arenaProOrderId = null;
 let arenaProStatusTimer = null;
 
 function proStatusText(){
-  if (!arenaProActive || !arenaProExpiresAt) return "";
+  if (!arenaProActive) return "";
+  if (isAdmin) return ` <span class="pro-status-inline"><span class="pro-status-dot"></span> PRO · Permanent admin access</span>`;
+  if (!arenaProExpiresAt) return ` <span class="pro-status-inline"><span class="pro-status-dot"></span> PRO active</span>`;
   const d = new Date(arenaProExpiresAt);
   return ` <span class="pro-status-inline"><span class="pro-status-dot"></span> PRO until ${d.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"})}</span>`;
 }
@@ -6256,7 +6467,58 @@ function normalizeArenaPhone(raw){
   return "";
 }
 
+
+async function redeemArenaProCode(){
+  const input=document.getElementById("proCodeInput"), status=document.getElementById("proCodeStatus"), btn=document.getElementById("proCodeRedeemBtn");
+  const code=String(input?.value||"").trim().toUpperCase();
+  if(!/^ARENA-[A-Z0-9]{6}-[A-Z0-9]{6}$/.test(code)){status.textContent="Enter a valid Arena Pro access code.";return;}
+  btn.disabled=true; status.textContent="Verifying access code securely…";
+  try{
+    const token=await arenaGetIdToken();
+    const r=await fetch("/api/redeem-pro-code",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({code})});
+    const data=await r.json().catch(()=>({})); if(!r.ok) throw new Error(data.error||"Could not redeem the code.");
+    arenaProActive=true; arenaProExpiresAt=data.expiresAt||null; renderProStatus();
+    status.textContent=data.expiresAt?`Pro activated until ${new Date(data.expiresAt).toLocaleDateString(undefined,{day:"numeric",month:"long",year:"numeric"})}.`:`Pro access activated.`;
+    showToast("Arena Pro activated successfully.","success");
+    setTimeout(()=>document.getElementById("proCodeOverlay")?.classList.remove("open"),700);
+    if(document.getElementById("proPaymentOverlay")?.classList.contains("open")) closeProPayment();
+  }catch(err){status.textContent=err.message||"Could not redeem the code.";showToast(status.textContent,"error");}
+  finally{btn.disabled=false;}
+}
+function openProCodeModal(){
+  if(!auth.currentUser){showToast("Please log in first.","error");return;}
+  if(arenaProActive){showToast("Arena Pro is already active.","success");return;}
+  document.getElementById("proCodeStatus").textContent=""; document.getElementById("proCodeOverlay").classList.add("open"); setTimeout(()=>document.getElementById("proCodeInput")?.focus(),30);
+}
+async function generateAdminProCode(){
+  if(!isAdmin){showToast("Admin access required.","error");return;}
+  const btn=document.getElementById("adminGenerateProCodeBtn"), selected=document.querySelector("#adminDurationGrid [data-pro-months].active"), months=Number(selected?.dataset.proMonths||1);
+  btn.disabled=true; btn.textContent="Generating…";
+  try{
+    const token=await arenaGetIdToken(); const r=await fetch("/api/create-pro-code",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({months})});
+    const data=await r.json().catch(()=>({})); if(!r.ok) throw new Error(data.error||"Could not generate the code.");
+    document.getElementById("adminGeneratedCode").textContent=data.code; document.getElementById("adminGeneratedMeta").textContent=`Valid for ${months===12?"1 year":months+" month"+(months===1?"":"s")} · single-use · give this code to the recipient.`; document.getElementById("adminCodeResult").classList.add("show");
+    try{await navigator.clipboard.writeText(data.code);showToast("Code generated and copied to clipboard.","success");}catch(_){showToast("Code generated. Copy it from the admin panel.","success");}
+  }catch(err){showToast(err.message||"Could not generate the code.","error");}
+  finally{btn.disabled=false;btn.textContent="Generate secure code";}
+}
+function wireProAccessCodeUI(){
+  document.getElementById("openProCodeBtn")?.addEventListener("click",()=>{closeProPayment();openProCodeModal();});
+  document.getElementById("proCodeCloseBtn")?.addEventListener("click",()=>document.getElementById("proCodeOverlay")?.classList.remove("open"));
+  document.getElementById("proCodeRedeemBtn")?.addEventListener("click",redeemArenaProCode);
+  document.getElementById("proCodeInput")?.addEventListener("keydown",e=>{if(e.key==="Enter")redeemArenaProCode();});
+  document.querySelectorAll("#adminDurationGrid [data-pro-months]").forEach(b=>b.addEventListener("click",()=>{document.querySelectorAll("#adminDurationGrid [data-pro-months]").forEach(x=>x.classList.remove("active"));b.classList.add("active");}));
+  document.getElementById("adminGenerateProCodeBtn")?.addEventListener("click",generateAdminProCode);
+}
 function openProPayment(){
+  if (isAdmin){
+    arenaProActive=true;
+    arenaProExpiresAt=null;
+    renderProStatus();
+    premiumHubTab="overview";
+    renderPremiumHub();
+    return;
+  }
   if (arenaProActive){ showToast("Arena Pro is already active.","success"); return; }
   const overlay=document.getElementById("proPaymentOverlay");
   const status=document.getElementById("proPaymentStatus");
@@ -6330,6 +6592,14 @@ async function refreshArenaProPaymentStatus(orderId,closeAfterSuccess=false){
 
 async function loadArenaProStatus(){
   if (!auth.currentUser) return;
+  // Admin and owner roles receive permanent Pro access without payment.
+  // The backend also enforces this, so the client is only reflecting the
+  // authoritative role here for immediate UI access.
+  if (isAdmin){
+    arenaProActive=true;
+    arenaProExpiresAt=null;
+    renderProStatus();
+  }
   try{
     const token=await arenaGetIdToken();
     const response=await fetch("/api/subscription-status",{headers:{Authorization:"Bearer "+token}});
@@ -6347,6 +6617,239 @@ document.getElementById("plansOverlay")?.addEventListener("click",e=>{if(e.targe
 document.getElementById("trialOverlay")?.addEventListener("click",e=>{if(e.target.closest(".arena-pro-buy-btn"))openProPayment();});
 const _arenaOriginalOpenPlansModal = openPlansModal;
 openPlansModal = function(){ _arenaOriginalOpenPlansModal(); wireArenaProButtons(); renderProStatus(); };
+
+
+/* =========================================================================
+   ARENA PRO INTELLIGENCE HUB
+   Uses real Arena data already available to the account: answered questions,
+   mock attempts, reputation and optional self-classified mistake tags.
+   No synthetic performance data is generated.
+   ========================================================================= */
+const PRO_MISTAKE_KEY = "arena_pro_mistakes_v1:";
+const PRO_MISTAKE_TYPES = [
+  ["concept", "Concept gap"],
+  ["calculation", "Calculation"],
+  ["misread", "Misread"],
+  ["option", "Wrong option"],
+  ["time", "Time pressure"]
+];
+let premiumAnalyticsCache = null;
+let premiumAnalyticsLoading = false;
+let premiumHubTab = "overview";
+
+function proMistakesLoad(){
+  if(!uid) return [];
+  try { return JSON.parse(localStorage.getItem(PRO_MISTAKE_KEY + uid) || "[]"); }
+  catch(_) { return []; }
+}
+function proMistakeTag(qid, type){
+  if(!uid || !qid || !type) return;
+  const rows = proMistakesLoad();
+  const filtered = rows.filter(x => !(x.qid === qid && x.type === type));
+  const had = rows.some(x => x.qid === qid && x.type === type);
+  if(!had) filtered.push({qid, type, createdAt:Date.now()});
+  else {
+    const others = rows.filter(x => x.qid !== qid);
+    filtered.length = 0; filtered.push(...others);
+  }
+  try { localStorage.setItem(PRO_MISTAKE_KEY + uid, JSON.stringify(filtered.slice(-500))); } catch(_) {}
+}
+function proMistakeLabel(type){
+  return (PRO_MISTAKE_TYPES.find(x=>x[0]===type)||[type,type])[1];
+}
+function proFormatDate(value){
+  let d = null;
+  try { d = value?.toDate ? value.toDate() : new Date(value); } catch(_) {}
+  if(!d || Number.isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(undefined,{day:"numeric",month:"short",year:"numeric"});
+}
+function proColorForPct(pct){ return pct >= 75 ? "var(--verified)" : pct >= 50 ? "var(--mark)" : "var(--alert)"; }
+function proInitials(name){ return String(name||"A").trim().split(/\s+/).map(x=>x[0]).slice(0,2).join("").toUpperCase() || "A"; }
+
+async function loadPremiumAnalytics(force=false){
+  if(!uid) return null;
+  if(premiumAnalyticsCache && !force) return premiumAnalyticsCache;
+  if(premiumAnalyticsLoading) return premiumAnalyticsCache;
+  premiumAnalyticsLoading = true;
+  try {
+    let answeredRows = [];
+    try {
+      const responseField = `responses.${uid}`;
+      const snap = await getDocs(query(collection(db,"questions"), where(responseField, ">=", 0), limit(1000)));
+      answeredRows = snap.docs.map(d=>({id:d.id,...d.data()})).filter(q=>q.type === "mcq" && q.responses && q.responses[uid] !== undefined);
+    } catch(err){
+      console.warn("Premium answered-question query failed; using a bounded question-bank fallback:", err);
+      try {
+        const fallback=await getDocs(query(collection(db,"questions"), where("type","==","mcq"), limit(1000)));
+        answeredRows=fallback.docs.map(d=>({id:d.id,...d.data()})).filter(q=>q.responses && q.responses[uid] !== undefined);
+      } catch(_){
+        answeredRows=questions.filter(q=>q.type === "mcq" && q.responses && q.responses[uid] !== undefined).slice(0,1000);
+      }
+    }
+
+    let mockRows = [];
+    try {
+      const snap = await getDocs(query(collection(db,"mockAttempts"), where("uid","==",uid), limit(50)));
+      mockRows = snap.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{
+        const ad=a.createdAt?.toMillis ? a.createdAt.toMillis() : new Date(a.createdAt||0).getTime();
+        const bd=b.createdAt?.toMillis ? b.createdAt.toMillis() : new Date(b.createdAt||0).getTime();
+        return bd-ad;
+      });
+    } catch(err){ console.warn("Premium mock history query failed:",err); }
+
+    const topicMap = {};
+    for(const q of answeredRows){
+      const topic = q.topic || "General";
+      const chosen = Number(q.responses[uid]);
+      const correct = chosen === Number(q.correctIndex);
+      if(!topicMap[topic]) topicMap[topic]={attempts:0,correct:0,wrong:0,skipped:0};
+      topicMap[topic].attempts++;
+      if(correct) topicMap[topic].correct++; else topicMap[topic].wrong++;
+    }
+    for(const m of mockRows){
+      for(const [topic,v] of Object.entries(m.perTopic||{})){
+        if(!topicMap[topic]) topicMap[topic]={attempts:0,correct:0,wrong:0,skipped:0};
+        // Mock attempts are tracked separately so the topic table can show a
+        // broader signal without double-counting the same question records.
+        topicMap[topic].mockAttempts=(topicMap[topic].mockAttempts||0)+Number(v.total||0);
+        topicMap[topic].mockCorrect=(topicMap[topic].mockCorrect||0)+Number(v.correct||0);
+      }
+    }
+    const topics = Object.entries(topicMap).map(([topic,v])=>({
+      topic,...v,accuracy:v.attempts ? Math.round(v.correct/v.attempts*100) : (v.mockAttempts ? Math.round(v.mockCorrect/v.mockAttempts*100) : 0)
+    })).sort((a,b)=>a.accuracy-b.accuracy || b.attempts-a.attempts);
+    const weakTopics = topics.filter(x=>x.attempts>=2 || x.mockAttempts>=2).slice(0,5);
+    const overallAttempts = answeredRows.length;
+    const overallCorrect = answeredRows.filter(q=>Number(q.responses[uid])===Number(q.correctIndex)).length;
+    const mockTotal = mockRows.reduce((s,x)=>s+Number(x.total||0),0);
+    const mockCorrect = mockRows.reduce((s,x)=>s+Number(x.correct||0),0);
+    const mistakes = proMistakesLoad();
+    const dna = Object.fromEntries(PRO_MISTAKE_TYPES.map(([k])=>[k,0]));
+    mistakes.forEach(x=>{ if(dna[x.type] !== undefined) dna[x.type]++; });
+    premiumAnalyticsCache = {
+      answeredRows, mockRows, topics, weakTopics, overallAttempts, overallCorrect,
+      overallAccuracy: overallAttempts ? Math.round(overallCorrect/overallAttempts*100) : 0,
+      mockCount:mockRows.length, mockTotal, mockCorrect,
+      mockAccuracy:mockTotal ? Math.round(mockCorrect/mockTotal*100) : 0,
+      dna, mistakes
+    };
+    return premiumAnalyticsCache;
+  } finally { premiumAnalyticsLoading=false; }
+}
+
+function proLockedHtml(){
+  return `<div class="pro-lock">
+    <div class="pro-lock-icon">✦</div>
+    <h3>Arena Pro intelligence</h3>
+    <p>This dashboard uses your real Arena activity to build weakness analysis, revision priorities, mock analytics and mistake tracking. Unlock Pro to access the full workspace.</p>
+    <div class="pro-action-row" style="justify-content:center;"><button class="pro-action primary" id="proHubUnlockBtn">Unlock Arena Pro · ₹149</button></div>
+  </div>`;
+}
+
+function proOverviewHtml(a){
+  const weak = a.weakTopics.filter(x=>(x.attempts+x.mockAttempts)>=2).slice(0,4);
+  const trend = a.mockRows.slice(0,8).reverse();
+  return `<div class="pro-kpi-grid">
+    <div class="pro-kpi"><span class="pro-kpi-label">Practice accuracy</span><b class="pro-kpi-value">${a.overallAttempts?a.overallAccuracy+"%":"—"}</b><span class="pro-kpi-note">${a.overallAttempts} answered</span></div>
+    <div class="pro-kpi"><span class="pro-kpi-label">Mock tests</span><b class="pro-kpi-value">${a.mockCount}</b><span class="pro-kpi-note">${a.mockAccuracy ? a.mockAccuracy+"% average accuracy":"No history yet"}</span></div>
+    <div class="pro-kpi"><span class="pro-kpi-label">Reputation</span><b class="pro-kpi-value">${Number(myReputation||0).toLocaleString()}</b><span class="pro-kpi-note">${escapeHtml(repLevel(Number(myReputation||0)).label)}</span></div>
+    <div class="pro-kpi"><span class="pro-kpi-label">Pro access</span><b class="pro-kpi-value">${arenaProExpiresAt ? proFormatDate(arenaProExpiresAt) : "Active"}</b><span class="pro-kpi-note">30-day subscription</span></div>
+  </div>
+  <div class="pro-grid-2">
+    <section class="pro-panel"><div class="pro-panel-head"><h3>Weakness snapshot</h3><span>lowest measured accuracy</span></div><div class="pro-panel-body">
+      ${weak.length ? weak.map((x,i)=>`<div class="pro-recommend"><span class="pro-rec-index">0${i+1}</span><div class="pro-rec-main"><div class="pro-rec-title">${escapeHtml(x.topic)}</div><div class="pro-rec-note">${x.accuracy}% accuracy across ${x.attempts||x.mockAttempts} recorded attempts.</div></div></div>`).join("") : `<div class="pro-empty">Answer more MCQs or complete a mock test. Arena will build your profile from actual results.</div>`}
+      ${weak.length?`<div class="pro-action-row"><button class="pro-action primary" data-protab="weakness">Open weakness engine</button><button class="pro-action" id="proSmartRevisionBtn">Start smart revision</button></div>`:""}
+    </div></section>
+    <section class="pro-panel"><div class="pro-panel-head"><h3>Mock score trend</h3><span>recent attempts</span></div><div class="pro-panel-body">
+      ${trend.length ? `<div class="pro-trend">${trend.map(m=>`<div class="pro-trend-bar" style="height:${Math.max(8,Number(m.scorePct||0))}%;"><span>${Number(m.scorePct||0)}%</span></div>`).join("")}</div>` : `<div class="pro-empty">Your mock trend will appear here after your first completed mock.</div>`}
+    </div></section>
+  </div>`;
+}
+
+function proWeaknessHtml(a){
+  const rows = a.topics.slice().sort((x,y)=>x.accuracy-y.accuracy || y.attempts-x.attempts);
+  return `<div class="pro-panel"><div class="pro-panel-head"><h3>Personal Weakness Engine</h3><span>based on measured performance</span></div><div class="pro-panel-body">
+    ${rows.length ? `<div class="pro-topic-row" style="color:var(--dim);font:600 .65rem 'IBM Plex Mono',monospace;text-transform:uppercase;"><span>Topic</span><span>Accuracy</span><span>Score</span><span>n</span></div>`+rows.map(x=>`<div class="pro-topic-row"><span class="pro-topic-name">${escapeHtml(x.topic)}</span><div class="pro-track"><div class="pro-fill" style="width:${Math.max(2,x.accuracy)}%;background:${proColorForPct(x.accuracy)}"></div></div><span class="pro-pct">${x.accuracy}%</span><span class="pro-count">${x.attempts||x.mockAttempts}</span></div>`).join("") : `<div class="pro-empty">Not enough answer data yet. Keep practicing and this engine will populate automatically.</div>`}
+  </div></div>
+  <div class="pro-grid-2" style="margin-top:14px;"><section class="pro-panel"><div class="pro-panel-head"><h3>What to study next</h3><span>priority order</span></div><div class="pro-panel-body">${rows.slice(0,5).map((x,i)=>`<div class="pro-recommend"><span class="pro-rec-index">${String(i+1).padStart(2,"0")}</span><div class="pro-rec-main"><div class="pro-rec-title">${escapeHtml(x.topic)}</div><div class="pro-rec-note">${x.accuracy<50?"High priority":"Needs reinforcement"} · ${x.accuracy}% accuracy.</div></div></div>`).join("") || `<div class="pro-empty">No recommendations yet.</div>`}<div class="pro-action-row"><button class="pro-action primary" id="proSmartRevisionBtn">Build revision test</button></div></div></section>
+  <section class="pro-panel"><div class="pro-panel-head"><h3>How it works</h3><span>transparent signal</span></div><div class="pro-panel-body"><div class="pro-empty" style="padding:8px 2px;text-align:left;">Arena does not invent a score. Topic accuracy comes from questions you have actually answered and mock results you have completed.</div></div></section></div>`;
+}
+
+function proMocksHtml(a){
+  const rows=a.mockRows.slice(0,12);
+  return `<div class="pro-grid-2"><section class="pro-panel"><div class="pro-panel-head"><h3>Advanced mock analytics</h3><span>${a.mockCount} recorded</span></div><div class="pro-panel-body">
+    ${rows.length ? rows.map(m=>`<div class="pro-mock-row"><div><b>${Number(m.scorePct||0)}% score</b><div class="pro-mock-date">${proFormatDate(m.createdAt)} · ${Number(m.total||0)} questions</div></div><span class="pro-mock-score">${Number(m.correct||0)}✓</span><span class="pro-mock-meta">${Number(m.wrong||0)} wrong</span><span class="pro-mock-meta">${formatClock(Number(m.timeUsedSecs||0))}</span></div>`).join("") : `<div class="pro-empty">Complete a mock test to unlock your historical analytics.</div>`}
+  </div></section><section class="pro-panel"><div class="pro-panel-head"><h3>Performance summary</h3><span>all recorded mocks</span></div><div class="pro-panel-body">
+    <div class="pro-kpi-grid" style="grid-template-columns:1fr 1fr;margin:0;"><div class="pro-kpi"><span class="pro-kpi-label">Questions</span><b class="pro-kpi-value">${a.mockTotal}</b></div><div class="pro-kpi"><span class="pro-kpi-label">Accuracy</span><b class="pro-kpi-value">${a.mockTotal?a.mockAccuracy+"%":"—"}</b></div></div>
+    <div class="pro-action-row"><button class="pro-action primary" id="proMockLaunchBtn">Create a Pro mock</button></div>
+  </div></section></div>`;
+}
+
+function proRevisionHtml(a){
+  const rows=a.topics.slice().sort((x,y)=>x.accuracy-y.accuracy).slice(0,5);
+  return `<section class="pro-panel"><div class="pro-panel-head"><h3>Smart Revision</h3><span>generated from your weakest signals</span></div><div class="pro-panel-body">
+    ${rows.length ? rows.map((x,i)=>`<div class="pro-recommend"><span class="pro-rec-index">${String(i+1).padStart(2,"0")}</span><div class="pro-rec-main"><div class="pro-rec-title">${escapeHtml(x.topic)}</div><div class="pro-rec-note">${x.accuracy}% accuracy · ${x.attempts||x.mockAttempts} recorded attempts · recommended for revision.</div></div></div>`).join("") : `<div class="pro-empty">No revision priorities yet. Complete more questions first.</div>`}
+    <div class="pro-action-row"><button class="pro-action primary" id="proRevisionLaunchBtn">Start targeted practice</button></div>
+  </div></section>`;
+}
+
+function proMistakeHtml(a){
+  const max=Math.max(1,...Object.values(a.dna));
+  return `<div class="pro-grid-2"><section class="pro-panel"><div class="pro-panel-head"><h3>Mistake DNA</h3><span>your self-classified mock mistakes</span></div><div class="pro-panel-body"><div class="pro-dna-grid">${PRO_MISTAKE_TYPES.map(([k,label])=>`<div class="pro-dna-item"><div class="pro-dna-label">${label}</div><div class="pro-dna-note">${a.dna[k]} tagged</div><div class="pro-dna-meter"><i style="width:${Math.round(a.dna[k]/max*100)}%"></i></div></div>`).join("")}</div><p style="color:var(--dim);font-size:.68rem;line-height:1.5;margin:14px 0 0;">After each mock, tag the reason behind a wrong or skipped answer. Arena uses those tags to show your recurring execution patterns.</p></div></section><section class="pro-panel"><div class="pro-panel-head"><h3>Recent tags</h3><span>latest 8</span></div><div class="pro-panel-body">${a.mistakes.slice(-8).reverse().map(x=>`<div class="pro-recommend"><span class="pro-rec-index">•</span><div class="pro-rec-main"><div class="pro-rec-title">${escapeHtml(proMistakeLabel(x.type))}</div><div class="pro-rec-note">Question ${escapeHtml(x.qid)} · ${proFormatDate(x.createdAt)}</div></div></div>`).join("") || `<div class="pro-empty">No mistake tags yet. Use the classifier in your mock result review.</div>`}</div></section></div>`;
+}
+
+function proProfileHtml(a){
+  const level=repLevel(Number(myReputation||0));
+  return `<div class="pro-profile-card"><div class="pro-profile-avatar">${myPhoto?`<img src="${escapeHtml(myPhoto)}" alt="">`:escapeHtml(proInitials(myName))}</div><div><div class="pro-profile-name">${escapeHtml(myName||"Arena user")}</div><div class="pro-profile-handle">@${escapeHtml(usersCache[uid]?.username || "arena_user")} · ${escapeHtml(level.label)}</div><span class="pro-badge">ARENA PRO · 30 DAYS</span></div></div>
+  <div class="pro-feature-list"><div class="pro-feature-item"><b>${Number(myReputation||0).toLocaleString()} reputation</b>Community contribution score</div><div class="pro-feature-item"><b>${a.overallAttempts} practice answers</b>Measured question attempts</div><div class="pro-feature-item"><b>${a.mockCount} mock tests</b>Full mock history</div><div class="pro-feature-item"><b>${a.overallAccuracy || 0}% accuracy</b>Current practice accuracy</div></div>`;
+}
+
+function renderPremiumHubTab(a){
+  const body=document.getElementById("premiumHubBody");
+  if(!body) return;
+  const html = premiumHubTab==="overview" ? proOverviewHtml(a)
+    : premiumHubTab==="weakness" ? proWeaknessHtml(a)
+    : premiumHubTab==="mocks" ? proMocksHtml(a)
+    : premiumHubTab==="revision" ? proRevisionHtml(a)
+    : premiumHubTab==="mistakes" ? proMistakeHtml(a)
+    : proProfileHtml(a);
+  body.innerHTML=html;
+  body.querySelectorAll("[data-protab]").forEach(b=>b.onclick=()=>{premiumHubTab=b.dataset.protab; renderPremiumHub();});
+  body.querySelectorAll("#proSmartRevisionBtn,#proRevisionLaunchBtn").forEach(b=>b.onclick=launchSmartRevision);
+  body.querySelector("#proMockLaunchBtn")?.addEventListener("click",()=>{document.getElementById("premiumHubOverlay").classList.remove("open");document.getElementById("openMockSetupBtn").click();});
+}
+
+async function renderPremiumHub(){
+  const overlay=document.getElementById("premiumHubOverlay");
+  const active=arenaProActive;
+  const status=active ? `<span class="premium-hub-status active"><i class="dot"></i> Pro active · ${escapeHtml(proFormatDate(arenaProExpiresAt))}</span>` : `<span class="premium-hub-status"><i class="dot"></i> Free account</span>`;
+  document.getElementById("premiumHubInner").innerHTML=`<div class="premium-hub-head"><div><div class="premium-hub-eyebrow">Arena Pro</div><h2 class="premium-hub-title">Your GATE preparation workspace</h2><p class="premium-hub-sub">A professional view of your performance, weaknesses, revision priorities and mock history.</p></div>${status}</div><div class="premium-hub-nav">${[["overview","Overview"],["weakness","Weakness Engine"],["mocks","Mock Analytics"],["revision","Smart Revision"],["mistakes","Mistake DNA"],["profile","Pro Profile"]].map(([k,l])=>`<button class="premium-hub-tab ${premiumHubTab===k?'active':''}" data-premium-tab="${k}">${l}</button>`).join("")}</div><div class="premium-hub-body" id="premiumHubBody">${active?`<div class="pro-empty">Loading your Arena data…</div>`:proLockedHtml()}</div><div class="pro-hub-close"><button class="btn-ghost" id="premiumHubCloseBtn">Close</button></div>`;
+  overlay.classList.add("open");
+  document.getElementById("premiumHubCloseBtn").onclick=()=>overlay.classList.remove("open");
+  document.querySelectorAll("[data-premium-tab]").forEach(btn=>btn.onclick=async()=>{premiumHubTab=btn.dataset.premiumTab;document.querySelectorAll("[data-premium-tab]").forEach(x=>x.classList.toggle("active",x===btn));if(arenaProActive){const a=await loadPremiumAnalytics();renderPremiumHubTab(a);}});
+  document.getElementById("proHubUnlockBtn")?.addEventListener("click",()=>{overlay.classList.remove("open");openProPayment();});
+  if(active){const a=await loadPremiumAnalytics();renderPremiumHubTab(a);}
+}
+
+async function launchSmartRevision(){
+  if(!arenaProActive){ openProPayment(); return; }
+  const a=await loadPremiumAnalytics();
+  const weak=a?.topics?.slice().sort((x,y)=>x.accuracy-y.accuracy).filter(x=>(x.attempts||x.mockAttempts)>=1).slice(0,4) || [];
+  const topicSet=new Set(weak.map(x=>x.topic));
+  if(!topicSet.size){showToast("Answer a few questions first so Arena can build a revision set.","info");return;}
+  mtSelectedTopics=topicSet; mtSelectedDiff="any"; mtCount=Math.min(10,Math.max(5,topicSet.size*2));
+  document.getElementById("premiumHubOverlay").classList.remove("open");
+  buildMtTopicChips();
+  document.querySelectorAll("#mtDiffChips [data-diff]").forEach(x=>x.classList.toggle("active",x.dataset.diff==="any"));
+  document.getElementById("mtCountSlider").value=mtCount;
+  document.getElementById("mtCountBadge").textContent=mtCount;
+  updateMtSummary();
+  document.getElementById("mockSetupOverlay").classList.add("open");
+  showToast("Smart revision set prepared from your weakest topics.","success");
+}
+
+document.getElementById("openPremiumHubBtn")?.addEventListener("click",()=>{premiumHubTab="overview";renderPremiumHub();});
+wireProAccessCodeUI();
 
 
 /* =========================================================================

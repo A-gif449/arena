@@ -92,6 +92,28 @@ async function getSuccessfulPayments(orderId) {
   return Array.isArray(data) ? data : [];
 }
 
+async function getUserRole(uid) {
+  if (!uid) return "user";
+
+  const snap = await db().collection("users").doc(uid).get();
+
+  if (!snap.exists) return "user";
+
+  return String(snap.data()?.role || "user").trim().toLowerCase();
+}
+
+async function requireAdmin(decoded) {
+  const role = await getUserRole(decoded?.uid);
+
+  if (role !== "admin" && role !== "owner") {
+    const err = new Error("Admin access required.");
+    err.statusCode = 403;
+    throw err;
+  }
+
+  return role;
+}
+
 async function activateSubscription(orderId) {
   const firestore = db();
   const orderRef = firestore.collection("paymentOrders").doc(orderId);
@@ -165,6 +187,8 @@ export {
   normalizePhone,
   json,
   getSuccessfulPayments,
-  activateSubscription
+  activateSubscription,
+  getUserRole,
+  requireAdmin
 };
 
